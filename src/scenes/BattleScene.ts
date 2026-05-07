@@ -12,64 +12,86 @@ interface AttackEventData extends AttackResultMessage {
 
 const HEADER_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: 'monospace',
-  fontSize: '28px',
+  fontSize: '22px',
   color: '#00e5ff',
+};
+
+const SUB_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
+  fontFamily: 'monospace',
+  fontSize: '16px',
+  color: '#7ecfe0',
 };
 
 const TURN_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: 'monospace',
-  fontSize: '40px',
+  fontSize: '36px',
   color: '#ffffff',
   stroke: '#000022',
   strokeThickness: 4,
 };
 
 export class BattleScene extends Phaser.Scene {
-  private grids: [Grid | null, Grid | null] = [null, null];
+  private fleetGrids: [Grid | null, Grid | null] = [null, null];
+  private radarGrids: [Grid | null, Grid | null] = [null, null];
   private turnText!: Phaser.GameObjects.Text;
   private animManager!: AnimationManager;
   private attackResultHandler!: (data: AttackEventData) => void;
   private gameOverHandler!: (winner: PlayerSlot) => void;
   private disconnectHandler!: () => void;
+  private cellSize = 34;
+  private gridOriginX = [0, 0];
+  private gridOriginY = [0, 0];
 
   constructor() { super({ key: 'BattleScene' }); }
 
   create(): void {
     const { width, height } = this.scale;
-    const cellSize = 46;
-    const gridSize = cellSize * 10;
-    const margin = (width - gridSize * 2 - 200) / 2;
 
     this.animManager = new AnimationManager(this);
 
-    // Background
     this.add.rectangle(width / 2, height / 2, width, height, 0x050a12);
     this.drawGridLines();
 
-    // Player 1 section
-    this.grids[0] = new Grid(this, margin + 20, 160, cellSize);
-    this.add.text(margin + 20 + gridSize / 2, 120, 'PLAYER 1 — YOUR FLEET', { ...HEADER_STYLE, color: '#00e5ff' })
-      .setOrigin(0.5)
-      .setAlpha(0.8);
+    const colW = width * 0.48;
+    const gapMid = width * 0.04;
+    const leftX = (width - colW * 2 - gapMid) / 2;
+    const rightX = leftX + colW + gapMid;
+    this.cellSize = Math.max(26, Math.min(36, Math.floor((colW - 40) / 10)));
+    const gridPx = this.cellSize * 10;
+    const topY = 88;
+    const stackGap = 44;
 
-    // Player 2 section
-    this.grids[1] = new Grid(this, width - margin - gridSize - 20, 160, cellSize);
-    this.add.text(width - margin - 20 - gridSize / 2, 120, 'PLAYER 2 — YOUR FLEET', { ...HEADER_STYLE, color: '#ff6eb4' })
-      .setOrigin(0.5)
-      .setAlpha(0.8);
+    const centersX = [leftX + colW / 2, rightX + colW / 2];
+    this.gridOriginX = [centersX[0] - gridPx / 2, centersX[1] - gridPx / 2];
+    this.gridOriginY = [topY, topY];
 
-    // Center info
-    this.turnText = this.add.text(width / 2, height / 2 - 20, '', TURN_STYLE).setOrigin(0.5);
+    const pColors = ['#00e5ff', '#ff6eb4'];
 
-    this.add.text(width / 2, 50, 'BATTLE PHASE', {
+    for (let slot = 0; slot < 2; slot++) {
+      const cx = centersX[slot];
+      this.add.text(cx, 52, `PLAYER ${slot + 1}`, { ...HEADER_STYLE, color: pColors[slot] })
+        .setOrigin(0.5)
+        .setAlpha(0.95);
+
+      this.add.text(cx, topY - 26, 'YOUR FLEET', SUB_STYLE).setOrigin(0.5).setAlpha(0.75);
+      this.fleetGrids[slot] = new Grid(this, this.gridOriginX[slot], topY, this.cellSize);
+
+      const radarY = topY + gridPx + stackGap;
+      this.add.text(cx, radarY - 26, 'YOUR SHOTS', SUB_STYLE).setOrigin(0.5).setAlpha(0.75);
+      this.radarGrids[slot] = new Grid(this, this.gridOriginX[slot], radarY, this.cellSize);
+    }
+
+    this.turnText = this.add.text(width / 2, height - 36, '', TURN_STYLE).setOrigin(0.5);
+
+    this.add.text(width / 2, 22, 'BATTLE PHASE', {
       fontFamily: 'monospace',
-      fontSize: '48px',
+      fontSize: '36px',
       color: '#00e5ff',
       stroke: '#003344',
-      strokeThickness: 4,
+      strokeThickness: 3,
     }).setOrigin(0.5);
 
-    this.attackResultHandler = (data: AttackEventData) => this.onAttackResult(data, margin, cellSize);
+    this.attackResultHandler = (data: AttackEventData) => this.onAttackResult(data);
     this.gameOverHandler = (winner: PlayerSlot) => this.onGameOver(winner);
     this.disconnectHandler = () => this.onDisconnect();
 
@@ -95,8 +117,10 @@ export class BattleScene extends Phaser.Scene {
   private updateBoards(): void {
     const playerManager = this.registry.get('playerManager') as PlayerManager;
     const [p0, p1] = playerManager.getBothPlayers();
-    if (p0 && this.grids[0]) this.grids[0].updateFromBoard(p0.board.ownBoard);
-    if (p1 && this.grids[1]) this.grids[1].updateFromBoard(p1.board.ownBoard);
+    if (p0 && this.fleetGrids[0]) this.fleetGrids[0].updateFromBoard(p0.board.ownBoard);
+    if (p0 && this.radarGrids[0]) this.radarGrids[0].updateFromBoard(p0.board.attackBoard);
+    if (p1 && this.fleetGrids[1]) this.fleetGrids[1].updateFromBoard(p1.board.ownBoard);
+    if (p1 && this.radarGrids[1]) this.radarGrids[1].updateFromBoard(p1.board.attackBoard);
   }
 
   private updateTurnDisplay(): void {
@@ -110,21 +134,17 @@ export class BattleScene extends Phaser.Scene {
       .setColor(colors[turn]);
   }
 
-  private onAttackResult(data: AttackEventData, margin: number, cellSize: number): void {
-    const { width } = this.scale;
-    const gridSize = cellSize * 10;
-
+  private onAttackResult(data: AttackEventData): void {
     const targetSlot: PlayerSlot = data.attackerSlot === 0 ? 1 : 0;
-    const grid = this.grids[targetSlot];
+    const grid = this.fleetGrids[targetSlot];
     if (!grid) return;
 
-    const gridX = targetSlot === 0
-      ? margin + 20
-      : width - margin - gridSize - 20;
-    const gridY = 160;
+    const gridX = this.gridOriginX[targetSlot];
+    const gridY = this.gridOriginY[targetSlot];
+    const cs = this.cellSize;
 
-    const worldX = gridX + data.x * cellSize + cellSize / 2;
-    const worldY = gridY + data.y * cellSize + cellSize / 2;
+    const worldX = gridX + data.x * cs + cs / 2;
+    const worldY = gridY + data.y * cs + cs / 2;
 
     grid.markCell(data.x, data.y, data.hit ? (data.sunk ? 'sunk' : 'hit') : 'miss');
 
@@ -137,6 +157,10 @@ export class BattleScene extends Phaser.Scene {
 
     if (data.sunk) {
       this.animManager.playSunkEffect(worldX, worldY);
+      const label = data.sunkShipName
+        ? `⚓ ${data.sunkShipName.toUpperCase()} SUNK!`
+        : '⚓ SHIP SUNK!';
+      this.animManager.showFloatingBanner(this.scale.width / 2, this.scale.height * 0.42, label);
     }
   }
 

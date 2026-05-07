@@ -1,4 +1,4 @@
-import type { Orientation, PlayerSlot, GamePhase, Board, PlacedShip } from './GameTypes';
+import type { Orientation, PlayerSlot, GamePhase, Board, PlacedShip, ShipTallyRow } from './GameTypes';
 
 // ── Controller → Screen ──────────────────────────────────────────────────
 
@@ -33,6 +33,10 @@ export interface StateUpdateMessage {
   attackBoard: Board;
   ships: PlacedShip[];
   opponentShipsRemaining: number;
+  /** Opponent ships still afloat, grouped by class (name + length). */
+  opponentShipTally: ShipTallyRow[];
+  /** Your ships still afloat, grouped by class. */
+  ownShipTally: ShipTallyRow[];
   unplacedShipIds: string[];
 }
 
@@ -43,6 +47,8 @@ export interface AttackResultMessage {
   hit: boolean;
   sunk: boolean;
   shipId: string | null;
+  /** Set when sunk — for UI (“Carrier sunk!”). */
+  sunkShipName: string | null;
   attackerSlot: PlayerSlot;
 }
 

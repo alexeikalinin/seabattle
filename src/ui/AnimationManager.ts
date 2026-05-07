@@ -28,14 +28,54 @@ export class AnimationManager {
   }
 
   playSunkEffect(worldX: number, worldY: number): void {
-    const ring = this.scene.add.circle(worldX, worldY, 10, 0xff4444, 0.8);
+    const ring = this.scene.add.circle(worldX, worldY, 12, 0xff2200, 0.85);
+    const ring2 = this.scene.add.circle(worldX, worldY, 6, 0xffff66, 0.7);
     this.scene.tweens.add({
       targets: ring,
-      scaleX: 6, scaleY: 6,
+      scaleX: 8,
+      scaleY: 8,
       alpha: 0,
-      duration: 500,
+      duration: 650,
       ease: 'Power2',
       onComplete: () => ring.destroy(),
+    });
+    this.scene.tweens.add({
+      targets: ring2,
+      scaleX: 12,
+      scaleY: 12,
+      alpha: 0,
+      duration: 500,
+      ease: 'Cubic.easeOut',
+      onComplete: () => ring2.destroy(),
+    });
+  }
+
+  showFloatingBanner(x: number, y: number, text: string): void {
+    const banner = this.scene.add.text(x, y, text, {
+      fontFamily: 'monospace',
+      fontSize: '28px',
+      color: '#ffcc00',
+      stroke: '#440000',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setAlpha(0).setScale(0.6);
+
+    this.scene.tweens.add({
+      targets: banner,
+      alpha: 1,
+      scaleX: 1,
+      scaleY: 1,
+      duration: 220,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        this.scene.tweens.add({
+          targets: banner,
+          alpha: 0,
+          y: y - 28,
+          duration: 900,
+          delay: 520,
+          onComplete: () => banner.destroy(),
+        });
+      },
     });
   }
 

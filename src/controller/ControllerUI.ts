@@ -2,6 +2,7 @@ import '@/types/AirConsoleTypes';
 import type { ScreenMessage, StateUpdateMessage, AttackResultMessage, GameOverMessage } from '@/types/Messages';
 import type { PlayerSlot, Board, CellState } from '@/types/GameTypes';
 import { GRID_SIZE } from '@/types/GameTypes';
+import { formatShipTally } from '@/utils/fleetTally';
 
 type ViewId = 'lobby' | 'placement' | 'battle-turn' | 'battle-wait' | 'result';
 
@@ -60,19 +61,19 @@ export class ControllerUI {
   }
 
   private onAttackResult(msg: AttackResultMessage): void {
+    if (msg.sunk) {
+      const toast = document.getElementById('global-toast');
+      if (toast) {
+        const name = msg.sunkShipName ? `${msg.sunkShipName} ` : '';
+        toast.textContent = `⚓ ${name}ПОТОПЛЕН!`;
+        toast.classList.add('visible');
+        window.setTimeout(() => toast.classList.remove('visible'), 3200);
+      }
+    }
+
     if (msg.hit) {
       document.body.classList.add('hit-flash');
       setTimeout(() => document.body.classList.remove('hit-flash'), 400);
-    }
-
-    // Refresh attack grid if it's now our turn (state update follows)
-    if (this.lastState) {
-      const updatedAttackBoard = this.lastState.attackBoard.map(row => [...row]);
-      updatedAttackBoard[msg.y][msg.x] = {
-        state: msg.hit ? (msg.sunk ? 'sunk' : 'hit') : 'miss',
-        shipId: msg.shipId,
-      };
-      this.updateGrid('attack-grid', updatedAttackBoard, false);
     }
   }
 
@@ -140,15 +141,30 @@ export class ControllerUI {
 
   private renderBattleTurn(msg: StateUpdateMessage): void {
     qs('#ships-left').textContent = String(msg.opponentShipsRemaining);
+    this.updateGrid('own-battle-grid', msg.ownBoard, true);
     this.updateGrid('attack-grid', msg.attackBoard, false);
+    this.renderFleetTally('fleet-tally-turn', msg);
   }
 
   private renderBattleWait(msg: StateUpdateMessage): void {
     qs('#wait-ships-left').textContent = String(msg.opponentShipsRemaining);
+    this.updateGrid('own-wait-grid', msg.ownBoard, true);
+    this.updateGrid('attack-wait-grid', msg.attackBoard, false);
+    this.renderFleetTally('fleet-tally-wait', msg);
+  }
+
+  private renderFleetTally(elementId: string, msg: StateUpdateMessage): void {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const opp = formatShipTally(msg.opponentShipTally);
+    const own = formatShipTally(msg.ownShipTally);
+    el.innerHTML =
+      `<div class="tally-line"><span class="tally-tag">Враг</span> ${opp}</div>` +
+      `<div class="tally-line"><span class="tally-tag">Вы</span> ${own}</div>`;
   }
 
   private renderResult(didWin: boolean): void {
-    const banner = qs('#result-banner');
+    const banner = qs('#result-banner') as HTMLElement;
     banner.className = `status-banner ${didWin ? 'win' : 'lose'}`;
     banner.textContent = didWin ? '🏆 VICTORY!' : '💥 DEFEAT';
     qs('#result-subtitle').textContent = didWin
@@ -250,6 +266,7 @@ export class ControllerUI {
     const root = document.getElementById('controller-root')!;
     root.innerHTML = `
       <div id="player-badge"></div>
+      <div id="global-toast" class="global-toast" role="status" aria-live="polite"></div>
 
       <!-- LOBBY -->
       <div id="view-lobby" class="view">
@@ -298,22 +315,42 @@ export class ControllerUI {
       </div>
 
       <!-- BATTLE — YOUR TURN -->
-      <div id="view-battle-turn" class="view">
+      <div id="view-battle-turn" class="view view-battle">
         <div class="status-banner your-turn pulse" style="margin-top:16px">⚡ YOUR TURN — FIRE!</div>
-        <div class="ships-counter">Enemy ships: <strong id="ships-left">?</strong></div>
-
-        <div class="card" style="padding:12px">
-          <div class="section-label">Enemy Waters — Tap to Attack</div>
-          <div class="grid-header">${colLabels}</div>
-          <div id="attack-grid" class="grid"></div>
+        <div class="ships-counter">Кораблей у врага (шт.): <strong id="ships-left">?</strong></div>
+        <div id="fleet-tally-turn" class="fleet-tally"></div>
+        <div class="battle-grids">
+          <div class="card card-battle">
+            <div class="section-label">Ваш флот</div>
+            <div class="grid-header battle-h">${colLabels}</div>
+            <div id="own-battle-grid" class="grid grid--compact"></div>
+          </div>
+          <div class="card card-battle">
+            <div class="section-label">Вражеские воды — тап для выстрела</div>
+            <div class="grid-header battle-h">${colLabels}</div>
+            <div id="attack-grid" class="grid grid--compact"></div>
+          </div>
         </div>
       </div>
 
       <!-- BATTLE — WAITING -->
-      <div id="view-battle-wait" class="view">
-        <div class="status-banner waiting pulse" style="margin-top:16px">⏳ OPPONENT'S TURN</div>
-        <div class="ships-counter">Enemy ships: <strong id="wait-ships-left">?</strong></div>
-        <p style="font-size:.78rem;color:var(--text-dim);text-align:center">Waiting for opponent...</p>
+      <div id="view-battle-wait" class="view view-battle">
+        <div class="status-banner waiting pulse" style="margin-top:16px">⏳ ХОД СОПЕРНИКА</div>
+        <div class="ships-counter">Кораблей у врага (шт.): <strong id="wait-ships-left">?</strong></div>
+        <div id="fleet-tally-wait" class="fleet-tally"></div>
+        <div class="battle-grids">
+          <div class="card card-battle">
+            <div class="section-label">Ваш флот</div>
+            <div class="grid-header battle-h">${colLabels}</div>
+            <div id="own-wait-grid" class="grid grid--compact"></div>
+          </div>
+          <div class="card card-battle">
+            <div class="section-label">Ваши попадания</div>
+            <div class="grid-header battle-h">${colLabels}</div>
+            <div id="attack-wait-grid" class="grid grid--compact"></div>
+          </div>
+        </div>
+        <p style="font-size:.78rem;color:var(--text-dim);text-align:center">Ожидание хода соперника…</p>
       </div>
 
       <!-- RESULT -->
@@ -326,7 +363,10 @@ export class ControllerUI {
     `;
 
     this.buildGrid('placement-grid', (col, row) => this.onPlacementTap(col, row));
+    this.buildGrid('own-battle-grid');
     this.buildGrid('attack-grid', (col, row) => this.onAttackTap(col, row));
+    this.buildGrid('own-wait-grid');
+    this.buildGrid('attack-wait-grid');
 
     qs('#ready-btn').addEventListener('click', () => {
       this.ac.message(this.ac.SCREEN, { type: 'READY' });

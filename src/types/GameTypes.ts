@@ -25,6 +25,13 @@ export interface BoardCell {
 
 export type Board = BoardCell[][];
 
+/** Remaining ships grouped for HUD (battle). */
+export interface ShipTallyRow {
+  length: number;
+  count: number;
+  label: string;
+}
+
 export interface PlayerBoard {
   ownBoard: Board;
   attackBoard: Board;

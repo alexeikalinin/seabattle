@@ -7,6 +7,7 @@ import { GameState } from '@/state/GameState';
 import { ShipPlacer } from './ShipPlacer';
 import { BattleEngine } from './BattleEngine';
 import { TurnManager } from './TurnManager';
+import { shipTallyAlive } from '@/utils/fleetTally';
 import { randomSlot, createEmptyBoard } from '@/utils/helpers';
 import type { PlaceShipAction, RotateShipAction, AttackCellAction } from '@/types/Messages';
 import type { PlayerSlot } from '@/types/GameTypes';
@@ -188,6 +189,12 @@ export class GameManager {
       };
     }
 
+    let sunkShipName: string | null = null;
+    if (result.sunk && result.shipId) {
+      const sunk = result.updatedShips.find(s => s.definition.id === result.shipId);
+      sunkShipName = sunk?.definition.name ?? null;
+    }
+
     const attackMsg = {
       type: 'ATTACK_RESULT' as const,
       x: action.x,
@@ -195,6 +202,7 @@ export class GameManager {
       hit: result.hit,
       sunk: result.sunk,
       shipId: result.shipId,
+      sunkShipName,
       attackerSlot: attacker.slot,
     };
 
@@ -280,6 +288,9 @@ export class GameManager {
       .filter(s => s.x < 0)
       .map(s => s.definition.id);
 
+    const opponentShipTally = defender ? shipTallyAlive(defender.board.ships) : [];
+    const ownShipTally = shipTallyAlive(player.board.ships);
+
     this.adapter.sendToController(deviceId, {
       type: 'STATE_UPDATE',
       phase: this.gameState.phase,
@@ -289,6 +300,8 @@ export class GameManager {
       attackBoard: player.board.attackBoard,
       ships: player.board.ships,
       opponentShipsRemaining,
+      opponentShipTally,
+      ownShipTally,
       unplacedShipIds,
     });
   }

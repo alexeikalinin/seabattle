@@ -56,7 +56,14 @@ export class Grid extends Phaser.GameObjects.Container {
   updateFromBoard(board: Board): void {
     for (let row = 0; row < GRID_SIZE; row++) {
       for (let col = 0; col < GRID_SIZE; col++) {
-        this.cells[row][col].setFillStyle(CELL_COLORS[board[row][col].state]);
+        const rect = this.cells[row][col];
+        const state = board[row][col].state;
+        rect.setFillStyle(CELL_COLORS[state]);
+        if (state === 'sunk') {
+          rect.setStrokeStyle(2.5, 0xffffff, 0.9);
+        } else {
+          rect.setStrokeStyle(1, 0x00e5ff, 0.35);
+        }
       }
     }
   }
@@ -66,11 +73,18 @@ export class Grid extends Phaser.GameObjects.Container {
     if (!cell) return;
     this.scene.tweens.add({
       targets: cell,
-      scaleX: 1.4,
-      scaleY: 1.4,
-      duration: 80,
+      scaleX: 1.45,
+      scaleY: 1.45,
+      duration: 90,
       yoyo: true,
-      onComplete: () => cell.setFillStyle(CELL_COLORS[state]),
+      onComplete: () => {
+        cell.setFillStyle(CELL_COLORS[state]);
+        if (state === 'sunk') {
+          cell.setStrokeStyle(2.5, 0xffffff, 0.9);
+        } else {
+          cell.setStrokeStyle(1, 0x00e5ff, 0.35);
+        }
+      },
     });
   }
 

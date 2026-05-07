@@ -353,6 +353,10 @@ html, body {
   border-color: var(--border-hi);
   z-index: 1;
 }
+.grid-cell.sunk {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
+  filter: brightness(1.08);
+}
 .grid-cell.hit    { background: var(--hit); border-color: rgba(255,80,80,0.6); cursor: not-allowed; }
 .grid-cell.miss   { background: var(--miss); border-color: rgba(20,60,100,0.2); cursor: not-allowed; }
 .grid-cell.sunk   { background: var(--sunk); border-color: rgba(200,50,50,0.5); cursor: not-allowed; }
@@ -426,3 +430,87 @@ html, body {
   100% { background: var(--bg); }
 }
 .hit-flash { animation: hit-flash 0.5s ease-out; }
+
+/* ── Battle: two grids + tallies ───────────────────────────────────── */
+.view-battle {
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.global-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  transform: translateX(-50%) translateY(160%);
+  z-index: 300;
+  max-width: min(92vw, 400px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+  color: #ffe8a8;
+  background: rgba(80, 30, 10, 0.92);
+  border: 1.5px solid rgba(255, 200, 100, 0.55);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
+  opacity: 0;
+}
+.global-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.fleet-tally {
+  width: 100%;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(0, 20, 40, 0.35);
+  border: 1px solid rgba(90, 200, 250, 0.12);
+}
+.fleet-tally .tally-line + .tally-line { margin-top: 4px; }
+.fleet-tally .tally-tag {
+  display: inline-block;
+  min-width: 44px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(90, 200, 250, 0.55);
+  font-size: 0.6rem;
+}
+
+.battle-grids {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 560px) {
+  .battle-grids {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .battle-grids .card-battle {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+}
+
+.card-battle {
+  padding: 10px 12px;
+}
+
+.card-battle .grid-header,
+.card-battle .grid.grid--compact {
+  --grid-w: min(100%, min(300px, calc(100vw - 56px)));
+}
+
+@media (min-width: 560px) {
+  .card-battle .grid-header,
+  .card-battle .grid.grid--compact {
+    --grid-w: min(100%, min(360px, calc(50vw - 44px)));
+  }
+}
