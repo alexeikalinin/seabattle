@@ -9,6 +9,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
+        index: fileURLToPath(new URL('./index.html', import.meta.url)),
         screen: fileURLToPath(new URL('./screen.html', import.meta.url)),
         controller: fileURLToPath(new URL('./controller.html', import.meta.url)),
         simulator: fileURLToPath(new URL('./simulator.html', import.meta.url)),
