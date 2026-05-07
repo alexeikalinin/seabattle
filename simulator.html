@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Battleship Duel — Simulator</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100vh; overflow: hidden; background: #050a12; color: #c8e0f0; font-family: 'Segoe UI', system-ui, sans-serif; display: flex; flex-direction: column; }
+
+/* ── Toolbar ─── */
+#tb { display: flex; align-items: center; gap: 10px; padding: 0 14px; height: 38px; background: #0d1f2e; border-bottom: 1px solid rgba(0,229,255,.2); flex-shrink: 0; }
+#tb h1 { font-size: 12px; font-weight: 800; color: #00e5ff; letter-spacing: .06em; }
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 700; background: rgba(255,170,0,.15); color: #ffaa00; border: 1px solid rgba(255,170,0,.3); }
+.tbtn { padding: 4px 11px; border-radius: 6px; border: 1px solid rgba(0,229,255,.3); background: rgba(0,229,255,.08); color: #00e5ff; font-size: 11px; font-weight: 700; cursor: pointer; }
+.tbtn:hover { background: rgba(0,229,255,.18); }
+.tbtn.red { border-color: rgba(255,68,68,.4); color: #ff6666; background: rgba(255,68,68,.08); }
+.tbtn.red:hover { background: rgba(255,68,68,.18); }
+#st-wrap { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: #446680; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #222; flex-shrink: 0; }
+.dot.on { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+
+/* ── Main layout ─── */
+#main { flex: 1; display: flex; min-height: 0; }
+
+/* ── Screen panel ─── */
+#sp { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.ph { padding: 3px 12px; font-size: 10px; font-weight: 800; letter-spacing: .08em; background: #0d1f2e; border-bottom: 1px solid rgba(0,229,255,.12); color: #446680; flex-shrink: 0; }
+#sf { flex: 1; border: none; display: block; width: 100%; height: 100%; min-height: 0; }
+
+/* ── Controllers panel ─── */
+#cp { width: 400px; display: flex; flex-direction: column; border-left: 1px solid rgba(0,229,255,.1); flex-shrink: 0; }
+.slots { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.slot { flex: 1; display: flex; flex-direction: column; min-height: 0; border-bottom: 1px solid rgba(0,229,255,.06); }
+.sh { display: flex; align-items: center; justify-content: space-between; padding: 3px 10px; font-size: 10px; font-weight: 800; background: #0d1a26; flex-shrink: 0; }
+.p1c { color: #00e5ff; } .p2c { color: #ff6eb4; }
+.sst { font-size: 9px; }
+.sst.on { color: #00ff88; }
+.fw { flex: 1; background: #050a10; overflow: hidden; display: flex; align-items: flex-start; justify-content: center; min-height: 0; }
+.cf { width: 390px; height: 100%; border: none; display: block; }
+
+/* ── Log ─── */
+#lp { height: 120px; background: #020507; border-top: 1px solid rgba(0,229,255,.1); display: flex; flex-direction: column; flex-shrink: 0; }
+#lh { display: flex; align-items: center; justify-content: space-between; padding: 2px 10px; font-size: 10px; font-weight: 800; color: #446680; background: #0d1f2e; border-bottom: 1px solid rgba(0,229,255,.08); }
+#lo { flex: 1; overflow-y: auto; padding: 2px 8px; font-family: monospace; font-size: 10px; line-height: 1.7; }
+.le { display: flex; gap: 8px; }
+.lt { color: #222; min-width: 52px; }
+.lm { min-width: 90px; font-weight: 700; }
+.ld { color: #88a0b0; word-break: break-all; }
+.lc .lm { color: #00ff88; } .ldc .lm { color: #ff6666; }
+.lout .lm { color: #00e5ff; } .lin .lm { color: #ffaa00; }
+.lerr .lm { color: #ff4444; } .li .lm { color: #445566; }
+</style>
+</head>
+<body>
+
+<div id="tb">
+  <h1>⚓ BATTLESHIP DUEL</h1>
+  <span class="badge">SIMULATOR</span>
+  <button class="tbtn" id="btn-p1" onclick="connectCtrl(1)">+ Connect P1</button>
+  <button class="tbtn" id="btn-p2" onclick="connectCtrl(2)">+ Connect P2</button>
+  <button class="tbtn red" onclick="disconnectCtrl(1)">⊗ P1</button>
+  <button class="tbtn red" onclick="disconnectCtrl(2)">⊗ P2</button>
+  <button class="tbtn" onclick="reloadAll()" style="margin-left:6px">↺ Reload</button>
+  <div id="st-wrap"><div class="dot" id="dot"></div><span id="st">Waiting...</span></div>
+</div>
+
+<div id="main">
+  <div id="sp">
+    <div class="ph">📺 SCREEN — screen.html</div>
+    <iframe id="sf" src="./screen.html" allow="autoplay" scrolling="no"></iframe>
+  </div>
+  <div id="cp">
+    <div class="ph">📱 CONTROLLERS</div>
+    <div class="slots">
+      <div class="slot">
+        <div class="sh"><span class="p1c">PLAYER 1 · device #1</span><span class="sst" id="s1">disconnected</span></div>
+        <div class="fw"><iframe class="cf" id="cf1" src="about:blank" scrolling="no"></iframe></div>
+      </div>
+      <div class="slot">
+        <div class="sh"><span class="p2c">PLAYER 2 · device #2</span><span class="sst" id="s2">disconnected</span></div>
+        <div class="fw"><iframe class="cf" id="cf2" src="about:blank" scrolling="no"></iframe></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lp">
+  <div id="lh">🖥 MESSAGES <span style="cursor:pointer;color:#ff6666;font-size:9px" onclick="clearLog()">CLEAR</span></div>
+  <div id="lo"></div>
+</div>
+
+<script>
+/**
+ * AirConsole Local Simulator
+ *
+ * PROTOCOL (all lowercase):
+ *   frame → simulator: { action:"ready", location, version, ... }
+ *   simulator → frame: { action:"ready", device_id:N, devices:[...], code }
+ *
+ *   frame → simulator: { action:"message", to:N, data:{...} }
+ *   simulator → frame: { action:"message", from:N, to:N, data:{...} }
+ *
+ *   simulator → screen: { action:"update", device_id:N, device_data:{location,...} }
+ *   (triggers onConnect when location matches game URL)
+ *
+ * KEY FIX: We respond to the SDK's "ready" message immediately instead of
+ * using a timeout, ensuring device_id is set before the SDK's onReady fires.
+ */
+
+const ORIGIN  = location.origin;
+const SCREEN_LOC = ORIGIN + '/screen.html';
+const CTRL_LOC   = ORIGIN + '/controller.html';
+const SID = 0; // screen device_id
+
+const sf  = document.getElementById('sf');
+const cf1 = document.getElementById('cf1');
+const cf2 = document.getElementById('cf2');
+const frames = { 0: sf, 1: cf1, 2: cf2 };
+
+// Per-device state
+const ds = {
+  0: { ready: false, loc: SCREEN_LOC, nick: 'Screen' },
+  1: { ready: false, loc: null,        nick: 'Player 1' },
+  2: { ready: false, loc: null,        nick: 'Player 2' },
+};
+
+function deviceData(id) {
+  if (!ds[id] || !ds[id].loc) return null;
+  return { location: ds[id].loc, nickname: ds[id].nick, uid: 'uid' + id, client: {}, custom: null };
+}
+
+function buildDevices() {
+  return [deviceData(0), deviceData(1), deviceData(2)];
+}
+
+function post(frame, msg) {
+  try { frame.contentWindow && frame.contentWindow.postMessage(msg, '*'); }
+  catch(e) { log('lerr', 'SIM', 'postMessage: ' + e.message); }
+}
+
+function fromId(win) {
+  for (var id in frames) {
+    try { if (frames[id].contentWindow === win) return Number(id); } catch(e) {}
+  }
+  return -1;
+}
+
+// ── Handle all messages from frames ──────────────────────────────────
+window.addEventListener('message', function(ev) {
+  var msg = ev.data;
+  if (!msg || typeof msg !== 'object' || !msg.action) return;
+  if (msg.action === 'performance_data') return;
+
+  var from = fromId(ev.source);
+  if (from === -1) return;
+
+  if (msg.action === 'ready') {
+    // SDK just initialized — respond immediately with READY + device_id
+    ds[from].ready = true;
+    if (from !== SID) {
+      ds[from].loc = CTRL_LOC; // controller is now "at" its URL
+    }
+    var readyMsg = { action: 'ready', device_id: from, devices: buildDevices(), code: 'DEMO', server_time_offset: 0 };
+    post(frames[from], readyMsg);
+    log('lc', 'SIM→' + (from===SID?'Screen':'P'+from), 'sent ready (dev=' + from + ')');
+
+    // If a controller just initialized, notify the screen via "update"
+    if (from !== SID && ds[SID].ready) {
+      post(sf, { action: 'update', device_id: from, device_data: deviceData(from) });
+      log('lc', 'SIM→Screen', 'update: P' + from + ' connected');
+      setStatus(from, 'on');
+    }
+    updateUI();
+    return;
+  }
+
+  if (msg.action === 'message') {
+    var data = msg.data;
+    var dataStr = trunc(JSON.stringify(data));
+    if (from === SID) {
+      // Screen → controller(s)
+      var to = msg.to;
+      if (to === undefined || to === null) {
+        [1, 2].forEach(function(d) {
+          if (ds[d].ready) post(frames[d], { action: 'message', from: SID, to: d, data: data });
+        });
+        log('lout', 'Screen→ALL', dataStr);
+      } else {
+        if (ds[to] && ds[to].ready) post(frames[to], { action: 'message', from: SID, to: to, data: data });
+        log('lout', 'Screen→P' + to, dataStr);
+      }
+    } else {
+      // Controller → screen
+      if (ds[SID].ready) post(sf, { action: 'message', from: from, to: SID, data: data });
+      log('lin', 'P' + from + '→Screen', dataStr);
+    }
+    return;
+  }
+
+  if (msg.action === 'set') {
+    if (msg.key === 'players' && ds[SID].ready) {
+      // Propagate setActivePlayers to controllers
+      var upd = Object.assign({}, deviceData(SID), { players: msg.value, _is_players_update: true });
+      [1, 2].forEach(function(d) {
+        if (ds[d].ready) post(frames[d], { action: 'update', device_id: SID, device_data: upd });
+      });
+    }
+    return;
+  }
+});
+
+// ── Connect / Disconnect ──────────────────────────────────────────────
+window.connectCtrl = function(did) {
+  if (ds[did].ready) { log('li', 'SIM', 'P' + did + ' already connected'); return; }
+  ds[did].loc = null;
+  ds[did].ready = false;
+  // Loading the src triggers the load event, SDK loads, sends "ready" → we respond
+  frames[did].src = './controller.html';
+  log('li', 'SIM', 'Loading controller #' + did + '...');
+  setStatus(did, 'loading');
+};
+
+window.disconnectCtrl = function(did) {
+  if (!ds[did].ready) return;
+
+  // Notify screen: location → null → triggers onDisconnect
+  if (ds[SID].ready) {
+    post(sf, { action: 'update', device_id: did, device_data: { location: '', nickname: ds[did].nick, uid: 'uid'+did, client: {}, custom: null } });
+    log('ldc', 'SIM→Screen', 'update: P' + did + ' disconnected');
+  }
+  ds[did].ready = false;
+  ds[did].loc = null;
+  frames[did].src = 'about:blank';
+  setStatus(did, 'off');
+  updateUI();
+};
+
+window.reloadAll = function() {
+  [1, 2].forEach(function(d) { ds[d].ready = false; ds[d].loc = null; frames[d].src = 'about:blank'; setStatus(d, 'off'); });
+  ds[SID].ready = false;
+  sf.src = './screen.html';
+  clearLog();
+  log('li', 'SIM', 'Reloading...');
+  updateUI();
+};
+
+// ── UI helpers ────────────────────────────────────────────────────────
+function setStatus(did, state) {
+  var el = document.getElementById('s' + did);
+  if (!el) return;
+  if (state === 'on') { el.textContent = '● connected'; el.className = 'sst on'; }
+  else if (state === 'loading') { el.textContent = '… loading'; el.className = 'sst'; el.style.color = '#ffaa00'; }
+  else { el.textContent = 'disconnected'; el.className = 'sst'; el.style.color = '#333'; }
+}
+
+function updateUI() {
+  var n = [ds[1].ready, ds[2].ready].filter(Boolean).length;
+  document.getElementById('dot').className = 'dot' + (n ? ' on' : '');
+  document.getElementById('st').textContent = n === 0
+    ? 'Click "+ Connect P1" to start'
+    : n + '/2 controllers connected';
+}
+
+function log(cls, mod, msg) {
+  var el = document.getElementById('lo');
+  var now = new Date();
+  var t = pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + '.' + String(now.getMilliseconds()).padStart(3,'0');
+  var d = document.createElement('div');
+  d.className = 'le ' + cls;
+  d.innerHTML = '<span class="lt">' + t + '</span><span class="lm">' + mod + '</span><span class="ld">' + msg + '</span>';
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+  while (el.children.length > 300) el.removeChild(el.firstChild);
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+function trunc(s) { return s.length > 90 ? s.slice(0,87)+'…' : s; }
+window.clearLog = function() { document.getElementById('lo').innerHTML = ''; };
+
+updateUI();
+log('li', 'SIM', 'Ready. Click "+ Connect P1" then "+ Connect P2"');
+</script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" style="stop-color:#0d1f3c"/>
+      <stop offset="100%" style="stop-color:#020810"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00d4ff"/>
+      <stop offset="50%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+    <linearGradient id="p1Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a3a6e"/>
+      <stop offset="100%" style="stop-color:#0d1f3c"/>
+    </linearGradient>
+    <linearGradient id="p2Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3a1a1a"/>
+      <stop offset="100%" style="stop-color:#1a0a0a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- Subtle grid background -->
+  <g opacity="0.05" stroke="#00d4ff" stroke-width="1">
+    <line x1="0" y1="72" x2="1280" y2="72"/>
+    <line x1="0" y1="144" x2="1280" y2="144"/>
+    <line x1="0" y1="216" x2="1280" y2="216"/>
+    <line x1="0" y1="288" x2="1280" y2="288"/>
+    <line x1="0" y1="360" x2="1280" y2="360"/>
+    <line x1="0" y1="432" x2="1280" y2="432"/>
+    <line x1="0" y1="504" x2="1280" y2="504"/>
+    <line x1="0" y1="576" x2="1280" y2="576"/>
+    <line x1="0" y1="648" x2="1280" y2="648"/>
+    <line x1="128" y1="0" x2="128" y2="720"/>
+    <line x1="256" y1="0" x2="256" y2="720"/>
+    <line x1="384" y1="0" x2="384" y2="720"/>
+    <line x1="512" y1="0" x2="512" y2="720"/>
+    <line x1="640" y1="0" x2="640" y2="720"/>
+    <line x1="768" y1="0" x2="768" y2="720"/>
+    <line x1="896" y1="0" x2="896" y2="720"/>
+    <line x1="1024" y1="0" x2="1024" y2="720"/>
+    <line x1="1152" y1="0" x2="1152" y2="720"/>
+  </g>
+
+  <!-- ===== TOP BAR ===== -->
+  <rect x="0" y="0" width="1280" height="64" fill="#020810" opacity="0.8"/>
+  <line x1="0" y1="64" x2="1280" y2="64" stroke="#00d4ff" stroke-width="1" opacity="0.4"/>
+
+  <!-- Title -->
+  <text x="640" y="44" text-anchor="middle" font-family="'Arial Black', Arial, sans-serif"
+        font-size="32" font-weight="900" letter-spacing="6"
+        fill="url(#titleGrad)" filter="url(#glow)">BATTLESHIP DUEL</text>
+
+  <!-- Turn indicator -->
+  <rect x="490" y="74" width="300" height="40" rx="20" fill="#00d4ff" opacity="0.15"/>
+  <rect x="490" y="74" width="300" height="40" rx="20" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.8"/>
+  <text x="640" y="100" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="16" font-weight="bold" letter-spacing="4" fill="#00d4ff" filter="url(#softGlow)">PLAYER 1'S TURN</text>
+
+  <!-- ===== PLAYER 1 PANEL (left) ===== -->
+  <rect x="40" y="130" width="540" height="540" rx="12" fill="url(#p1Grad)" opacity="0.9"/>
+  <rect x="40" y="130" width="540" height="540" rx="12" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+
+  <!-- P1 label -->
+  <text x="310" y="165" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="18" font-weight="bold" letter-spacing="3" fill="#00d4ff" opacity="0.9">PLAYER 1</text>
+  <text x="310" y="184" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="11" letter-spacing="2" fill="#4488ff" opacity="0.6">YOUR FLEET</text>
+
+  <!-- P1 Grid (10x10) -->
+  <!-- Grid cells: start x=60, y=200, cell size=46 -->
+  <g id="p1-grid">
+    <!-- Column headers -->
+    <text x="83" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">A</text>
+    <text x="129" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">B</text>
+    <text x="175" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">C</text>
+    <text x="221" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">D</text>
+    <text x="267" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">E</text>
+    <text x="313" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">F</text>
+    <text x="359" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">G</text>
+    <text x="405" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">H</text>
+    <text x="451" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">I</text>
+    <text x="497" y="200" text-anchor="middle" font-family="Arial" font-size="11" fill="#4488ff" opacity="0.5">J</text>
+
+    <!-- Grid background -->
+    <rect x="62" y="205" width="460" height="460" rx="4" fill="#0a1628" opacity="0.6"/>
+
+    <!-- Grid lines -->
+    <g stroke="#1a3a6e" stroke-width="1" opacity="0.8">
+      <line x1="62" y1="205" x2="62" y2="665"/><line x1="108" y1="205" x2="108" y2="665"/>
+      <line x1="154" y1="205" x2="154" y2="665"/><line x1="200" y1="205" x2="200" y2="665"/>
+      <line x1="246" y1="205" x2="246" y2="665"/><line x1="292" y1="205" x2="292" y2="665"/>
+      <line x1="338" y1="205" x2="338" y2="665"/><line x1="384" y1="205" x2="384" y2="665"/>
+      <line x1="430" y1="205" x2="430" y2="665"/><line x1="476" y1="205" x2="476" y2="665"/>
+      <line x1="522" y1="205" x2="522" y2="665"/>
+      <line x1="62" y1="205" x2="522" y2="205"/><line x1="62" y1="251" x2="522" y2="251"/>
+      <line x1="62" y1="297" x2="522" y2="297"/><line x1="62" y1="343" x2="522" y2="343"/>
+      <line x1="62" y1="389" x2="522" y2="389"/><line x1="62" y1="435" x2="522" y2="435"/>
+      <line x1="62" y1="481" x2="522" y2="481"/><line x1="62" y1="527" x2="522" y2="527"/>
+      <line x1="62" y1="573" x2="522" y2="573"/><line x1="62" y1="619" x2="522" y2="619"/>
+      <line x1="62" y1="665" x2="522" y2="665"/>
+    </g>
+
+    <!-- Ships on P1 board -->
+    <!-- Carrier 4 cells horizontal row 1 col B-E -->
+    <rect x="108" y="205" width="184" height="46" fill="#00d4ff" opacity="0.2"/>
+    <rect x="108" y="205" width="184" height="46" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.8"/>
+    <!-- Battleship 3 cells row 3 col D-F -->
+    <rect x="200" y="297" width="138" height="46" fill="#00d4ff" opacity="0.18"/>
+    <rect x="200" y="297" width="138" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.7"/>
+    <!-- Destroyer 2 cells row 5 col A-B -->
+    <rect x="62" y="389" width="92" height="46" fill="#00d4ff" opacity="0.15"/>
+    <rect x="62" y="389" width="92" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+    <!-- Sub 2 cells row 7 col H-I -->
+    <rect x="384" y="481" width="92" height="46" fill="#00d4ff" opacity="0.15"/>
+    <rect x="384" y="481" width="92" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+    <!-- Patrol 1 cell row 9 col J -->
+    <rect x="476" y="573" width="46" height="46" fill="#00d4ff" opacity="0.15"/>
+    <rect x="476" y="573" width="46" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+
+    <!-- Miss markers on P1 board -->
+    <circle cx="292" cy="228" r="8" fill="none" stroke="#4488ff" stroke-width="2" opacity="0.6"/>
+    <circle cx="430" cy="274" r="8" fill="none" stroke="#4488ff" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- ===== VS divider ===== -->
+  <text x="640" y="430" text-anchor="middle" font-family="'Arial Black', Arial, sans-serif"
+        font-size="28" font-weight="900" fill="#ffffff" opacity="0.3">VS</text>
+  <line x1="620" y1="380" x2="620" y2="480" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+  <line x1="660" y1="380" x2="660" y2="480" stroke="#ffffff" stroke-width="1" opacity="0.2"/>
+
+  <!-- ===== PLAYER 2 PANEL (right) ===== -->
+  <rect x="700" y="130" width="540" height="540" rx="12" fill="url(#p2Grad)" opacity="0.9"/>
+  <rect x="700" y="130" width="540" height="540" rx="12" fill="none" stroke="#ff4060" stroke-width="2" opacity="0.5"/>
+
+  <!-- P2 label -->
+  <text x="970" y="165" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="18" font-weight="bold" letter-spacing="3" fill="#ff6080" opacity="0.9">PLAYER 2</text>
+  <text x="970" y="184" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="11" letter-spacing="2" fill="#ff4060" opacity="0.6">ENEMY WATERS</text>
+
+  <!-- P2 Grid -->
+  <rect x="722" y="205" width="460" height="460" rx="4" fill="#1a0a0a" opacity="0.6"/>
+
+  <!-- Grid lines P2 -->
+  <g stroke="#3a1a1a" stroke-width="1" opacity="0.8">
+    <line x1="722" y1="205" x2="722" y2="665"/><line x1="768" y1="205" x2="768" y2="665"/>
+    <line x1="814" y1="205" x2="814" y2="665"/><line x1="860" y1="205" x2="860" y2="665"/>
+    <line x1="906" y1="205" x2="906" y2="665"/><line x1="952" y1="205" x2="952" y2="665"/>
+    <line x1="998" y1="205" x2="998" y2="665"/><line x1="1044" y1="205" x2="1044" y2="665"/>
+    <line x1="1090" y1="205" x2="1090" y2="665"/><line x1="1136" y1="205" x2="1136" y2="665"/>
+    <line x1="1182" y1="205" x2="1182" y2="665"/>
+    <line x1="722" y1="205" x2="1182" y2="205"/><line x1="722" y1="251" x2="1182" y2="251"/>
+    <line x1="722" y1="297" x2="1182" y2="297"/><line x1="722" y1="343" x2="1182" y2="343"/>
+    <line x1="722" y1="389" x2="1182" y2="389"/><line x1="722" y1="435" x2="1182" y2="435"/>
+    <line x1="722" y1="481" x2="1182" y2="481"/><line x1="722" y1="527" x2="1182" y2="527"/>
+    <line x1="722" y1="573" x2="1182" y2="573"/><line x1="722" y1="619" x2="1182" y2="619"/>
+    <line x1="722" y1="665" x2="1182" y2="665"/>
+  </g>
+
+  <!-- Hit markers on P2 board (P1 is attacking) -->
+  <!-- HIT - red X -->
+  <rect x="860" y="251" width="46" height="46" fill="#ff2040" opacity="0.3"/>
+  <line x1="866" y1="257" x2="900" y2="291" stroke="#ff2040" stroke-width="3"/>
+  <line x1="900" y1="257" x2="866" y2="291" stroke="#ff2040" stroke-width="3"/>
+  <circle cx="883" cy="274" r="4" fill="#ff6000" filter="url(#glow)" opacity="0.9"/>
+
+  <rect x="906" y="251" width="46" height="46" fill="#ff2040" opacity="0.3"/>
+  <line x1="912" y1="257" x2="946" y2="291" stroke="#ff2040" stroke-width="3"/>
+  <line x1="946" y1="257" x2="912" y2="291" stroke="#ff2040" stroke-width="3"/>
+
+  <!-- MISS markers - circles -->
+  <circle cx="745" cy="228" r="10" fill="none" stroke="#4466aa" stroke-width="2" opacity="0.7"/>
+  <circle cx="791" cy="320" r="10" fill="none" stroke="#4466aa" stroke-width="2" opacity="0.7"/>
+  <circle cx="1021" cy="366" r="10" fill="none" stroke="#4466aa" stroke-width="2" opacity="0.7"/>
+  <circle cx="929" cy="435" r="10" fill="none" stroke="#4466aa" stroke-width="2" opacity="0.7"/>
+  <circle cx="1067" cy="504" r="10" fill="none" stroke="#4466aa" stroke-width="2" opacity="0.7"/>
+
+  <!-- Explosion effect on last hit -->
+  <circle cx="883" cy="274" r="20" fill="none" stroke="#ff4000" stroke-width="2" opacity="0.5"/>
+  <circle cx="883" cy="274" r="32" fill="none" stroke="#ff4000" stroke-width="1" opacity="0.3"/>
+
+  <!-- ===== BOTTOM STATUS BAR ===== -->
+  <rect x="0" y="680" width="1280" height="40" fill="#020810" opacity="0.9"/>
+  <line x1="0" y1="680" x2="1280" y2="680" stroke="#00d4ff" stroke-width="1" opacity="0.3"/>
+
+  <text x="200" y="703" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="13" letter-spacing="2" fill="#00d4ff" opacity="0.7">SHIPS REMAINING: 4/5</text>
+  <text x="640" y="703" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="13" letter-spacing="2" fill="#ffffff" opacity="0.4">USE YOUR PHONE TO ATTACK</text>
+  <text x="1080" y="703" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="13" letter-spacing="2" fill="#ff6080" opacity="0.7">SHIPS REMAINING: 3/5</text>
+</svg>

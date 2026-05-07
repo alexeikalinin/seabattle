@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Export AirConsole Assets</title>
+  <style>
+    body { background: #111; color: #fff; font-family: Arial, sans-serif; padding: 30px; }
+    h2 { color: #00d4ff; }
+    .btn {
+      display: inline-block; margin: 10px 8px; padding: 12px 24px;
+      background: #00d4ff; color: #000; font-weight: bold;
+      border: none; border-radius: 8px; cursor: pointer; font-size: 15px;
+    }
+    .btn:hover { background: #00aacc; }
+    .preview { margin: 20px 0; }
+    img { display: block; margin: 10px 0; border: 1px solid #333; }
+    .note { color: #aaa; font-size: 13px; margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h2>Battleship Duel — Export PNG Assets</h2>
+  <p class="note">Нажми кнопку чтобы скачать PNG файл для AirConsole</p>
+
+  <div class="preview">
+    <h3>Cover Art (512×512)</h3>
+    <img id="coverImg" src="cover-art.svg" width="256" height="256"/>
+    <button class="btn" onclick="exportPng('coverImg', 'cover-art.png', 512, 512)">
+      Скачать cover-art.png (512×512)
+    </button>
+  </div>
+
+  <div class="preview">
+    <h3>Screenshot (1280×720)</h3>
+    <img id="ssImg" src="screenshot.svg" width="640" height="360"/>
+    <button class="btn" onclick="exportPng('ssImg', 'screenshot.png', 1280, 720)">
+      Скачать screenshot.png (1280×720)
+    </button>
+  </div>
+
+  <canvas id="canvas" style="display:none"></canvas>
+
+  <script>
+    function exportPng(imgId, filename, w, h) {
+      const img = document.getElementById(imgId);
+      const canvas = document.getElementById('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      const tmpImg = new Image();
+      tmpImg.crossOrigin = 'anonymous';
+      tmpImg.onload = () => {
+        ctx.clearRect(0, 0, w, h);
+        ctx.drawImage(tmpImg, 0, 0, w, h);
+        const link = document.createElement('a');
+        link.download = filename;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      };
+      tmpImg.src = img.src + '?t=' + Date.now();
+    }
+  </script>
+</body>
+</html>

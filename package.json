@@ -1,0 +1,19 @@
+{
+  "name": "battleship-duel",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "phaser": "^3.87.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.1",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  }
+}

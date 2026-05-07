@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Preview 3 — Neon Wave</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #03050a; font-family: 'Inter', sans-serif; color: #d0e8f8; min-height: 100vh; padding: 32px 20px; }
+h1 { text-align: center; font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #fff; margin-bottom: 4px; letter-spacing: .08em; }
+.subtitle { text-align: center; font-size: .9rem; color: #2a5070; margin-bottom: 40px; }
+.phones { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; color: #2a5070; text-transform: uppercase; }
+.phone { width: 340px; height: 680px; border-radius: 40px; background: #020408; box-shadow: 0 0 0 6px #060e1a, 0 0 0 8px #0a1828, 0 40px 100px rgba(0,0,0,.9); overflow: hidden; }
+
+.nw { width: 100%; height: 100%; border-radius: 32px; overflow: hidden; background: #020810; }
+.nw-body {
+  min-height: 100%; padding: 56px 16px 24px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 12px;
+  background: radial-gradient(ellipse 100% 40% at 50% 0%, rgba(0,160,200,.08) 0%, transparent 60%);
+}
+
+.nw-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }
+.nw-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: .05em; color: #fff; line-height: 1; }
+.nw-chip { font-size: .6rem; font-weight: 800; letter-spacing: .14em; padding: 4px 12px; border-radius: 99px; }
+.nw-chip-p1 { background: linear-gradient(135deg, #00c8e8, #0088cc); color: #fff; box-shadow: 0 2px 12px rgba(0,200,230,.3); }
+.nw-chip-p2 { background: linear-gradient(135deg, #ff4fa0, #cc0066); color: #fff; }
+
+.nw-cta { padding: 17px 20px; border-radius: 14px; border: none; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: linear-gradient(135deg, #00b5d8, #0075b0); box-shadow: 0 6px 20px rgba(0,181,216,.35), inset 0 1px 0 rgba(255,255,255,.15); }
+
+.nw-card { background: rgba(0,20,45,.8); border: 1px solid rgba(0,180,220,.12); border-radius: 14px; padding: 14px; position: relative; }
+.nw-card::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,200,220,.3), transparent); }
+.nw-label { font-size: .6rem; font-weight: 800; letter-spacing: .16em; color: rgba(0,200,220,.4); text-transform: uppercase; margin-bottom: 10px; }
+
+.nw-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; border-radius: 6px; overflow: hidden; }
+.nw-c { aspect-ratio: 1; background: rgba(0,20,50,.8); border: 1px solid rgba(0,180,220,.1); }
+.nw-c.s { background: linear-gradient(135deg, #005588, #003366); border-color: rgba(0,200,255,.3); }
+.nw-c.h { background: #cc2233; border-color: #ff3344; box-shadow: 0 0 4px rgba(255,50,60,.4); }
+.nw-c.m { background: rgba(0,10,30,.6); }
+
+.nw-ship { display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-radius: 12px; background: rgba(0,20,45,.7); border: 1.5px solid rgba(0,180,220,.1); cursor: pointer; margin-bottom: 7px; }
+.nw-ship.sel { background: rgba(0,80,140,.35); border-color: rgba(0,200,220,.4); }
+.nw-dot { width: 16px; height: 16px; border-radius: 4px; background: linear-gradient(135deg, #00a8c8, #006699); flex-shrink: 0; }
+.nw-sn { font-size: .82rem; font-weight: 600; color: #80c8e0; }
+.nw-sl { margin-left: auto; font-size: .72rem; color: rgba(0,180,220,.4); font-weight: 700; }
+
+.nw-fire { padding: 14px; border-radius: 14px; text-align: center; font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: .07em; background: linear-gradient(135deg, rgba(0,120,180,.25), rgba(0,80,140,.2)); border: 1.5px solid rgba(0,200,220,.3); color: #00d8f0; }
+.nw-row { display: flex; gap: 8px; }
+.nw-btn { flex: 1; padding: 12px; border-radius: 11px; border: 1.5px solid rgba(0,180,220,.18); background: rgba(0,20,45,.7); color: #40b8d8; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: 'Rajdhani', sans-serif; }
+
+.nw-players { display: flex; gap: 8px; }
+.nw-player { flex: 1; padding: 12px; border-radius: 12px; text-align: center; }
+.nw-py { background: rgba(0,80,140,.25); border: 1.5px solid rgba(0,200,220,.3); }
+.nw-po { background: rgba(0,10,25,.5); border: 1px solid rgba(0,80,120,.12); }
+.nw-pn { font-size: .62rem; font-weight: 700; letter-spacing: .1em; color: rgba(0,180,220,.5); margin-bottom: 5px; }
+.nw-ps { font-size: .82rem; font-weight: 700; color: #00d0e8; }
+</style>
+</head>
+<body>
+<h1>Design Option 3 — Neon Wave</h1>
+<p class="subtitle">Bebas Neue + Rajdhani · Teal cyan · Sharp card layout · Game-ready energy</p>
+<div class="phones">
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 1: Lobby</div>
+    <div class="phone"><div class="nw"><div class="nw-body">
+      <div class="nw-header">
+        <div class="nw-title">BATTLE<br/>SHIP</div>
+        <div class="nw-chip nw-chip-p1">PLAYER 1</div>
+      </div>
+      <div class="nw-card">
+        <div class="nw-label">Lobby Status</div>
+        <div class="nw-players">
+          <div class="nw-player nw-py"><div class="nw-pn">YOU</div><div class="nw-ps">● ONLINE</div></div>
+          <div class="nw-player nw-po"><div class="nw-pn">OPPONENT</div><div class="nw-ps" style="color:rgba(0,100,140,.4)">○ WAITING</div></div>
+        </div>
+      </div>
+      <button class="nw-cta">⚓ READY TO PLAY</button>
+      <p style="font-size:.72rem;color:rgba(0,150,180,.3);text-align:center">Both players must confirm to start</p>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 2: Placement</div>
+    <div class="phone"><div class="nw"><div class="nw-body" style="gap:10px">
+      <div class="nw-header">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fff;letter-spacing:.05em">DEPLOY FLEET</div>
+        <div class="nw-chip nw-chip-p1">6/10</div>
+      </div>
+      <div class="nw-row">
+        <button class="nw-btn">↻ ROTATE</button>
+        <button class="nw-btn">🎲 AUTO</button>
+      </div>
+      <div class="nw-card" style="padding:12px">
+        <div class="nw-label">Pick Your Ship</div>
+        <div class="nw-ship sel" id="ns1"></div>
+        <div class="nw-ship" id="ns2"></div>
+        <div class="nw-ship" id="ns3"></div>
+      </div>
+      <div class="nw-card" style="padding:11px">
+        <div class="nw-label">Tap Grid to Place</div>
+        <div class="nw-grid" id="ng-placement"></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 3: Battle (Your Turn)</div>
+    <div class="phone"><div class="nw"><div class="nw-body" style="gap:10px">
+      <div class="nw-fire">⚡ YOUR TURN — OPEN FIRE</div>
+      <div class="nw-card" style="padding:11px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="nw-label" style="margin:0">Enemy Waters</div>
+          <div style="font-size:.68rem;font-weight:700;color:rgba(0,180,220,.4)">7 SHIPS LEFT</div>
+        </div>
+        <div class="nw-grid" id="ng-enemy"></div>
+      </div>
+      <div class="nw-card" style="padding:11px">
+        <div class="nw-label">Your Fleet</div>
+        <div class="nw-grid" id="ng-own"></div>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+
+<script>
+function dots(n) {
+  var h = '';
+  for (var i = 0; i < n; i++) h += '<span class="nw-dot"></span>';
+  return h;
+}
+document.getElementById('ns1').innerHTML = dots(4) + '<span class="nw-sn">Carrier</span><span class="nw-sl">x4</span>';
+document.getElementById('ns2').innerHTML = dots(3) + '<span class="nw-sn">Cruiser</span><span class="nw-sl">x3</span>';
+document.getElementById('ns3').innerHTML = dots(2) + '<span class="nw-sn">Destroyer</span><span class="nw-sl">x2</span>';
+
+function fillGrid(id, fn) {
+  var el = document.getElementById(id), h = '';
+  for (var i = 0; i < 100; i++) {
+    h += '<div class="nw-c ' + fn(Math.floor(i/10), i%10) + '"></div>';
+  }
+  el.innerHTML = h;
+}
+fillGrid('ng-placement', function(r,c) {
+  if (r===2&&c>=1&&c<=4) return 's';
+  if (r===5&&(c===3||c===4||c===5)) return 's';
+  if (r===7&&(c===6||c===7)) return 's';
+  return '';
+});
+fillGrid('ng-enemy', function(r,c) {
+  if ((r===2&&c===3)||(r===3&&c===3)) return 'h';
+  if ((r===5&&c===1)||(r===7&&c===9)||(r===0&&c===4)) return 'm';
+  return '';
+});
+fillGrid('ng-own', function(r,c) {
+  if (r===2&&c>=1&&c<=4) return 's';
+  if (r===6&&(c===6||c===7||c===8)) return 's';
+  if (r===9&&(c===0||c===1)) return 's';
+  if (r===4&&c===4) return 'h';
+  return '';
+});
+</script>
+</body>
+</html>

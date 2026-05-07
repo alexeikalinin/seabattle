@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+.env
+.env.*
+!.env.example
+.playwright-mcp/
+excalidraw.log
+.claude/settings.local.json

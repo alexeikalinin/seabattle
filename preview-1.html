@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Preview 1 — Ocean Depth</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #040c18; font-family: 'Inter', sans-serif; color: #c8e0f0; min-height: 100vh; padding: 32px 20px; }
+h1 { text-align: center; font-family: 'Sora', sans-serif; font-size: 2rem; color: #fff; margin-bottom: 4px; }
+.subtitle { text-align: center; font-size: .9rem; color: #4a7a9b; margin-bottom: 40px; }
+.phones { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; color: #4a7a9b; text-transform: uppercase; }
+.phone { width: 340px; height: 680px; border-radius: 42px; background: #03090f; box-shadow: 0 0 0 8px #0a1828, 0 0 0 10px #0f2035, 0 40px 80px rgba(0,0,0,.8); overflow: hidden; position: relative; }
+.phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 100px; height: 28px; background: #03090f; border-radius: 0 0 16px 16px; z-index: 20; }
+.screen { width: 100%; height: 100%; border-radius: 34px; overflow: hidden; }
+
+.od-bg {
+  background: radial-gradient(ellipse 120% 80% at 50% -20%, #0a3566 0%, transparent 60%), linear-gradient(180deg, #030e1e 0%, #04152a 50%, #020b18 100%);
+  min-height: 100%; padding: 52px 20px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; position: relative; overflow: hidden;
+}
+.od-bg::after { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,150,255,.12) 0%, transparent 70%); pointer-events: none; }
+
+.od-badge { background: rgba(0,120,220,.15); border: 1px solid rgba(0,180,255,.25); border-radius: 99px; padding: 5px 16px; font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: #5ac8fa; }
+.od-name { font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #5ac8fa, #2d8cf0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; filter: drop-shadow(0 0 20px rgba(90,200,250,.4)); }
+.od-ready { width: 100%; padding: 18px; border-radius: 18px; border: none; background: linear-gradient(135deg, #1a6fb5, #0d4f8c); color: #e0f4ff; font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 24px rgba(0,100,220,.4); position: relative; overflow: hidden; }
+@keyframes shimmer { 0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.05)} }
+.od-ready::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.06) 0%, transparent 60%); animation: shimmer 3s ease-in-out infinite; }
+
+.od-glass { width: 100%; background: rgba(10,40,80,.45); border: 1px solid rgba(90,200,250,.15); border-radius: 20px; padding: 18px; position: relative; }
+.od-glass::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 1px; background: linear-gradient(90deg, transparent, rgba(90,200,250,.2), transparent); }
+.od-section { font-size: .65rem; font-weight: 700; letter-spacing: .14em; color: #3a7a9b; margin-bottom: 12px; text-transform: uppercase; }
+
+.od-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.od-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(10,40,80,.6); border: 1px solid rgba(90,200,250,.12); }
+.od-cell.s { background: linear-gradient(135deg, #1a5f9a, #0d4070); border-color: rgba(90,200,250,.3); }
+.od-cell.h { background: linear-gradient(135deg, #c0392b, #922b21); border-color: rgba(255,80,80,.4); }
+.od-cell.m { background: rgba(20,60,100,.4); border-color: rgba(90,200,250,.08); }
+
+.od-ship { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(10,40,80,.5); border: 1px solid rgba(90,200,250,.12); margin-bottom: 8px; cursor: pointer; }
+.od-ship.sel { background: rgba(26,111,181,.3); border-color: rgba(90,200,250,.5); }
+.od-seg { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg, #2d8cf0, #1a6fb5); }
+.od-sn { font-size: .85rem; font-weight: 600; color: #8ec8f0; }
+.od-sl { margin-left: auto; font-size: .75rem; color: #4a7a9b; }
+
+.od-status { text-align: center; padding: 14px; border-radius: 16px; font-weight: 700; font-size: .95rem; width: 100%; }
+.od-fire { background: linear-gradient(135deg, rgba(26,111,181,.3), rgba(0,80,160,.2)); border: 1px solid rgba(90,200,250,.35); color: #5ac8fa; box-shadow: 0 0 20px rgba(90,200,250,.1); }
+
+.od-row { display: flex; gap: 10px; width: 100%; }
+.od-btn { flex: 1; padding: 13px; border-radius: 14px; border: 1px solid rgba(90,200,250,.25); background: rgba(10,40,80,.5); color: #5ac8fa; font-size: .85rem; font-weight: 700; cursor: pointer; }
+
+.mini-players { display: flex; gap: 8px; width: 100%; }
+.mini-player { flex: 1; padding: 10px; border-radius: 12px; text-align: center; }
+.mp-you { background: rgba(26,111,181,.25); border: 1px solid rgba(90,200,250,.3); }
+.mp-opp { background: rgba(10,30,60,.4); border: 1px solid rgba(50,80,120,.2); }
+.mp-name { font-size: .62rem; font-weight: 700; color: #3a7a9b; margin-bottom: 4px; }
+.mp-status { font-size: .82rem; font-weight: 700; color: #5ac8fa; }
+</style>
+</head>
+<body>
+<h1>Design Option 1 — Ocean Depth</h1>
+<p class="subtitle">Glassmorphism · Deep ocean blues · Sora font · Soft glows</p>
+<div class="phones">
+  <div class="phone-wrap">
+    <div class="phone-label">State 1: Lobby</div>
+    <div class="phone"><div class="screen"><div class="od-bg">
+      <div class="od-badge">PLAYER 1</div>
+      <div class="od-name">Battleship<br/>Duel</div>
+      <div class="od-glass">
+        <div class="od-section">Game Status</div>
+        <div class="mini-players">
+          <div class="mini-player mp-you"><div class="mp-name">YOU</div><div class="mp-status">● Online</div></div>
+          <div class="mini-player mp-opp"><div class="mp-name">P2</div><div class="mp-status" style="color:#2a4a6a">○ —</div></div>
+        </div>
+      </div>
+      <button class="od-ready">⚓ READY TO BATTLE</button>
+      <p style="font-size:.72rem;color:#2a5a7a;text-align:center">Both players must confirm to begin</p>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 2: Placement</div>
+    <div class="phone"><div class="screen"><div class="od-bg" style="gap:12px">
+      <div class="od-badge">SHIP PLACEMENT</div>
+      <div class="od-row">
+        <button class="od-btn">↻ Rotate</button>
+        <button class="od-btn">🎲 Auto</button>
+      </div>
+      <div class="od-glass" style="padding:14px">
+        <div class="od-section">Select Ship</div>
+        <div class="od-ship sel" id="ship1-p1">
+          <span class="od-sn">Carrier</span><span class="od-sl">×4</span>
+        </div>
+        <div class="od-ship" id="ship2-p1">
+          <span class="od-sn">Cruiser</span><span class="od-sl">×3</span>
+        </div>
+        <div class="od-ship" id="ship3-p1">
+          <span class="od-sn">Destroyer</span><span class="od-sl">×2</span>
+        </div>
+      </div>
+      <div class="od-glass" style="padding:12px">
+        <div class="od-section">Your Ocean — 6/10 placed</div>
+        <div class="od-grid" id="grid-p1"></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 3: Battle (Your Turn)</div>
+    <div class="phone"><div class="screen"><div class="od-bg" style="gap:12px">
+      <div class="od-status od-fire">⚡ YOUR TURN — FIRE!</div>
+      <div class="od-glass" style="padding:10px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="od-section" style="margin:0">Enemy Waters</div>
+          <div style="font-size:.7rem;color:#4a7a9b">🚢 7 left</div>
+        </div>
+        <div class="od-grid" id="grid-enemy"></div>
+      </div>
+      <div class="od-glass" style="padding:10px 12px">
+        <div class="od-section">Your Fleet</div>
+        <div class="od-grid" id="grid-own"></div>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+
+<script>
+function makeSegs(n) {
+  var h = '';
+  for (var i = 0; i < n; i++) h += '<span class="od-seg"></span>';
+  return h;
+}
+document.getElementById('ship1-p1').innerHTML = makeSegs(4) + '<span class="od-sn">Carrier</span><span class="od-sl">x4</span>';
+document.getElementById('ship2-p1').innerHTML = makeSegs(3) + '<span class="od-sn">Cruiser</span><span class="od-sl">x3</span>';
+document.getElementById('ship3-p1').innerHTML = makeSegs(2) + '<span class="od-sn">Destroyer</span><span class="od-sl">x2</span>';
+
+function fillGrid(id, fn) {
+  var el = document.getElementById(id);
+  var h = '';
+  for (var i = 0; i < 100; i++) {
+    h += '<div class="od-cell ' + fn(Math.floor(i/10), i%10) + '"></div>';
+  }
+  el.innerHTML = h;
+}
+fillGrid('grid-p1', function(r,c) {
+  if (r===2 && c>=1 && c<=4) return 's';
+  if (r===5 && (c===4||c===5||c===6)) return 's';
+  if (r===7 && c===8) return 's';
+  return '';
+});
+fillGrid('grid-enemy', function(r,c) {
+  if ((r===2&&c===3)||(r===2&&c===4)) return 'h';
+  if ((r===5&&c===1)||(r===0&&c===8)) return 'm';
+  return '';
+});
+fillGrid('grid-own', function(r,c) {
+  if (r===3 && c>=2 && c<=5) return 's';
+  if (r===7 && (c===4||c===5||c===6)) return 's';
+  if (r===1 && c===9) return 'h';
+  return '';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Preview 2 — Electric Storm</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0c0010; font-family: 'Inter', sans-serif; color: #e0c8ff; min-height: 100vh; padding: 32px 20px; }
+h1 { text-align: center; font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #fff; margin-bottom: 4px; text-shadow: 0 0 20px rgba(180,0,255,.5); }
+.subtitle { text-align: center; font-size: .9rem; color: #6040a0; margin-bottom: 40px; }
+.phones { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; color: #6040a0; text-transform: uppercase; }
+.phone { width: 340px; height: 680px; border-radius: 42px; background: #0c0018; box-shadow: 0 0 0 8px #16002a, 0 0 0 10px #200038, 0 40px 80px rgba(0,0,0,.9), inset 0 0 40px rgba(100,0,200,.1); overflow: hidden; }
+
+.es { width: 100%; height: 100%; border-radius: 34px; overflow: hidden; background: #08000f; position: relative; }
+.es::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #b000ff, #ff00aa, #b000ff, transparent); }
+
+.es-body {
+  min-height: 100%; padding: 52px 18px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  background: radial-gradient(ellipse 100% 50% at 50% 0%, rgba(120,0,220,.2) 0%, transparent 60%), radial-gradient(ellipse 60% 30% at 100% 50%, rgba(180,0,100,.1) 0%, transparent 50%);
+}
+
+@keyframes logoshine { to { background-position: 200% center; } }
+.es-logo { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; text-align: center; background: linear-gradient(90deg, #b000ff, #ff00aa, #b000ff); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 12px rgba(200,0,255,.6)); animation: logoshine 3s linear infinite; }
+.es-badge { font-family: 'Orbitron', sans-serif; font-size: .65rem; font-weight: 700; letter-spacing: .2em; padding: 6px 20px; border-radius: 99px; background: rgba(180,0,255,.12); border: 1px solid rgba(180,0,255,.4); color: #cc55ff; }
+
+.es-card { width: 100%; background: rgba(30,0,60,.6); border: 1px solid rgba(150,0,255,.2); border-radius: 16px; padding: 16px; position: relative; overflow: hidden; }
+.es-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(180,0,255,.5), transparent); }
+.es-label { font-size: .6rem; font-weight: 700; letter-spacing: .15em; color: rgba(180,0,255,.6); text-transform: uppercase; margin-bottom: 10px; }
+
+@keyframes sweep { 50%,100% { left: 200%; } }
+.es-ready { width: 100%; padding: 18px; border-radius: 14px; border: none; background: linear-gradient(135deg, #7000cc, #4400aa, #9900ee); color: #f0d0ff; font-family: 'Orbitron', sans-serif; font-size: .85rem; font-weight: 700; letter-spacing: .08em; cursor: pointer; box-shadow: 0 4px 20px rgba(150,0,255,.4), inset 0 1px 0 rgba(255,255,255,.1); position: relative; overflow: hidden; }
+.es-ready::after { content: ''; position: absolute; top: 50%; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent); transform: skewX(-15deg) translateY(-50%); animation: sweep 2.5s ease-in-out infinite; }
+
+.es-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; }
+.es-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(40,0,80,.7); border: 1px solid rgba(120,0,200,.15); }
+.es-cell.s { background: linear-gradient(135deg, #5500aa, #330088); border-color: rgba(180,0,255,.35); }
+.es-cell.h { background: linear-gradient(135deg, #aa0055, #880033); border-color: rgba(255,0,100,.5); box-shadow: 0 0 6px rgba(255,0,100,.3); }
+.es-cell.m { background: rgba(20,0,40,.5); border-color: rgba(80,0,160,.08); }
+
+.es-ship { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(150,0,255,.15); background: rgba(30,0,60,.4); cursor: pointer; margin-bottom: 7px; }
+.es-ship.sel { border-color: rgba(180,0,255,.5); background: rgba(80,0,180,.25); box-shadow: 0 0 12px rgba(180,0,255,.15); }
+.es-seg { width: 16px; height: 16px; border-radius: 3px; background: linear-gradient(135deg, #9900ee, #6600aa); box-shadow: 0 0 4px rgba(180,0,255,.4); flex-shrink: 0; }
+.es-sn { font-size: .82rem; font-weight: 600; color: #c090f0; }
+.es-sl { margin-left: auto; font-size: .72rem; font-family: 'Orbitron', sans-serif; color: rgba(180,0,255,.6); }
+
+@keyframes pulse-fire { 0%,100% { box-shadow: 0 0 20px rgba(180,0,255,.12); } 50% { box-shadow: 0 0 30px rgba(180,0,255,.25); border-color: rgba(200,0,255,.6); } }
+.es-fire { width: 100%; padding: 14px; border-radius: 14px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: .78rem; font-weight: 700; letter-spacing: .08em; background: linear-gradient(135deg, rgba(150,0,255,.2), rgba(200,0,150,.15)); border: 1px solid rgba(200,0,255,.35); color: #dd88ff; animation: pulse-fire 1.5s ease-in-out infinite; }
+
+.es-row { display: flex; gap: 8px; width: 100%; }
+.es-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(150,0,255,.25); background: rgba(30,0,60,.5); color: #c090f0; font-size: .8rem; font-weight: 600; cursor: pointer; }
+
+.mini-players { display: flex; gap: 8px; }
+.mp { flex: 1; padding: 10px; border-radius: 10px; text-align: center; }
+.mp-you { background: rgba(80,0,180,.2); border: 1px solid rgba(180,0,255,.3); }
+.mp-opp { background: rgba(20,0,40,.4); border: 1px solid rgba(80,0,160,.15); }
+.mp-n { font-size: .6rem; color: rgba(180,0,255,.5); margin-bottom: 4px; }
+.mp-s { font-size: .8rem; font-weight: 700; color: #cc55ff; }
+</style>
+</head>
+<body>
+<h1>Design Option 2 — Electric Storm</h1>
+<p class="subtitle">Orbitron font · Purple-magenta neon · High-energy futuristic style</p>
+<div class="phones">
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 1: Lobby</div>
+    <div class="phone"><div class="es"><div class="es-body">
+      <div class="es-badge">PLAYER 1</div>
+      <div class="es-logo">BATTLESHIP<br/>DUEL</div>
+      <div class="es-card">
+        <div class="es-label">Connection Status</div>
+        <div class="mini-players">
+          <div class="mp mp-you"><div class="mp-n">YOU</div><div class="mp-s">● READY</div></div>
+          <div class="mp mp-opp"><div class="mp-n">ENEMY</div><div class="mp-s" style="color:rgba(80,0,150,.5)">○ —</div></div>
+        </div>
+      </div>
+      <button class="es-ready">⚡ READY FOR BATTLE</button>
+      <p style="font-size:.7rem;color:rgba(150,0,255,.35);text-align:center">Waiting for opponent...</p>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 2: Placement</div>
+    <div class="phone"><div class="es"><div class="es-body" style="gap:11px">
+      <div class="es-badge">DEPLOY FLEET</div>
+      <div class="es-row">
+        <button class="es-btn">↻ Rotate</button>
+        <button class="es-btn">🎲 Auto</button>
+      </div>
+      <div class="es-card" style="padding:12px">
+        <div class="es-label">Select Ship</div>
+        <div class="es-ship sel" id="s1"></div>
+        <div class="es-ship" id="s2"></div>
+        <div class="es-ship" id="s3"></div>
+      </div>
+      <div class="es-card" style="padding:12px">
+        <div class="es-label">Your Grid — 6/10 placed</div>
+        <div class="es-grid" id="g-placement"></div>
+      </div>
+    </div></div></div>
+  </div>
+
+  <div class="phone-wrap">
+    <div class="phone-label">State 3: Battle (Your Turn)</div>
+    <div class="phone"><div class="es"><div class="es-body" style="gap:11px">
+      <div class="es-fire">⚡ YOUR TURN — FIRE!</div>
+      <div class="es-card" style="padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="es-label" style="margin:0">Enemy Waters</div>
+          <div style="font-size:.65rem;font-family:'Orbitron',sans-serif;color:rgba(180,0,255,.4)">7 LEFT</div>
+        </div>
+        <div class="es-grid" id="g-enemy"></div>
+      </div>
+      <div class="es-card" style="padding:12px">
+        <div class="es-label">Your Fleet</div>
+        <div class="es-grid" id="g-own"></div>
+      </div>
+    </div></div></div>
+  </div>
+</div>
+
+<script>
+function segs(n, cls) {
+  var h = '';
+  for (var i = 0; i < n; i++) h += '<span class="' + cls + '"></span>';
+  return h;
+}
+document.getElementById('s1').innerHTML = segs(4,'es-seg') + '<span class="es-sn">Carrier</span><span class="es-sl">x4</span>';
+document.getElementById('s2').innerHTML = segs(3,'es-seg') + '<span class="es-sn">Cruiser</span><span class="es-sl">x3</span>';
+document.getElementById('s3').innerHTML = segs(2,'es-seg') + '<span class="es-sn">Destroyer</span><span class="es-sl">x2</span>';
+
+function fillGrid(id, fn) {
+  var el = document.getElementById(id), h = '';
+  for (var i = 0; i < 100; i++) {
+    h += '<div class="es-cell ' + fn(Math.floor(i/10), i%10) + '"></div>';
+  }
+  el.innerHTML = h;
+}
+fillGrid('g-placement', function(r,c) {
+  if (r===2 && c>=1 && c<=4) return 's';
+  if (r===5 && (c===4||c===5||c===6)) return 's';
+  return '';
+});
+fillGrid('g-enemy', function(r,c) {
+  if ((r===2&&c===3)||(r===2&&c===4)) return 'h';
+  if ((r===5&&c===1)||(r===0&&c===8)) return 'm';
+  return '';
+});
+fillGrid('g-own', function(r,c) {
+  if (r===3&&c>=2&&c<=5) return 's';
+  if (r===7&&(c===4||c===5||c===6)) return 's';
+  if (r===1&&c===9) return 'h';
+  return '';
+});
+</script>
+</body>
+</html>
