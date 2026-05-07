@@ -174,7 +174,8 @@ export class ControllerUI {
 
     for (let row = 0; row < GRID_SIZE; row++) {
       for (let col = 0; col < GRID_SIZE; col++) {
-        const cell = document.createElement('div');
+        const cell = document.createElement('button');
+        cell.type = 'button';
         cell.className = 'grid-cell';
         if (onTap) {
           cell.addEventListener('click', () => onTap(col, row));
@@ -237,25 +238,26 @@ export class ControllerUI {
         <p class="pulse" style="font-size:.72rem;color:var(--text-dim);text-align:center">Tap when ready to start</p>
       </div>
 
-      <!-- PLACEMENT -->
-      <div id="view-placement" class="view">
-        <div style="font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);text-align:center;margin-top:16px">DEPLOY FLEET</div>
-        <p id="placement-progress" style="font-size:.75rem;color:var(--text-dim);text-align:center">0 / 10 placed</p>
+      <!-- PLACEMENT: grid first on small screens so it stays visible; ships scroll below -->
+      <div id="view-placement" class="view view-placement">
+        <div class="placement-title">DEPLOY FLEET</div>
+        <p id="placement-progress" class="placement-progress">0 / 10 placed</p>
+        <p class="placement-hint">Select a ship, then tap a cell on your grid.</p>
 
         <div class="btn-row">
-          <button class="btn-half" id="rotate-btn">↻ Rotate</button>
-          <button class="btn-half" id="auto-place-btn">🎲 Auto</button>
+          <button type="button" class="btn-half" id="rotate-btn">↻ Rotate</button>
+          <button type="button" class="btn-half" id="auto-place-btn">🎲 Auto</button>
         </div>
 
-        <div class="card" style="padding:14px">
-          <div class="section-label">Select Ship</div>
-          <div id="ship-selector"></div>
-        </div>
-
-        <div class="card" style="padding:12px">
+        <div class="card card-grid">
           <div class="section-label">Your Grid</div>
           <div class="grid-header">${colLabels}</div>
-          <div id="placement-grid" class="grid"></div>
+          <div id="placement-grid" class="grid" aria-label="Fleet placement grid"></div>
+        </div>
+
+        <div class="card card-ships">
+          <div class="section-label">Select Ship</div>
+          <div id="ship-selector"></div>
         </div>
       </div>
 
