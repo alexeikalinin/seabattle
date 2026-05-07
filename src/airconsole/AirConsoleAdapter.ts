@@ -16,7 +16,7 @@ export class AirConsoleAdapter {
     // silence_inactive_players=false: prevents SDK from blocking onConnect for
     // device 2 when device 1 is already in active players (v1.9.0 feature).
     // We manage player registration ourselves.
-    this.ac = new AirConsole({ orientation: 'portrait', silence_inactive_players: false });
+    this.ac = new AirConsole({ orientation: 'landscape', silence_inactive_players: false });
     log.info('AirConsole instance created');
   }
 
