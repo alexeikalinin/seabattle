@@ -127,8 +127,15 @@ export class ControllerUI {
     const total = msg.ships.length;
     qs('#placement-progress').textContent = `${placed} / ${total} placed`;
 
+    if (this.selectedShipId) {
+      const sh = msg.ships.find(s => s.definition.id === this.selectedShipId);
+      if (sh) this.currentOrientation = sh.orientation;
+    }
+
     // Render own board in placement grid
     this.updateGrid('placement-grid', msg.ownBoard, true);
+    this.highlightPlacementSelection(msg);
+    this.updateRotateBtnLabel();
   }
 
   private renderBattleTurn(msg: StateUpdateMessage): void {
@@ -150,6 +157,27 @@ export class ControllerUI {
   }
 
   // ── Grid rendering ─────────────────────────────────────────────────────
+
+  private highlightPlacementSelection(msg: StateUpdateMessage): void {
+    const cells = qs('#placement-grid').querySelectorAll('.grid-cell');
+    for (let row = 0; row < GRID_SIZE; row++) {
+      for (let col = 0; col < GRID_SIZE; col++) {
+        const idx = row * GRID_SIZE + col;
+        const el = cells[idx] as HTMLElement | undefined;
+        if (!el) continue;
+        const sid = msg.ownBoard[row][col].shipId;
+        const on = this.selectedShipId !== null && sid === this.selectedShipId;
+        el.classList.toggle('ship-picked', on);
+      }
+    }
+  }
+
+  private updateRotateBtnLabel(): void {
+    const btn = document.getElementById('rotate-btn') as HTMLButtonElement | null;
+    if (!btn) return;
+    btn.textContent =
+      this.currentOrientation === 'horizontal' ? '↻ Rotate (H)' : '↔ Rotate (V)';
+  }
 
   private updateGrid(containerId: string, board: Board, isOwnBoard: boolean): void {
     const container = qs(`#${containerId}`);
@@ -189,8 +217,14 @@ export class ControllerUI {
 
   private selectShip(shipId: string): void {
     this.selectedShipId = shipId;
+    const ship = this.lastState?.ships.find(s => s.definition.id === shipId);
+    if (ship) this.currentOrientation = ship.orientation;
     document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
     document.querySelector(`[data-ship-id="${shipId}"]`)?.classList.add('selected');
+    if (this.lastState?.phase === 'placement') {
+      this.highlightPlacementSelection(this.lastState);
+      this.updateRotateBtnLabel();
+    }
   }
 
   // ── View switching ─────────────────────────────────────────────────────
@@ -242,22 +276,24 @@ export class ControllerUI {
       <div id="view-placement" class="view view-placement">
         <div class="placement-title">DEPLOY FLEET</div>
         <p id="placement-progress" class="placement-progress">0 / 10 placed</p>
-        <p class="placement-hint">Select a ship, then tap a cell on your grid.</p>
+        <p class="placement-hint">Choose an unplaced ship below, or tap a ship on the grid to move or rotate it.</p>
 
         <div class="btn-row">
-          <button type="button" class="btn-half" id="rotate-btn">↻ Rotate</button>
+          <button type="button" class="btn-half" id="rotate-btn">↻ Rotate (H)</button>
           <button type="button" class="btn-half" id="auto-place-btn">🎲 Auto</button>
         </div>
 
-        <div class="card card-grid">
-          <div class="section-label">Your Grid</div>
-          <div class="grid-header">${colLabels}</div>
-          <div id="placement-grid" class="grid" aria-label="Fleet placement grid"></div>
-        </div>
+        <div class="placement-main">
+          <div class="card card-grid">
+            <div class="section-label">Your Grid</div>
+            <div class="grid-header">${colLabels}</div>
+            <div id="placement-grid" class="grid" aria-label="Fleet placement grid"></div>
+          </div>
 
-        <div class="card card-ships">
-          <div class="section-label">Select Ship</div>
-          <div id="ship-selector"></div>
+          <div class="card card-ships">
+            <div class="section-label">Select Ship (unplaced)</div>
+            <div id="ship-selector"></div>
+          </div>
         </div>
       </div>
 
@@ -300,12 +336,16 @@ export class ControllerUI {
     });
 
     qs('#rotate-btn').addEventListener('click', () => {
-      this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
       if (this.selectedShipId) {
         this.ac.message(this.ac.SCREEN, { type: 'ROTATE_SHIP', shipId: this.selectedShipId });
+        const ship = this.lastState?.ships.find(s => s.definition.id === this.selectedShipId);
+        if (ship) {
+          this.currentOrientation = ship.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+        }
+      } else {
+        this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
       }
-      (qs('#rotate-btn') as HTMLButtonElement).textContent =
-        this.currentOrientation === 'horizontal' ? '↻ Rotate (H)' : '↔ Rotate (V)';
+      this.updateRotateBtnLabel();
     });
 
     qs('#auto-place-btn').addEventListener('click', () => {
@@ -321,7 +361,17 @@ export class ControllerUI {
   }
 
   private onPlacementTap(col: number, row: number): void {
+    if (!this.lastState || this.lastState.phase !== 'placement') return;
+    const cell = this.lastState.ownBoard[row]?.[col];
+    if (!cell) return;
+
+    if (cell.state === 'ship' && cell.shipId) {
+      this.selectShip(cell.shipId);
+      return;
+    }
+
     if (!this.selectedShipId) return;
+
     this.ac.message(this.ac.SCREEN, {
       type: 'PLACE_SHIP',
       shipId: this.selectedShipId,
@@ -329,8 +379,6 @@ export class ControllerUI {
       y: row,
       orientation: this.currentOrientation,
     });
-    this.selectedShipId = null;
-    document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
   }
 
   private onAttackTap(col: number, row: number): void {

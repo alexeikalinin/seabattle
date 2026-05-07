@@ -16,9 +16,17 @@
   --win:      #00c98a;
   --text:     #c8e4f4;
   --text-dim: #4a7a9b;
-  /* Shared width for header + grid (fits card, never uses raw 100vw per cell) */
-  --grid-w: min(100%, min(360px, calc(100vw - 32px)));
+  /* Full-width on tablets; phones stay edge-to-edge with padding */
+  --content-max: min(96vw, 960px);
+  --grid-w: min(100%, min(520px, calc(96vw - 48px)));
   --r:        16px;
+}
+
+@media (max-width: 430px) {
+  :root {
+    --content-max: 100%;
+    --grid-w: min(100%, calc(100vw - 32px));
+  }
 }
 
 *, *::before, *::after {
@@ -28,13 +36,23 @@
   user-select: none;
 }
 
+#controller-root {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 html, body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100dvh;
-  overflow: hidden;
-  position: fixed; width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
   background-image:
     radial-gradient(ellipse 120% 50% at 50% -10%, rgba(10, 50, 100, 0.5) 0%, transparent 60%),
     radial-gradient(ellipse 80% 40% at 80% 110%, rgba(5, 25, 60, 0.4) 0%, transparent 50%);
@@ -44,9 +62,14 @@ html, body {
 .view {
   display: none;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
   min-height: 100dvh;
-  padding: 12px 12px max(16px, env(safe-area-inset-bottom));
+  min-height: 100svh;
+  padding: 12px max(12px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
   gap: 10px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -94,6 +117,31 @@ html, body {
   min-height: 0;
 }
 
+.placement-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  align-self: stretch;
+}
+
+@media (min-width: 700px) {
+  .placement-main {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: max(16px, 2vw);
+  }
+  .placement-main .card-grid {
+    flex: 1 1 56%;
+    min-width: 0;
+  }
+  .placement-main .card-ships {
+    flex: 1 1 44%;
+    min-width: 0;
+    max-height: min(88dvh, 920px);
+  }
+}
+
 /* ── Player badge (fixed top-right) ──────────────────────────────── */
 #player-badge {
   position: fixed; top: 12px; right: 14px; z-index: 100;
@@ -125,7 +173,7 @@ html, body {
 
 /* ── Glass card ─────────────────────────────────────────────────────── */
 .card {
-  width: 100%; max-width: 380px;
+  width: 100%;
   background: var(--glass);
   border: 1px solid var(--border);
   border-radius: var(--r);
@@ -146,7 +194,7 @@ html, body {
   border: none; border-radius: var(--r); cursor: pointer;
   font-family: 'Sora', sans-serif; font-weight: 800; letter-spacing: 0.04em;
   transition: transform 80ms, opacity 80ms;
-  width: 100%; max-width: 380px;
+  width: 100%;
 }
 .btn:active { transform: scale(0.95); opacity: 0.85; }
 
@@ -175,7 +223,7 @@ html, body {
 }
 
 /* ── Player status row ─────────────────────────────────────────────── */
-.player-row { display: flex; gap: 10px; width: 100%; max-width: 380px; }
+.player-row { display: flex; gap: 10px; width: 100%; }
 .player-tile { flex: 1; padding: 12px; border-radius: 14px; text-align: center; }
 .player-tile.you {
   background: rgba(26,111,181,0.2);
@@ -195,7 +243,6 @@ html, body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   width: 100%;
-  max-width: 380px;
   margin: 0 auto;
   max-height: min(38dvh, 280px);
   overflow-y: auto;
@@ -301,6 +348,11 @@ html, body {
 .grid-cell:active { background: rgba(90,200,250,0.2); transform: scale(0.92); }
 
 .grid-cell.ship   { background: linear-gradient(135deg, rgba(26,95,154,0.8), rgba(13,64,112,0.8)); border-color: rgba(90,200,250,0.3); }
+.grid-cell.ship-picked {
+  box-shadow: inset 0 0 0 2px var(--accent), 0 0 12px rgba(90, 200, 250, 0.35);
+  border-color: var(--border-hi);
+  z-index: 1;
+}
 .grid-cell.hit    { background: var(--hit); border-color: rgba(255,80,80,0.6); cursor: not-allowed; }
 .grid-cell.miss   { background: var(--miss); border-color: rgba(20,60,100,0.2); cursor: not-allowed; }
 .grid-cell.sunk   { background: var(--sunk); border-color: rgba(200,50,50,0.5); cursor: not-allowed; }
@@ -311,7 +363,7 @@ html, body {
 .status-banner {
   text-align: center; padding: 14px 20px;
   border-radius: var(--r); font-weight: 700;
-  font-size: 0.95rem; width: 100%; max-width: 380px;
+  font-size: 0.95rem; width: 100%;
   position: relative;
 }
 .status-banner::before {
@@ -346,7 +398,7 @@ html, body {
 }
 
 /* ── Placement info row ─────────────────────────────────────────────── */
-.btn-row { display: flex; gap: 10px; width: 100%; max-width: 380px; }
+.btn-row { display: flex; gap: 10px; width: 100%; }
 .btn-half {
   flex: 1; padding: 13px; border-radius: 14px;
   border: 1.5px solid var(--border-hi);

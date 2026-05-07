@@ -117,11 +117,28 @@ export class GameManager {
   }
 
   handleRotateShip(deviceId: number, action: RotateShipAction): void {
+    if (this.gameState.phase !== 'placement') return;
     const player = this.playerManager.getPlayer(deviceId);
     if (!player) return;
     const ship = player.board.ships.find(s => s.definition.id === action.shipId);
     if (!ship) return;
-    ship.orientation = ship.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+
+    if (ship.x < 0) {
+      ship.orientation = ship.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+      this.syncPlayerState(deviceId);
+      return;
+    }
+
+    const oldOrientation = ship.orientation;
+    const newOrientation = oldOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+    player.board.ownBoard = ShipPlacer.removeShip(player.board.ownBoard, ship);
+    if (!ShipPlacer.canPlace(player.board.ownBoard, ship.definition.length, ship.x, ship.y, newOrientation)) {
+      player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, ship.x, ship.y, oldOrientation);
+      this.syncPlayerState(deviceId);
+      return;
+    }
+    ship.orientation = newOrientation;
+    player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, ship.x, ship.y, newOrientation);
     this.syncPlayerState(deviceId);
   }
 
