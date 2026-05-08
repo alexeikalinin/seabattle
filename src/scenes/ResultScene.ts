@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { PlayerSlot } from '@/types/GameTypes';
 import type { GameManager } from '@/game/GameManager';
+import { ProceduralAudio } from '@/ui/ProceduralAudio';
 
 export class ResultScene extends Phaser.Scene {
   constructor() { super({ key: 'ResultScene' }); }
@@ -8,11 +9,15 @@ export class ResultScene extends Phaser.Scene {
   create(): void {
     const { width, height } = this.scale;
     const gameManager = this.registry.get('gameManager') as GameManager;
+    const audio = this.registry.get('audio') as ProceduralAudio | undefined;
     const winner = gameManager.getWinner();
 
     // Background
     this.add.rectangle(width / 2, height / 2, width, height, 0x05080f);
     this.drawStars();
+
+    // Play victory/defeat sound after short delay (let scene render first)
+    this.time.delayedCall(200, () => audio?.playVictory());
 
     // Winner announcement
     const winnerSlot: PlayerSlot = winner ?? 0;

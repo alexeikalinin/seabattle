@@ -8,6 +8,7 @@ import { ResultScene } from '@/scenes/ResultScene';
 import type { AirConsoleAdapter } from '@/airconsole/AirConsoleAdapter';
 import type { PlayerManager } from '@/state/PlayerManager';
 import type { GameManager } from '@/game/GameManager';
+import { ProceduralAudio } from '@/ui/ProceduralAudio';
 
 export function startPhaser(
   adapter: AirConsoleAdapter,
@@ -31,4 +32,5 @@ export function startPhaser(
   game.registry.set('gameManager', gameManager);
   game.registry.set('adapter', adapter);
   game.registry.set('playerManager', playerManager);
+  game.registry.set('audio', new ProceduralAudio());
 }

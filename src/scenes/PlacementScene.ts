@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import type { PlayerManager } from '@/state/PlayerManager';
+import { ProceduralAudio } from '@/ui/ProceduralAudio';
 import { Grid } from '@/ui/Grid';
 
 const LABEL_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
@@ -95,6 +96,7 @@ export class PlacementScene extends Phaser.Scene {
   }
 
   private onShipPlaced(slot: 0 | 1): void {
+    (this.registry.get('audio') as ProceduralAudio | undefined)?.playPlaceShip();
     const playerManager = this.registry.get('playerManager') as PlayerManager;
     const player = playerManager.getPlayerBySlot(slot);
     if (!player || !this.statusTexts[slot]) return;

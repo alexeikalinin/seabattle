@@ -1,5 +1,13 @@
 import type { Orientation, PlayerSlot, GamePhase, Board, PlacedShip, ShipTallyRow } from './GameTypes';
 
+export interface SunkShipInfo {
+  id: string;
+  x: number;
+  y: number;
+  length: number;
+  orientation: Orientation;
+}
+
 // ── Controller → Screen ──────────────────────────────────────────────────
 
 export type ControllerAction =
@@ -38,6 +46,8 @@ export interface StateUpdateMessage {
   /** Your ships still afloat, grouped by class. */
   ownShipTally: ShipTallyRow[];
   unplacedShipIds: string[];
+  /** Enemy ships fully sunk — shown as SVG silhouette on attack grid. */
+  sunkEnemyShips: SunkShipInfo[];
 }
 
 export interface AttackResultMessage {

@@ -9,7 +9,7 @@ import { BattleEngine } from './BattleEngine';
 import { TurnManager } from './TurnManager';
 import { shipTallyAlive } from '@/utils/fleetTally';
 import { randomSlot, createEmptyBoard } from '@/utils/helpers';
-import type { PlaceShipAction, RotateShipAction, AttackCellAction } from '@/types/Messages';
+import type { PlaceShipAction, RotateShipAction, AttackCellAction, SunkShipInfo } from '@/types/Messages';
 import type { PlayerSlot } from '@/types/GameTypes';
 import type Phaser from 'phaser';
 
@@ -290,6 +290,11 @@ export class GameManager {
 
     const opponentShipTally = defender ? shipTallyAlive(defender.board.ships) : [];
     const ownShipTally = shipTallyAlive(player.board.ships);
+    const sunkEnemyShips: SunkShipInfo[] = defender
+      ? defender.board.ships
+          .filter(s => s.isSunk && s.x >= 0)
+          .map(s => ({ id: s.definition.id, x: s.x, y: s.y, length: s.definition.length, orientation: s.orientation }))
+      : [];
 
     this.adapter.sendToController(deviceId, {
       type: 'STATE_UPDATE',
@@ -303,6 +308,7 @@ export class GameManager {
       opponentShipTally,
       ownShipTally,
       unplacedShipIds,
+      sunkEnemyShips,
     });
   }
 }

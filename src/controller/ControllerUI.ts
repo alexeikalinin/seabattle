@@ -3,6 +3,8 @@ import type { ScreenMessage, StateUpdateMessage, AttackResultMessage, GameOverMe
 import type { PlayerSlot, Board, CellState } from '@/types/GameTypes';
 import { GRID_SIZE } from '@/types/GameTypes';
 import { formatShipTally } from '@/utils/fleetTally';
+import { ProceduralAudio } from '@/ui/ProceduralAudio';
+import { ShipRenderer } from './ShipRenderer';
 
 type ViewId = 'lobby' | 'placement' | 'battle-turn' | 'battle-wait' | 'result';
 
@@ -11,6 +13,9 @@ export class ControllerUI {
   private selectedShipId: string | null = null;
   private currentOrientation: 'horizontal' | 'vertical' = 'horizontal';
   private lastState: StateUpdateMessage | null = null;
+  private readonly audio = new ProceduralAudio();
+  // Ship renderers keyed by grid id
+  private renderers: Record<string, ShipRenderer> = {};
 
   constructor(private readonly ac: AirConsole) {}
 
@@ -62,6 +67,7 @@ export class ControllerUI {
 
   private onAttackResult(msg: AttackResultMessage): void {
     if (msg.sunk) {
+      this.audio.playSunk();
       const toast = document.getElementById('global-toast');
       if (toast) {
         const name = msg.sunkShipName ? `${msg.sunkShipName} ` : '';
@@ -69,6 +75,10 @@ export class ControllerUI {
         toast.classList.add('visible');
         window.setTimeout(() => toast.classList.remove('visible'), 3200);
       }
+    } else if (msg.hit) {
+      this.audio.playHit();
+    } else {
+      this.audio.playMiss();
     }
 
     if (msg.hit) {
@@ -79,6 +89,7 @@ export class ControllerUI {
 
   private onGameOver(msg: GameOverMessage): void {
     const didWin = msg.winner === this.playerSlot;
+    if (didWin) this.audio.playVictory(); else this.audio.playDefeat();
     this.renderResult(didWin);
     this.showView('result');
   }
@@ -119,7 +130,14 @@ export class ControllerUI {
 
       btn.appendChild(segs);
       btn.appendChild(label);
-      btn.addEventListener('click', () => this.selectShip(shipId));
+      btn.addEventListener('click', () => {
+        if (shipId === this.selectedShipId) {
+          // Tap same ship again = rotate
+          this.rotateSelectedShip();
+        } else {
+          this.selectShip(shipId);
+        }
+      });
       selector.appendChild(btn);
     }
 
@@ -135,6 +153,7 @@ export class ControllerUI {
 
     // Render own board in placement grid
     this.updateGrid('placement-grid', msg.ownBoard, true);
+    this.renderers['placement-grid']?.renderFleet(msg.ships);
     this.highlightPlacementSelection(msg);
     this.updateRotateBtnLabel();
   }
@@ -142,14 +161,18 @@ export class ControllerUI {
   private renderBattleTurn(msg: StateUpdateMessage): void {
     qs('#ships-left').textContent = String(msg.opponentShipsRemaining);
     this.updateGrid('own-battle-grid', msg.ownBoard, true);
+    this.renderers['own-battle-grid']?.renderFleet(msg.ships);
     this.updateGrid('attack-grid', msg.attackBoard, false);
+    this.renderers['attack-grid']?.renderSunkEnemies(msg.sunkEnemyShips);
     this.renderFleetTally('fleet-tally-turn', msg);
   }
 
   private renderBattleWait(msg: StateUpdateMessage): void {
     qs('#wait-ships-left').textContent = String(msg.opponentShipsRemaining);
     this.updateGrid('own-wait-grid', msg.ownBoard, true);
+    this.renderers['own-wait-grid']?.renderFleet(msg.ships);
     this.updateGrid('attack-wait-grid', msg.attackBoard, false);
+    this.renderers['attack-wait-grid']?.renderSunkEnemies(msg.sunkEnemyShips);
     this.renderFleetTally('fleet-tally-wait', msg);
   }
 
@@ -227,6 +250,19 @@ export class ControllerUI {
         container.appendChild(cell);
       }
     }
+
+    // Ships layer — SVG overlays positioned above grid cells
+    const layer = document.createElement('div');
+    layer.className = 'ships-layer';
+    container.appendChild(layer);
+    this.renderers[containerId] = new ShipRenderer(layer);
+  }
+
+  private rotateSelectedShip(): void {
+    if (!this.selectedShipId) return;
+    this.ac.message(this.ac.SCREEN, { type: 'ROTATE_SHIP', shipId: this.selectedShipId });
+    this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+    this.updateRotateBtnLabel();
   }
 
   // ── Ship selection ─────────────────────────────────────────────────────
@@ -293,7 +329,7 @@ export class ControllerUI {
       <div id="view-placement" class="view view-placement">
         <div class="placement-title">DEPLOY FLEET</div>
         <p id="placement-progress" class="placement-progress">0 / 10 placed</p>
-        <p class="placement-hint">Choose an unplaced ship below, or tap a ship on the grid to move or rotate it.</p>
+        <p class="placement-hint">Tap a ship to select it → tap grid to place. Tap a selected ship again to rotate. Tap a placed ship to move it.</p>
 
         <div class="btn-row">
           <button type="button" class="btn-half" id="rotate-btn">↻ Rotate (H)</button>
@@ -369,6 +405,7 @@ export class ControllerUI {
     this.buildGrid('attack-wait-grid');
 
     qs('#ready-btn').addEventListener('click', () => {
+      this.audio.playReady();
       this.ac.message(this.ac.SCREEN, { type: 'READY' });
       (qs('#ready-btn') as HTMLButtonElement).disabled = true;
       (qs('#ready-btn') as HTMLButtonElement).textContent = '✓ READY!';
@@ -377,15 +414,11 @@ export class ControllerUI {
 
     qs('#rotate-btn').addEventListener('click', () => {
       if (this.selectedShipId) {
-        this.ac.message(this.ac.SCREEN, { type: 'ROTATE_SHIP', shipId: this.selectedShipId });
-        const ship = this.lastState?.ships.find(s => s.definition.id === this.selectedShipId);
-        if (ship) {
-          this.currentOrientation = ship.orientation === 'horizontal' ? 'vertical' : 'horizontal';
-        }
+        this.rotateSelectedShip();
       } else {
         this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+        this.updateRotateBtnLabel();
       }
-      this.updateRotateBtnLabel();
     });
 
     qs('#auto-place-btn').addEventListener('click', () => {
@@ -406,12 +439,18 @@ export class ControllerUI {
     if (!cell) return;
 
     if (cell.state === 'ship' && cell.shipId) {
-      this.selectShip(cell.shipId);
+      if (cell.shipId === this.selectedShipId) {
+        // Tap same selected ship on grid = rotate it in place
+        this.rotateSelectedShip();
+      } else {
+        this.selectShip(cell.shipId);
+      }
       return;
     }
 
     if (!this.selectedShipId) return;
 
+    this.audio.playPlaceShip();
     this.ac.message(this.ac.SCREEN, {
       type: 'PLACE_SHIP',
       shipId: this.selectedShipId,
@@ -425,6 +464,7 @@ export class ControllerUI {
     if (!this.lastState) return;
     const cell = this.lastState.attackBoard[row]?.[col];
     if (cell && cell.state !== 'empty') return;
+    this.audio.playShot();
     this.ac.message(this.ac.SCREEN, { type: 'ATTACK_CELL', x: col, y: row });
   }
 

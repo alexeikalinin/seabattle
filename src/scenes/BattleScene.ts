@@ -5,6 +5,7 @@ import type { AttackResultMessage } from '@/types/Messages';
 import type { PlayerSlot } from '@/types/GameTypes';
 import { Grid } from '@/ui/Grid';
 import { AnimationManager } from '@/ui/AnimationManager';
+import { ProceduralAudio } from '@/ui/ProceduralAudio';
 
 interface AttackEventData extends AttackResultMessage {
   attackerSlot: PlayerSlot;
@@ -35,6 +36,7 @@ export class BattleScene extends Phaser.Scene {
   private radarGrids: [Grid | null, Grid | null] = [null, null];
   private turnText!: Phaser.GameObjects.Text;
   private animManager!: AnimationManager;
+  private audio!: ProceduralAudio;
   private attackResultHandler!: (data: AttackEventData) => void;
   private gameOverHandler!: (winner: PlayerSlot) => void;
   private disconnectHandler!: () => void;
@@ -48,6 +50,7 @@ export class BattleScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     this.animManager = new AnimationManager(this);
+    this.audio = this.registry.get('audio') as ProceduralAudio;
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x050a12);
     this.drawGridLines();
@@ -149,18 +152,23 @@ export class BattleScene extends Phaser.Scene {
     grid.markCell(data.x, data.y, data.hit ? (data.sunk ? 'sunk' : 'hit') : 'miss');
 
     if (data.hit) {
-      this.animManager.playExplosion(worldX, worldY);
-      this.cameras.main.shake(180, 0.005);
+      if (data.sunk) {
+        this.audio?.playSunk();
+        this.animManager.playExplosion(worldX, worldY);
+        this.animManager.playSunkEffect(worldX, worldY);
+        this.cameras.main.shake(280, 0.009);
+        const label = data.sunkShipName
+          ? `⚓ ${data.sunkShipName.toUpperCase()} SUNK!`
+          : '⚓ SHIP SUNK!';
+        this.animManager.showFloatingBanner(this.scale.width / 2, this.scale.height * 0.42, label);
+      } else {
+        this.audio?.playHit();
+        this.animManager.playExplosion(worldX, worldY);
+        this.cameras.main.shake(180, 0.005);
+      }
     } else {
+      this.audio?.playMiss();
       this.animManager.playWaterSplash(worldX, worldY);
-    }
-
-    if (data.sunk) {
-      this.animManager.playSunkEffect(worldX, worldY);
-      const label = data.sunkShipName
-        ? `⚓ ${data.sunkShipName.toUpperCase()} SUNK!`
-        : '⚓ SHIP SUNK!';
-      this.animManager.showFloatingBanner(this.scale.width / 2, this.scale.height * 0.42, label);
     }
   }
 

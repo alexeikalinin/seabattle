@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Battleship Duel — Ship Graphics Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#020408;
+  font-family:'Inter',sans-serif;color:#c8e8f4;
+  min-height:100vh;padding:40px 20px;
+  background-image:
+    radial-gradient(ellipse 120% 60% at 50% -10%,rgba(0,80,180,.18) 0%,transparent 60%),
+    linear-gradient(180deg,#020408 0%,#030912 100%);
+}
+
+/* Cyberpunk grid overlay */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+
+h1{
+  text-align:center;font-family:'Sora',sans-serif;font-size:2.4rem;font-weight:800;
+  background:linear-gradient(135deg,#00d4ff 0%,#0084ff 60%,#a855f7 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 24px rgba(0,212,255,.35));
+  margin-bottom:6px;position:relative;z-index:1;
+}
+.subtitle{text-align:center;font-size:.85rem;color:rgba(90,200,250,.5);margin-bottom:8px;letter-spacing:.1em;position:relative;z-index:1}
+.tag{
+  display:inline-block;margin:0 auto 40px;
+  background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);
+  border-radius:99px;padding:5px 18px;font-size:.72rem;font-weight:700;letter-spacing:.12em;
+  color:#00d4ff;text-align:center;position:relative;z-index:1;
+}
+.center{text-align:center}
+
+/* Phone row */
+.phones{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;align-items:flex-start;position:relative;z-index:1}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone-label{font-size:.7rem;font-weight:700;letter-spacing:.14em;color:rgba(0,212,255,.5);text-transform:uppercase}
+
+.phone{
+  width:368px;background:#020810;
+  border-radius:44px;
+  box-shadow:0 0 0 8px #0a1828,0 0 0 10px #0d2040,0 48px 96px rgba(0,0,0,.85),
+    0 0 60px rgba(0,212,255,.06);
+  overflow:hidden;position:relative;
+}
+/* Pill notch */
+.phone::before{
+  content:'';position:absolute;top:13px;left:50%;transform:translateX(-50%);
+  width:110px;height:30px;background:#020810;border-radius:0 0 18px 18px;z-index:20;
+}
+
+.p-screen{
+  background:radial-gradient(ellipse 150% 80% at 50% -20%,rgba(0,100,200,.22) 0%,transparent 55%),
+    linear-gradient(180deg,#020c1a 0%,#030e22 50%,#020810 100%);
+  padding:54px 18px 24px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  min-height:760px;
+}
+
+/* Status banner */
+.banner{
+  width:100%;padding:11px 16px;border-radius:12px;
+  font-size:.82rem;font-weight:700;text-align:center;
+}
+.banner.your-turn{
+  background:rgba(0,180,255,.08);border:1.5px solid rgba(0,212,255,.4);
+  color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,.08);
+  animation:glow-pulse 1.6s ease-in-out infinite;
+}
+.banner.waiting{
+  background:rgba(5,15,35,.5);border:1px solid rgba(0,100,200,.15);
+  color:rgba(90,170,220,.4);
+}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 16px rgba(0,212,255,.08)}50%{box-shadow:0 0 28px rgba(0,212,255,.18)}}
+
+/* Player badge */
+.p-badge{
+  position:absolute;top:15px;right:16px;z-index:25;
+  background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);
+  border-radius:99px;padding:4px 12px;
+  font-size:.62rem;font-weight:800;letter-spacing:.12em;color:#00d4ff;
+}
+
+/* Section label */
+.s-label{font-size:.6rem;font-weight:800;letter-spacing:.18em;color:rgba(0,212,255,.35);text-transform:uppercase;width:100%}
+
+/* ── GRID ─────────────────────────────────────────────── */
+.grid-wrap{position:relative;width:100%}
+.col-labels{
+  display:grid;grid-template-columns:repeat(10,1fr);
+  padding-left:0;margin-bottom:2px;
+}
+.col-labels span{
+  font-size:.5rem;font-weight:700;color:rgba(0,212,255,.25);
+  text-align:center;
+}
+.grid-area{position:relative}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  grid-template-rows:repeat(10,1fr);
+  gap:2px;width:100%;aspect-ratio:1;
+}
+.cell{
+  background:rgba(0,20,50,.6);
+  border:1px solid rgba(0,212,255,.12);
+  border-radius:3px;aspect-ratio:1;
+  position:relative;
+  transition:background .1s;
+}
+.cell.hit{background:rgba(220,40,40,.75);border-color:rgba(255,80,80,.5)}
+.cell.hit::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:900;color:#fff;opacity:.9}
+.cell.miss{background:rgba(3,12,28,.95);border-color:rgba(0,150,220,.3)}
+.cell.miss::after{
+  content:'';position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:35%;height:35%;border-radius:50%;
+  background:rgba(150,220,255,.75);
+  box-shadow:0 0 4px rgba(100,200,255,.4);
+}
+.cell.sunk{background:rgba(150,10,10,.85);border-color:rgba(255,50,50,.7);animation:sunk-pulse 1.3s ease-in-out infinite}
+.cell.sunk::after{content:'✕';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:900;color:#fff}
+@keyframes sunk-pulse{0%,100%{box-shadow:0 0 5px rgba(255,30,30,.5)}50%{box-shadow:0 0 14px rgba(255,30,30,.95)}}
+
+/* ── SHIP SVG LAYER ──────────────────────────────────── */
+.ships-layer{
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events:none;
+}
+/* Each ship is absolutely positioned using CSS custom properties */
+.ship-svg{
+  position:absolute;
+  --cs: calc(100% / 10);  /* cell size = 10% of grid width */
+  filter:drop-shadow(0 0 6px rgba(0,212,255,.5));
+  transition:filter .2s;
+}
+.ship-svg.sunk-ship{
+  filter:drop-shadow(0 0 8px rgba(255,40,40,.6)) saturate(0.3) brightness(0.7);
+}
+.ship-svg.damaged{
+  filter:drop-shadow(0 0 6px rgba(255,120,0,.4));
+}
+
+/* ── SHIP POSITIONS (grid col/row 0-based) ── */
+/* carrier h4 at r0,c0 */
+.s-carrier{ left:calc(0 * var(--cs)); top:calc(0 * var(--cs)); width:calc(4 * var(--cs)); height:var(--cs); }
+/* battleship h3 at r2,c1 */
+.s-bs1{ left:calc(1 * var(--cs)); top:calc(2 * var(--cs)); width:calc(3 * var(--cs)); height:var(--cs); }
+/* battleship h3 at r4,c5 */
+.s-bs2{ left:calc(5 * var(--cs)); top:calc(4 * var(--cs)); width:calc(3 * var(--cs)); height:var(--cs); }
+/* destroyer h2 at r6,c0 */
+.s-d1{ left:calc(0 * var(--cs)); top:calc(6 * var(--cs)); width:calc(2 * var(--cs)); height:var(--cs); }
+/* destroyer h2 at r6,c4 */
+.s-d2{ left:calc(4 * var(--cs)); top:calc(6 * var(--cs)); width:calc(2 * var(--cs)); height:var(--cs); }
+/* destroyer h2 at r8,c6 — SUNK */
+.s-d3{ left:calc(6 * var(--cs)); top:calc(8 * var(--cs)); width:calc(2 * var(--cs)); height:var(--cs); }
+/* sub h1 at r8,c0 */
+.s-sub1{ left:calc(0 * var(--cs)); top:calc(8 * var(--cs)); width:var(--cs); height:var(--cs); }
+/* sub h1 at r8,c2 */
+.s-sub2{ left:calc(2 * var(--cs)); top:calc(8 * var(--cs)); width:var(--cs); height:var(--cs); }
+/* sub vertical at r1,c8 */
+.s-sub3{ left:calc(8 * var(--cs)); top:calc(1 * var(--cs)); width:var(--cs); height:var(--cs); }
+/* sub h1 at r3,c8 */
+.s-sub4{ left:calc(8 * var(--cs)); top:calc(3 * var(--cs)); width:var(--cs); height:var(--cs); }
+
+/* ── SHIP DEFS ─────────────────────────────────────────
+   All SVGs use viewBox="0 0 {N*100} 100"
+   so they scale naturally to any cell size.
+   Colors: fill = rgba(0,200,255,.15), stroke = #00d4ff
+─────────────────────────────────────────────────────── */
+
+/* ── FLEET TALLY ────────────────────────────────────── */
+.fleet-tally{
+  width:100%;padding:7px 12px;border-radius:10px;
+  background:rgba(0,15,35,.5);border:1px solid rgba(0,212,255,.1);
+  font-size:.64rem;color:rgba(90,180,240,.6);line-height:1.6;
+}
+.tally-row{display:flex;align-items:center;gap:8px}
+.tally-tag{font-size:.58rem;font-weight:800;letter-spacing:.1em;color:rgba(0,212,255,.4);min-width:36px}
+.ship-icon{display:inline-flex;gap:2px;align-items:center}
+.si{width:8px;height:8px;border-radius:2px;background:rgba(0,180,255,.5);border:1px solid rgba(0,212,255,.35)}
+.si.sunk{background:rgba(180,30,30,.6);border-color:rgba(255,50,50,.4)}
+.si.alive{background:rgba(0,180,255,.55);border-color:rgba(0,212,255,.5)}
+
+/* ── FIRE BUTTON ───────────────────────────────────── */
+.fire-btn{
+  width:100%;padding:16px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,rgba(0,150,255,.25),rgba(0,80,220,.2));
+  border:1.5px solid rgba(0,212,255,.4);
+  color:#00d4ff;font-family:'Sora',sans-serif;font-size:1rem;font-weight:800;
+  cursor:pointer;letter-spacing:.06em;
+  box-shadow:0 0 24px rgba(0,212,255,.1),inset 0 1px 0 rgba(255,255,255,.06);
+  position:relative;overflow:hidden;
+}
+.fire-btn::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 150%,rgba(0,212,255,.12) 0%,transparent 70%);
+}
+
+.ships-counter{font-size:.78rem;color:rgba(90,170,220,.5);text-align:center}
+.ships-counter strong{color:#ff4444;font-weight:800}
+
+/* ── SECTION DIVIDER ───────────────────────────────── */
+.divider{
+  width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,212,255,.2),transparent);
+}
+</style>
+</head>
+<body>
+<h1>Battleship Duel</h1>
+<p class="subtitle">DESIGN PREVIEW — NEON DEEP — SHIP GRAPHICS CONCEPT</p>
+<div class="center"><span class="tag">⚓ КОРАБЛИ КАК SVG-СИЛУЭТЫ ВМЕСТО КВАДРАТИКОВ</span></div>
+
+<div class="phones">
+
+  <!-- ── PHONE 1: PLACEMENT ──────────────────────────── -->
+  <div class="phone-wrap">
+    <div class="phone-label">Расстановка флота</div>
+    <div class="phone" style="position:relative">
+      <div class="p-badge">PLAYER 1</div>
+      <div class="p-screen">
+        <div class="banner your-turn">⚓ DEPLOY YOUR FLEET</div>
+
+        <div class="s-label">Ваша сетка</div>
+        <div class="grid-wrap">
+          <div class="col-labels">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
+          <div class="grid-area">
+            <div class="grid" id="p-grid">
+              <!-- 100 cells, some marked -->
+            </div>
+            <!-- Ship SVGs layer -->
+            <div class="ships-layer">
+
+              <!-- CARRIER (4) at row 0, col 0 -->
+              <svg class="ship-svg s-carrier" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,12 L360,12 Q392,50 360,88 L10,88 Q4,50 10,12 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <!-- Deck line -->
+                <line x1="28" y1="50" x2="330" y2="50" stroke="#00d4ff" stroke-width="1" stroke-dasharray="12,8" opacity="0.3"/>
+                <!-- Island superstructure (near bow) -->
+                <rect x="280" y="20" width="60" height="26" rx="5" fill="rgba(0,200,255,.35)" stroke="#00d4ff" stroke-width="2"/>
+                <!-- Bridge -->
+                <rect x="296" y="24" width="28" height="18" rx="3" fill="rgba(0,220,255,.55)" stroke="#00d4ff" stroke-width="1.5"/>
+                <!-- Radar antenna -->
+                <circle cx="312" cy="20" r="4" fill="#00d4ff" opacity="0.7"/>
+                <line x1="312" y1="16" x2="312" y2="8" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+                <!-- Stern engines -->
+                <rect x="12" y="26" width="14" height="18" rx="3" fill="rgba(0,180,255,.3)" stroke="#00d4ff" stroke-width="1.5"/>
+                <rect x="12" y="56" width="14" height="18" rx="3" fill="rgba(0,180,255,.3)" stroke="#00d4ff" stroke-width="1.5"/>
+                <!-- Mid-deck detail -->
+                <rect x="120" y="36" width="120" height="28" rx="4" fill="rgba(0,180,255,.08)" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+                <!-- Bow glow -->
+                <circle cx="384" cy="50" r="6" fill="rgba(0,212,255,.4)"/>
+              </svg>
+
+              <!-- BATTLESHIP (3) at row 2, col 1 -->
+              <svg class="ship-svg s-bs1" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,14 L262,14 Q292,50 262,86 L10,86 Q4,50 10,14 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <!-- Superstructure -->
+                <rect x="110" y="24" width="80" height="22" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="126" y="28" width="48" height="14" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <!-- Fore turret -->
+                <ellipse cx="60" cy="50" rx="18" ry="13" fill="rgba(0,180,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="60" y1="50" x2="88" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <!-- Aft turret -->
+                <ellipse cx="215" cy="50" rx="16" ry="12" fill="rgba(0,180,255,.2)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="215" y1="50" x2="240" y2="50" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <!-- Bow glow -->
+                <circle cx="286" cy="50" r="5" fill="rgba(0,212,255,.35)"/>
+              </svg>
+
+              <!-- BATTLESHIP 2 (3) at row 4, col 5 -->
+              <svg class="ship-svg s-bs2" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,14 L262,14 Q292,50 262,86 L10,86 Q4,50 10,14 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="110" y="24" width="80" height="22" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="126" y="28" width="48" height="14" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <ellipse cx="60" cy="50" rx="18" ry="13" fill="rgba(0,180,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="60" y1="50" x2="88" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="286" cy="50" r="5" fill="rgba(0,212,255,.35)"/>
+              </svg>
+
+              <!-- DESTROYER 1 (2) at row 6, col 0 -->
+              <svg class="ship-svg s-d1" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="76" y="30" width="54" height="20" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="86" y="34" width="34" height="12" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <!-- Gun -->
+                <line x1="140" y1="50" x2="160" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="186" cy="50" r="4" fill="rgba(0,212,255,.3)"/>
+              </svg>
+
+              <!-- DESTROYER 2 (2) at row 6, col 4 -->
+              <svg class="ship-svg s-d2" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="76" y="30" width="54" height="20" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="86" y="34" width="34" height="12" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <line x1="140" y1="50" x2="160" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="186" cy="50" r="4" fill="rgba(0,212,255,.3)"/>
+              </svg>
+
+              <!-- DESTROYER 3 (2) SUNK at row 8, col 6 -->
+              <svg class="ship-svg s-d3 sunk-ship" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(180,20,20,.25)" stroke="#ff4444" stroke-width="3"/>
+                <rect x="76" y="30" width="54" height="20" rx="5" fill="rgba(180,30,30,.35)" stroke="#ff4444" stroke-width="2"/>
+                <text x="100" y="58" text-anchor="middle" font-size="32" fill="#ff4444" opacity="0.8">✕</text>
+              </svg>
+
+              <!-- SUB 1 (1) at row 8, col 0 -->
+              <svg class="ship-svg s-sub1" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="12" r="3" fill="#00d4ff" opacity="0.6"/>
+              </svg>
+
+              <!-- SUB 2 (1) at row 8, col 2 -->
+              <svg class="ship-svg s-sub2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="12" r="3" fill="#00d4ff" opacity="0.6"/>
+              </svg>
+
+              <!-- SUB 3 (1) at row 1, col 8 -->
+              <svg class="ship-svg s-sub3" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="12" r="3" fill="#00d4ff" opacity="0.6"/>
+              </svg>
+
+              <!-- SUB 4 (1) at row 3, col 8 -->
+              <svg class="ship-svg s-sub4" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="12" r="3" fill="#00d4ff" opacity="0.6"/>
+              </svg>
+
+            </div><!-- /ships-layer -->
+          </div><!-- /grid-area -->
+        </div><!-- /grid-wrap -->
+
+        <div class="fleet-tally">
+          <div class="tally-row"><span class="tally-tag">ФЛОТ</span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si sunk"></span><span class="si sunk"></span></span>
+          </div>
+        </div>
+
+        <button class="fire-btn">✓ FLEET DEPLOYED — READY!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 2: BATTLE — fleet with damage ─────────── -->
+  <div class="phone-wrap">
+    <div class="phone-label">Бой — твой флот (повреждения)</div>
+    <div class="phone" style="position:relative">
+      <div class="p-badge" style="background:rgba(255,110,180,.1);border-color:rgba(255,110,180,.3);color:#ff6eb4">PLAYER 2</div>
+      <div class="p-screen">
+        <div class="banner waiting">⏳ ХОД СОПЕРНИКА — ОЖИДАЙТЕ</div>
+
+        <div class="s-label">Ваш флот</div>
+        <div class="grid-wrap">
+          <div class="col-labels">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
+          <div class="grid-area">
+            <div class="grid" id="b-fleet">
+              <!-- Enemy hits on your ships are shown as red cells BENEATH ships -->
+            </div>
+            <div class="ships-layer">
+
+              <!-- CARRIER (4) at row 0, col 0 — DAMAGED (hit at col 2) -->
+              <svg class="ship-svg s-carrier damaged" viewBox="0 0 400 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,12 L360,12 Q392,50 360,88 L10,88 Q4,50 10,12 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <line x1="28" y1="50" x2="330" y2="50" stroke="#00d4ff" stroke-width="1" stroke-dasharray="12,8" opacity="0.25"/>
+                <rect x="280" y="20" width="60" height="26" rx="5" fill="rgba(0,200,255,.35)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="296" y="24" width="28" height="18" rx="3" fill="rgba(0,220,255,.55)" stroke="#00d4ff" stroke-width="1.5"/>
+                <circle cx="312" cy="20" r="4" fill="#00d4ff" opacity="0.7"/>
+                <line x1="312" y1="16" x2="312" y2="8" stroke="#00d4ff" stroke-width="2" opacity="0.6"/>
+                <rect x="12" y="26" width="14" height="18" rx="3" fill="rgba(0,180,255,.3)" stroke="#00d4ff" stroke-width="1.5"/>
+                <rect x="12" y="56" width="14" height="18" rx="3" fill="rgba(0,180,255,.3)" stroke="#00d4ff" stroke-width="1.5"/>
+                <rect x="120" y="36" width="120" height="28" rx="4" fill="rgba(0,180,255,.08)" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+                <!-- Hit damage at ~25% (col index 1 out of 4) -->
+                <circle cx="100" cy="50" r="22" fill="rgba(255,80,0,.35)" stroke="rgba(255,120,0,.6)" stroke-width="2"/>
+                <text x="100" y="58" text-anchor="middle" font-size="28" fill="#ff6600" opacity="0.9">✕</text>
+                <!-- Fire particles -->
+                <circle cx="90" cy="38" r="5" fill="rgba(255,150,0,.5)"/>
+                <circle cx="112" cy="44" r="4" fill="rgba(255,80,0,.4)"/>
+                <circle cx="96" cy="62" r="3" fill="rgba(255,180,0,.45)"/>
+                <circle cx="386" cy="50" r="6" fill="rgba(0,212,255,.4)"/>
+              </svg>
+
+              <!-- BATTLESHIP (3) at row 2, col 1 — INTACT -->
+              <svg class="ship-svg s-bs1" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,14 L262,14 Q292,50 262,86 L10,86 Q4,50 10,14 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="110" y="24" width="80" height="22" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="126" y="28" width="48" height="14" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <ellipse cx="60" cy="50" rx="18" ry="13" fill="rgba(0,180,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="60" y1="50" x2="88" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <ellipse cx="215" cy="50" rx="16" ry="12" fill="rgba(0,180,255,.2)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="215" y1="50" x2="240" y2="50" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="286" cy="50" r="5" fill="rgba(0,212,255,.35)"/>
+              </svg>
+
+              <!-- BATTLESHIP 2 SUNK -->
+              <svg class="ship-svg s-bs2 sunk-ship" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,14 L262,14 Q292,50 262,86 L10,86 Q4,50 10,14 Z"
+                  fill="rgba(160,10,10,.3)" stroke="#ff3333" stroke-width="3"/>
+                <rect x="110" y="24" width="80" height="22" rx="5" fill="rgba(160,20,20,.35)" stroke="#ff3333" stroke-width="2"/>
+                <text x="150" y="60" text-anchor="middle" font-size="36" fill="#ff4444" opacity="0.85">✕</text>
+                <!-- Sinking tilt lines -->
+                <line x1="10" y1="50" x2="280" y2="55" stroke="rgba(255,60,60,.3)" stroke-width="1.5"/>
+              </svg>
+
+              <!-- DESTROYER 1 (2) at row 6, col 0 — INTACT -->
+              <svg class="ship-svg s-d1" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="76" y="30" width="54" height="20" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="86" y="34" width="34" height="12" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <line x1="140" y1="50" x2="160" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="186" cy="50" r="4" fill="rgba(0,212,255,.3)"/>
+              </svg>
+
+              <!-- DESTROYER 2 intact -->
+              <svg class="ship-svg s-d2" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(0,180,255,.13)" stroke="#00d4ff" stroke-width="3"/>
+                <rect x="76" y="30" width="54" height="20" rx="5" fill="rgba(0,200,255,.3)" stroke="#00d4ff" stroke-width="2"/>
+                <rect x="86" y="34" width="34" height="12" rx="3" fill="rgba(0,220,255,.5)" stroke="#00d4ff" stroke-width="1.5"/>
+                <line x1="140" y1="50" x2="160" y2="50" stroke="#00d4ff" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="186" cy="50" r="4" fill="rgba(0,212,255,.3)"/>
+              </svg>
+
+              <!-- DESTROYER 3 SUNK -->
+              <svg class="ship-svg s-d3 sunk-ship" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10,18 L170,18 Q192,50 170,82 L10,82 Q4,50 10,18 Z"
+                  fill="rgba(160,10,10,.25)" stroke="#ff3333" stroke-width="3"/>
+                <text x="100" y="58" text-anchor="middle" font-size="32" fill="#ff4444" opacity="0.85">✕</text>
+              </svg>
+
+              <!-- SUBS -->
+              <svg class="ship-svg s-sub1" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="50" cy="12" r="3" fill="#00d4ff" opacity="0.6"/>
+              </svg>
+              <svg class="ship-svg s-sub2" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <svg class="ship-svg s-sub3" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(0,180,255,.15)" stroke="#00d4ff" stroke-width="3"/>
+                <ellipse cx="50" cy="50" rx="18" ry="12" fill="rgba(0,200,255,.25)" stroke="#00d4ff" stroke-width="2"/>
+                <line x1="50" y1="24" x2="50" y2="14" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <svg class="ship-svg s-sub4 sunk-ship" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(160,10,10,.2)" stroke="#ff3333" stroke-width="3"/>
+                <text x="50" y="58" text-anchor="middle" font-size="24" fill="#ff4444" opacity="0.8">✕</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="fleet-tally">
+          <div class="tally-row"><span class="tally-tag">ВЫ</span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si sunk"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si sunk"></span><span class="si sunk"></span><span class="si sunk"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si sunk"></span><span class="si sunk"></span></span>
+          </div>
+        </div>
+
+        <div class="ships-counter">Кораблей у врага: <strong>4</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PHONE 3: BATTLE — attack grid (YOUR TURN) ────── -->
+  <div class="phone-wrap">
+    <div class="phone-label">Бой — твой ход, атака врага</div>
+    <div class="phone" style="position:relative">
+      <div class="p-badge">PLAYER 1</div>
+      <div class="p-screen">
+        <div class="banner your-turn" style="font-size:.9rem">⚡ ТВОЙ ХОД — ВЫБЕРИ ЦЕЛЬ</div>
+
+        <div class="s-label">Вражеские воды — тап для выстрела</div>
+        <div class="grid-wrap">
+          <div class="col-labels">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+          </div>
+          <div class="grid-area">
+            <div class="grid" id="atk-grid"></div>
+
+            <!-- Ship SVGs revealed on attack grid: only SUNK ships become visible as full silhouette -->
+            <div class="ships-layer">
+
+              <!-- SUNK battleship (3) at row 3, col 2 — fully revealed when sunk -->
+              <div style="position:absolute;left:calc(2*10%);top:calc(3*10%);width:calc(3*10%);height:10%">
+                <svg viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                     style="width:100%;height:100%;filter:drop-shadow(0 0 10px rgba(255,30,30,.7))">
+                  <path d="M10,14 L262,14 Q292,50 262,86 L10,86 Q4,50 10,14 Z"
+                    fill="rgba(160,10,10,.4)" stroke="#ff3333" stroke-width="3.5"/>
+                  <rect x="110" y="24" width="80" height="22" rx="5" fill="rgba(180,20,20,.5)" stroke="#ff4444" stroke-width="2"/>
+                  <rect x="126" y="28" width="48" height="14" rx="3" fill="rgba(200,30,30,.55)" stroke="#ff5555" stroke-width="1.5"/>
+                  <ellipse cx="60" cy="50" rx="18" ry="13" fill="rgba(180,20,20,.35)" stroke="#ff3333" stroke-width="2"/>
+                  <text x="150" y="62" text-anchor="middle" font-size="32" fill="#ff4444" font-weight="bold" opacity="0.9">✕</text>
+                  <!-- Wreckage lines -->
+                  <line x1="20" y1="45" x2="280" y2="58" stroke="rgba(255,60,60,.25)" stroke-width="1.5"/>
+                </svg>
+              </div>
+
+              <!-- SUNK submarine (1) at row 7, col 5 -->
+              <div style="position:absolute;left:calc(5*10%);top:calc(7*10%);width:10%;height:10%">
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+                     style="width:100%;height:100%;filter:drop-shadow(0 0 8px rgba(255,30,30,.6))">
+                  <ellipse cx="50" cy="50" rx="38" ry="26" fill="rgba(160,10,10,.35)" stroke="#ff3333" stroke-width="3"/>
+                  <text x="50" y="58" text-anchor="middle" font-size="24" fill="#ff4444" opacity="0.85">✕</text>
+                </svg>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="fleet-tally">
+          <div class="tally-row"><span class="tally-tag">ВРАГ</span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si sunk"></span><span class="si sunk"></span><span class="si sunk"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si alive"></span><span class="si alive"></span></span>
+            <span class="ship-icon"><span class="si sunk"></span><span class="si sunk"></span></span>
+          </div>
+        </div>
+
+        <div class="ships-counter">Кораблей у врага: <strong>5</strong></div>
+        <button class="fire-btn">🎯 ВЫБЕРИ КЛЕТКУ ДЛЯ ВЫСТРЕЛА</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phones -->
+
+<script>
+// Populate grid cells — mark some as hit/miss/sunk where ships are damaged
+function fillGrid(id, hits, misses, sunks) {
+  const grid = document.getElementById(id);
+  if (!grid) return;
+  for (let i = 0; i < 100; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const r = Math.floor(i/10), c = i%10;
+    const key = r+','+c;
+    if (sunks.includes(key)) cell.classList.add('sunk');
+    else if (hits.includes(key)) cell.classList.add('hit');
+    else if (misses.includes(key)) cell.classList.add('miss');
+    grid.appendChild(cell);
+  }
+}
+
+// Placement grid — clean (just sunk marker for the sunk destroyer)
+fillGrid('p-grid', [], ['2,3','5,7','3,5','1,9','7,2','0,7'],
+  ['8,6','8,7']);
+
+// Attack grid — what you see when shooting at enemy
+// Sunk cells on the ship positions are shown as sunk (under the SVG), rest is miss/hit/empty
+fillGrid('atk-grid',
+  ['1,4','2,3'],           // hits (partial ship visible, not yet sunk)
+  ['0,2','0,6','2,7','4,1','4,8','6,3','6,9','8,0','9,5'],  // misses
+  ['3,2','3,3','3,4', '7,5']   // sunk (carrier battleship + sub revealed)
+);
+
+// Battle fleet grid — hit cells where ships were hit
+fillGrid('b-fleet',
+  ['0,2'],          // carrier hit at col 2
+  ['3,0','5,3','7,1','9,4'],
+  ['4,5','4,6','4,7', '8,6','8,7']  // bs2 sunk + d3 sunk
+);
+</script>
+</body>
+</html>

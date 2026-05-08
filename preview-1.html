@@ -1,167 +1,663 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Preview 1 — Ocean Depth</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Sora:wght@400;700;800&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battleship Duel — NEON DEEP Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #040c18; font-family: 'Inter', sans-serif; color: #c8e0f0; min-height: 100vh; padding: 32px 20px; }
-h1 { text-align: center; font-family: 'Sora', sans-serif; font-size: 2rem; color: #fff; margin-bottom: 4px; }
-.subtitle { text-align: center; font-size: .9rem; color: #4a7a9b; margin-bottom: 40px; }
-.phones { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; align-items: flex-start; }
-.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.phone-label { font-size: .75rem; font-weight: 700; letter-spacing: .12em; color: #4a7a9b; text-transform: uppercase; }
-.phone { width: 340px; height: 680px; border-radius: 42px; background: #03090f; box-shadow: 0 0 0 8px #0a1828, 0 0 0 10px #0f2035, 0 40px 80px rgba(0,0,0,.8); overflow: hidden; position: relative; }
-.phone::before { content: ''; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 100px; height: 28px; background: #03090f; border-radius: 0 0 16px 16px; z-index: 20; }
-.screen { width: 100%; height: 100%; border-radius: 34px; overflow: hidden; }
+  /* ═══════════════════════════════════════════════
+     NEON DEEP — Cyberpunk Ocean Controller
+     Ultra-dark · Neon Cyan/Blue · Glassmorphism
+  ═══════════════════════════════════════════════ */
 
-.od-bg {
-  background: radial-gradient(ellipse 120% 80% at 50% -20%, #0a3566 0%, transparent 60%), linear-gradient(180deg, #030e1e 0%, #04152a 50%, #020b18 100%);
-  min-height: 100%; padding: 52px 20px 24px;
-  display: flex; flex-direction: column; align-items: center; gap: 16px; position: relative; overflow: hidden;
-}
-.od-bg::after { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,150,255,.12) 0%, transparent 70%); pointer-events: none; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.od-badge { background: rgba(0,120,220,.15); border: 1px solid rgba(0,180,255,.25); border-radius: 99px; padding: 5px 16px; font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: #5ac8fa; }
-.od-name { font-family: 'Sora', sans-serif; font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #5ac8fa, #2d8cf0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; filter: drop-shadow(0 0 20px rgba(90,200,250,.4)); }
-.od-ready { width: 100%; padding: 18px; border-radius: 18px; border: none; background: linear-gradient(135deg, #1a6fb5, #0d4f8c); color: #e0f4ff; font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 800; cursor: pointer; box-shadow: 0 4px 24px rgba(0,100,220,.4); position: relative; overflow: hidden; }
-@keyframes shimmer { 0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.05)} }
-.od-ready::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.06) 0%, transparent 60%); animation: shimmer 3s ease-in-out infinite; }
+  :root {
+    --bg-void:       #020408;
+    --bg-deep:       #040d1a;
+    --bg-card:       rgba(6, 20, 45, 0.85);
+    --bg-glass:      rgba(0, 200, 255, 0.04);
+    --neon-cyan:     #00d4ff;
+    --neon-blue:     #0084ff;
+    --neon-purple:   #7b2fff;
+    --hit-red:       #ff2d5e;
+    --sunk-color:    #ff1a4a;
+    --sunk-glow:     rgba(255, 26, 74, 0.8);
+    --text-bright:   #e0f4ff;
+    --text-dim:      rgba(160, 220, 255, 0.55);
+    --text-muted:    rgba(100, 160, 200, 0.4);
+    --border-neon:   rgba(0, 212, 255, 0.25);
+    --border-glow:   rgba(0, 212, 255, 0.5);
+    --font-main:     'Sora', sans-serif;
+    --font-body:     'Inter', sans-serif;
+  }
 
-.od-glass { width: 100%; background: rgba(10,40,80,.45); border: 1px solid rgba(90,200,250,.15); border-radius: 20px; padding: 18px; position: relative; }
-.od-glass::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 1px; background: linear-gradient(90deg, transparent, rgba(90,200,250,.2), transparent); }
-.od-section { font-size: .65rem; font-weight: 700; letter-spacing: .14em; color: #3a7a9b; margin-bottom: 12px; text-transform: uppercase; }
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: var(--bg-void);
+    font-family: var(--font-main);
+    color: var(--text-bright);
+    overflow-x: hidden;
+  }
 
-.od-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
-.od-cell { aspect-ratio: 1; border-radius: 3px; background: rgba(10,40,80,.6); border: 1px solid rgba(90,200,250,.12); }
-.od-cell.s { background: linear-gradient(135deg, #1a5f9a, #0d4070); border-color: rgba(90,200,250,.3); }
-.od-cell.h { background: linear-gradient(135deg, #c0392b, #922b21); border-color: rgba(255,80,80,.4); }
-.od-cell.m { background: rgba(20,60,100,.4); border-color: rgba(90,200,250,.08); }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 84, 255, 0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(0, 212, 255, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(123, 47, 255, 0.05) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
 
-.od-ship { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(10,40,80,.5); border: 1px solid rgba(90,200,250,.12); margin-bottom: 8px; cursor: pointer; }
-.od-ship.sel { background: rgba(26,111,181,.3); border-color: rgba(90,200,250,.5); }
-.od-seg { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg, #2d8cf0, #1a6fb5); }
-.od-sn { font-size: .85rem; font-weight: 600; color: #8ec8f0; }
-.od-sl { margin-left: auto; font-size: .75rem; color: #4a7a9b; }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
 
-.od-status { text-align: center; padding: 14px; border-radius: 16px; font-weight: 700; font-size: .95rem; width: 100%; }
-.od-fire { background: linear-gradient(135deg, rgba(26,111,181,.3), rgba(0,80,160,.2)); border: 1px solid rgba(90,200,250,.35); color: #5ac8fa; box-shadow: 0 0 20px rgba(90,200,250,.1); }
+  /* === PAGE LAYOUT === */
+  .page-wrapper {
+    position: relative; z-index: 1;
+    padding: 48px 24px 64px;
+    max-width: 1400px; margin: 0 auto;
+  }
 
-.od-row { display: flex; gap: 10px; width: 100%; }
-.od-btn { flex: 1; padding: 13px; border-radius: 14px; border: 1px solid rgba(90,200,250,.25); background: rgba(10,40,80,.5); color: #5ac8fa; font-size: .85rem; font-weight: 700; cursor: pointer; }
+  .page-header {
+    text-align: center; margin-bottom: 60px;
+  }
 
-.mini-players { display: flex; gap: 8px; width: 100%; }
-.mini-player { flex: 1; padding: 10px; border-radius: 12px; text-align: center; }
-.mp-you { background: rgba(26,111,181,.25); border: 1px solid rgba(90,200,250,.3); }
-.mp-opp { background: rgba(10,30,60,.4); border: 1px solid rgba(50,80,120,.2); }
-.mp-name { font-size: .62rem; font-weight: 700; color: #3a7a9b; margin-bottom: 4px; }
-.mp-status { font-size: .82rem; font-weight: 700; color: #5ac8fa; }
+  .page-header .label {
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    letter-spacing: 4px; text-transform: uppercase; color: var(--neon-cyan);
+    margin-bottom: 12px; display: block;
+  }
+
+  .page-header h1 {
+    font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 50%, var(--neon-blue) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    line-height: 1.1;
+  }
+
+  .page-header .subtitle {
+    margin-top: 12px; font-family: var(--font-body); font-size: 14px;
+    color: var(--text-dim); letter-spacing: 0.5px;
+  }
+
+  .theme-badge {
+    display: inline-block; margin-top: 16px; padding: 6px 18px;
+    border: 1px solid var(--border-neon); border-radius: 20px;
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--neon-cyan); background: var(--bg-glass); backdrop-filter: blur(10px);
+  }
+
+  /* === PHONES ROW === */
+  .phones-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 40px; flex-wrap: wrap;
+  }
+
+  .phone-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+  .phone-label {
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); text-align: center;
+  }
+
+  /* === PHONE MOCKUP === */
+  .phone {
+    width: 360px; min-height: 720px;
+    background: #08101e; border-radius: 46px;
+    border: 1.5px solid rgba(0, 212, 255, 0.2);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.8),
+      0 0 40px rgba(0, 132, 255, 0.15),
+      0 0 80px rgba(0, 212, 255, 0.07),
+      inset 0 1px 0 rgba(255,255,255,0.04),
+      inset 0 -1px 0 rgba(0,0,0,0.5);
+    position: relative; overflow: hidden;
+  }
+
+  .phone-notch {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 34px;
+    background: #000; border-radius: 20px; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .phone-notch::before {
+    content: ''; width: 10px; height: 10px; background: #111820;
+    border-radius: 50%; border: 1.5px solid #1a2535;
+  }
+  .phone-notch::after {
+    content: ''; width: 6px; height: 6px; background: #1a3a5c;
+    border-radius: 50%; box-shadow: 0 0 6px rgba(0, 180, 255, 0.4);
+  }
+
+  .phone::before {
+    content: ''; position: absolute; left: -3px; top: 110px;
+    width: 3px; height: 32px; background: #1a2840; border-radius: 3px 0 0 3px;
+    box-shadow: 0 44px 0 #1a2840, 0 88px 0 #1a2840;
+  }
+  .phone::after {
+    content: ''; position: absolute; right: -3px; top: 160px;
+    width: 3px; height: 60px; background: #1a2840; border-radius: 0 3px 3px 0;
+  }
+
+  .phone-screen {
+    height: 100%; min-height: 720px; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, #040e20 0%, #030a18 100%);
+    padding-top: 60px; overflow: hidden;
+  }
+
+  /* === STATUS BAR === */
+  .status-bar {
+    padding: 6px 20px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; color: var(--text-muted); font-family: var(--font-body);
+  }
+  .status-bar .time { font-weight: 600; }
+
+  /* === GAME BANNER === */
+  .game-banner {
+    margin: 14px 16px 0; padding: 12px 16px; border-radius: 14px;
+    border: 1px solid var(--border-glow);
+    background: linear-gradient(135deg, rgba(0,180,255,0.12), rgba(0,84,255,0.08));
+    backdrop-filter: blur(8px); position: relative; overflow: hidden;
+  }
+  .game-banner::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  }
+
+  .game-banner.active {
+    border-color: var(--neon-cyan);
+    background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,132,255,0.1));
+    animation: banner-pulse 2.5s ease-in-out infinite;
+  }
+  .game-banner.waiting {
+    border-color: rgba(123,47,255,0.5);
+    background: linear-gradient(135deg, rgba(123,47,255,0.1), rgba(60,20,120,0.08));
+  }
+  .game-banner.result-state {
+    border-color: rgba(255,215,0,0.5);
+    background: linear-gradient(135deg, rgba(255,200,0,0.12), rgba(255,100,0,0.08));
+  }
+
+  @keyframes banner-pulse {
+    0%,100% { box-shadow: 0 0 12px rgba(0,212,255,0.2); }
+    50% { box-shadow: 0 0 24px rgba(0,212,255,0.5), 0 0 40px rgba(0,212,255,0.15); }
+  }
+
+  .banner-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+
+  .banner-status {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+    color: var(--neon-cyan); text-shadow: 0 0 12px var(--neon-cyan);
+  }
+  .banner-status.w { color: var(--neon-purple); text-shadow: 0 0 12px var(--neon-purple); }
+  .banner-status.r { color: #ffd700; text-shadow: 0 0 12px #ffd700; }
+  .banner-round { font-family: var(--font-body); font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+  .banner-sub { font-family: var(--font-body); font-size: 10px; color: var(--text-dim); }
+
+  /* === PLAYER TAG === */
+  .player-tag {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 16px; margin: 10px 16px 0;
+    border-radius: 10px;
+    background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.12);
+  }
+  .player-avatar {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    color: #fff; flex-shrink: 0;
+  }
+  .player-avatar.p2 { background: linear-gradient(135deg, #ff2d78, #7b2fff); }
+  .player-name { font-size: 12px; font-weight: 600; color: var(--text-bright); }
+  .player-score { margin-left: auto; font-size: 11px; color: var(--text-dim); font-family: var(--font-body); }
+
+  /* === SECTION LABEL === */
+  .section-label {
+    padding: 10px 16px 6px; font-size: 9px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border-neon), transparent);
+  }
+
+  /* === ATTACK GRID === */
+  .grid-wrapper { padding: 0 16px; }
+
+  .grid-coords {
+    display: grid; grid-template-columns: 14px repeat(10, 1fr);
+    gap: 2px; margin-bottom: 2px;
+  }
+  .coord-label {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px; color: var(--text-muted); font-family: var(--font-body);
+    font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  .grid-row {
+    display: grid; grid-template-columns: 14px repeat(10, 1fr);
+    gap: 2px; margin-bottom: 2px;
+  }
+  .row-label {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 7px; color: var(--text-muted); font-family: var(--font-body); font-weight: 600;
+  }
+
+  .cell {
+    aspect-ratio: 1; border-radius: 4px;
+    border: 1px solid rgba(0,140,200,0.15);
+    background: rgba(0,20,50,0.6);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; position: relative;
+    transition: all 0.15s ease; font-size: 10px;
+  }
+  .cell:hover {
+    border-color: var(--neon-cyan); background: rgba(0,212,255,0.12);
+    box-shadow: 0 0 8px rgba(0,212,255,0.3); transform: scale(1.08); z-index: 2;
+  }
+  .cell.hit {
+    background: rgba(255,45,94,0.25); border-color: var(--hit-red);
+    box-shadow: 0 0 6px rgba(255,45,94,0.4), inset 0 0 6px rgba(255,45,94,0.15);
+    color: var(--hit-red); font-weight: 700;
+  }
+  .cell.miss { background: rgba(0,80,140,0.2); border-color: rgba(100,170,255,0.3); }
+  .cell.miss::after {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(120,180,255,0.5); border: 1px solid rgba(120,180,255,0.7);
+  }
+  .cell.sunk {
+    background: rgba(255,26,74,0.35); border-color: var(--sunk-color);
+    color: #fff; font-weight: 800; font-size: 9px;
+    animation: sunk-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes sunk-pulse {
+    0%,100% { box-shadow: 0 0 6px var(--sunk-glow), inset 0 0 8px rgba(255,26,74,0.2); }
+    50% { box-shadow: 0 0 14px var(--sunk-glow), 0 0 24px rgba(255,26,74,0.3), inset 0 0 12px rgba(255,26,74,0.3); }
+  }
+
+  /* === FLEET TALLY === */
+  .fleet-tally {
+    margin: 8px 16px 0; padding: 10px 14px;
+    border-radius: 12px; background: var(--bg-card);
+    border: 1px solid var(--border-neon); backdrop-filter: blur(8px);
+  }
+  .fleet-tally-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .fleet-tally-title { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+  .ships-remaining { font-size: 10px; font-weight: 700; color: var(--hit-red); font-family: var(--font-body); }
+  .fleet-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .fleet-side { flex: 1; }
+  .fleet-side-label { font-size: 8px; color: var(--text-muted); font-family: var(--font-body); margin-bottom: 5px; letter-spacing: 1px; text-transform: uppercase; }
+  .fleet-ships { display: flex; flex-direction: column; gap: 3px; }
+  .ship-line { display: flex; align-items: center; gap: 2px; }
+  .ship-seg {
+    width: 12px; height: 8px; border-radius: 2px;
+    background: rgba(0,140,255,0.5); border: 1px solid rgba(0,200,255,0.4);
+  }
+  .ship-seg.alive { background: rgba(0,180,255,0.55); border-color: var(--neon-cyan); box-shadow: 0 0 4px rgba(0,212,255,0.3); }
+  .ship-seg.dead { background: rgba(255,45,94,0.4); border-color: var(--hit-red); }
+  .ship-seg.e-alive { background: rgba(255,100,140,0.3); border-color: rgba(255,80,120,0.5); }
+  .fleet-divider { width: 1px; background: var(--border-neon); align-self: stretch; margin: 0 4px; }
+
+  /* === MINI GRID === */
+  .mini-grid-wrapper { padding: 0 16px; }
+  .mini-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: 1.5px; }
+  .mini-cell { aspect-ratio: 1; border-radius: 2px; background: rgba(0,15,40,0.8); border: 1px solid rgba(0,60,100,0.4); }
+  .mini-cell.ship { background: rgba(0,140,255,0.4); border-color: rgba(0,180,255,0.5); box-shadow: inset 0 0 3px rgba(0,212,255,0.15); }
+  .mini-cell.ship-hit { background: rgba(255,60,100,0.45); border-color: rgba(255,80,120,0.6); }
+
+  /* === WAIT INDICATOR === */
+  .wait-indicator {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin: 16px 16px 0; padding: 12px; border-radius: 12px;
+    background: rgba(123,47,255,0.08); border: 1px solid rgba(123,47,255,0.2);
+  }
+  .wait-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--neon-purple);
+    animation: wait-bounce 1.4s ease-in-out infinite;
+  }
+  .wait-dot:nth-child(2) { animation-delay: 0.2s; }
+  .wait-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes wait-bounce {
+    0%,80%,100% { transform: scale(1); opacity: 0.5; }
+    40% { transform: scale(1.4); opacity: 1; box-shadow: 0 0 8px var(--neon-purple); }
+  }
+  .wait-text { font-size: 11px; color: var(--text-dim); font-family: var(--font-body); }
+
+  /* === RESULT === */
+  .result-banner {
+    margin: 14px 16px 0; padding: 20px; border-radius: 16px;
+    border: 1px solid rgba(255,215,0,0.4);
+    background: linear-gradient(135deg, rgba(255,180,0,0.1), rgba(255,100,0,0.07));
+    text-align: center;
+  }
+  .result-emoji { font-size: 36px; line-height: 1; margin-bottom: 8px; }
+  .result-title {
+    font-size: 20px; font-weight: 800;
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: -0.5px;
+  }
+  .result-sub { margin-top: 4px; font-family: var(--font-body); font-size: 11px; color: var(--text-dim); }
+  .result-stats {
+    display: flex; justify-content: space-around; margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid rgba(255,215,0,0.15);
+  }
+  .stat-item { text-align: center; }
+  .stat-val { font-size: 18px; font-weight: 800; color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.4); }
+  .stat-lbl { font-size: 8px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; font-family: var(--font-body); }
+
+  .play-again-btn {
+    margin: 12px 0 0; width: 100%; padding: 12px; border-radius: 12px;
+    border: 1px solid var(--neon-cyan);
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,100,255,0.1));
+    color: var(--neon-cyan); font-family: var(--font-main); font-size: 13px; font-weight: 700;
+    letter-spacing: 1px; cursor: pointer;
+    text-shadow: 0 0 10px var(--neon-cyan); box-shadow: 0 0 12px rgba(0,212,255,0.15);
+    transition: all 0.2s ease;
+  }
+
+  /* === FIRE BUTTON === */
+  .fire-area { padding: 10px 16px 14px; display: flex; gap: 8px; }
+  .fire-btn {
+    flex: 2; padding: 14px; border-radius: 14px;
+    border: 1.5px solid var(--neon-cyan);
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,100,255,0.12));
+    color: #fff; font-family: var(--font-main); font-size: 14px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,212,255,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+    text-shadow: 0 0 10px var(--neon-cyan); transition: all 0.15s ease;
+  }
+  .fire-btn:hover {
+    box-shadow: 0 0 30px rgba(0,212,255,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+  }
+  .fire-btn.disabled {
+    border-color: rgba(0,100,140,0.3); background: rgba(0,20,40,0.5);
+    color: var(--text-muted); box-shadow: none; text-shadow: none; cursor: default;
+  }
+  .sonar-btn {
+    flex: 1; padding: 14px 10px; border-radius: 14px;
+    border: 1px solid rgba(0,200,100,0.3); background: rgba(0,100,60,0.1);
+    color: rgba(0,220,120,0.7); font-family: var(--font-main); font-size: 11px;
+    font-weight: 600; cursor: pointer; text-align: center;
+  }
+
+  .page-footer { margin-top: 64px; text-align: center; font-family: var(--font-body); font-size: 11px; color: var(--text-muted); letter-spacing: 1px; }
 </style>
 </head>
 <body>
-<h1>Design Option 1 — Ocean Depth</h1>
-<p class="subtitle">Glassmorphism · Deep ocean blues · Sora font · Soft glows</p>
-<div class="phones">
-  <div class="phone-wrap">
-    <div class="phone-label">State 1: Lobby</div>
-    <div class="phone"><div class="screen"><div class="od-bg">
-      <div class="od-badge">PLAYER 1</div>
-      <div class="od-name">Battleship<br/>Duel</div>
-      <div class="od-glass">
-        <div class="od-section">Game Status</div>
-        <div class="mini-players">
-          <div class="mini-player mp-you"><div class="mp-name">YOU</div><div class="mp-status">● Online</div></div>
-          <div class="mini-player mp-opp"><div class="mp-name">P2</div><div class="mp-status" style="color:#2a4a6a">○ —</div></div>
-        </div>
-      </div>
-      <button class="od-ready">⚓ READY TO BATTLE</button>
-      <p style="font-size:.72rem;color:#2a5a7a;text-align:center">Both players must confirm to begin</p>
-    </div></div></div>
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <span class="label">Design Preview · Theme 1 of 3</span>
+    <h1>Battleship Duel</h1>
+    <p class="subtitle">AirConsole Local Multiplayer · Controller UI Concepts</p>
+    <span class="theme-badge">◈ NEON DEEP — Cyberpunk Ocean</span>
   </div>
 
-  <div class="phone-wrap">
-    <div class="phone-label">State 2: Placement</div>
-    <div class="phone"><div class="screen"><div class="od-bg" style="gap:12px">
-      <div class="od-badge">SHIP PLACEMENT</div>
-      <div class="od-row">
-        <button class="od-btn">↻ Rotate</button>
-        <button class="od-btn">🎲 Auto</button>
-      </div>
-      <div class="od-glass" style="padding:14px">
-        <div class="od-section">Select Ship</div>
-        <div class="od-ship sel" id="ship1-p1">
-          <span class="od-sn">Carrier</span><span class="od-sl">×4</span>
-        </div>
-        <div class="od-ship" id="ship2-p1">
-          <span class="od-sn">Cruiser</span><span class="od-sl">×3</span>
-        </div>
-        <div class="od-ship" id="ship3-p1">
-          <span class="od-sn">Destroyer</span><span class="od-sl">×2</span>
-        </div>
-      </div>
-      <div class="od-glass" style="padding:12px">
-        <div class="od-section">Your Ocean — 6/10 placed</div>
-        <div class="od-grid" id="grid-p1"></div>
-      </div>
-    </div></div></div>
-  </div>
+  <div class="phones-row">
 
-  <div class="phone-wrap">
-    <div class="phone-label">State 3: Battle (Your Turn)</div>
-    <div class="phone"><div class="screen"><div class="od-bg" style="gap:12px">
-      <div class="od-status od-fire">⚡ YOUR TURN — FIRE!</div>
-      <div class="od-glass" style="padding:10px 12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div class="od-section" style="margin:0">Enemy Waters</div>
-          <div style="font-size:.7rem;color:#4a7a9b">🚢 7 left</div>
+    <!-- PHONE 1: YOUR TURN -->
+    <div class="phone-container">
+      <div class="phone-label">PLAYER 1 · YOUR TURN</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span class="time">21:34</span><span>▲▲ WiFi ●</span></div>
+
+          <div class="game-banner active">
+            <div class="banner-top">
+              <span class="banner-status">⚡ YOUR TURN — FIRE!</span>
+              <span class="banner-round">RND 7</span>
+            </div>
+            <div class="banner-sub">Select a cell on the enemy grid below</div>
+          </div>
+
+          <div class="player-tag">
+            <div class="player-avatar">P1</div>
+            <div><div class="player-name">COMMANDER ALPHA</div></div>
+            <div class="player-score">HITS: 7 / 17</div>
+          </div>
+
+          <div class="section-label">ENEMY WATERS</div>
+          <div class="grid-wrapper">
+            <div class="grid-coords">
+              <div></div>
+              <div class="coord-label">A</div><div class="coord-label">B</div><div class="coord-label">C</div><div class="coord-label">D</div><div class="coord-label">E</div>
+              <div class="coord-label">F</div><div class="coord-label">G</div><div class="coord-label">H</div><div class="coord-label">I</div><div class="coord-label">J</div>
+            </div>
+            <div class="grid-row"><div class="row-label">1</div><div class="cell miss"></div><div class="cell"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hit">✕</div></div>
+            <div class="grid-row"><div class="row-label">2</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell hit">✕</div></div>
+            <div class="grid-row"><div class="row-label">3</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">4</div><div class="cell miss"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">5</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">6</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">7</div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">8</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">9</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">10</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+          </div>
+
+          <div class="fleet-tally">
+            <div class="fleet-tally-header">
+              <span class="fleet-tally-title">Fleet Status</span>
+              <span class="ships-remaining">Enemy: 4 ships left</span>
+            </div>
+            <div class="fleet-row">
+              <div class="fleet-side">
+                <div class="fleet-side-label">Enemy Fleet</div>
+                <div class="fleet-ships">
+                  <div class="ship-line"><div class="ship-seg dead"></div><div class="ship-seg dead"></div><div class="ship-seg dead"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg dead"></div><div class="ship-seg dead"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg dead"></div><div class="ship-seg dead"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div></div>
+                </div>
+              </div>
+              <div class="fleet-divider"></div>
+              <div class="fleet-side">
+                <div class="fleet-side-label">Your Fleet</div>
+                <div class="fleet-ships">
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg dead"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">YOUR WATERS</div>
+          <div class="mini-grid-wrapper"><div class="mini-grid">
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship-hit"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell ship-hit"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div>
+          </div></div>
+
+          <div class="fire-area">
+            <button class="fire-btn">FIRE ◈</button>
+            <button class="sonar-btn">SONAR<br>PING</button>
+          </div>
         </div>
-        <div class="od-grid" id="grid-enemy"></div>
       </div>
-      <div class="od-glass" style="padding:10px 12px">
-        <div class="od-section">Your Fleet</div>
-        <div class="od-grid" id="grid-own"></div>
+    </div>
+
+    <!-- PHONE 2: WAITING -->
+    <div class="phone-container">
+      <div class="phone-label">PLAYER 2 · WAITING</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span class="time">21:34</span><span>▲▲ WiFi ●</span></div>
+
+          <div class="game-banner waiting">
+            <div class="banner-top">
+              <span class="banner-status w">⏳ ENEMY TARGETING…</span>
+              <span class="banner-round">RND 7</span>
+            </div>
+            <div class="banner-sub">Commander Alpha is taking their shot</div>
+          </div>
+
+          <div class="player-tag">
+            <div class="player-avatar p2">P2</div>
+            <div><div class="player-name">ADMIRAL BETA</div></div>
+            <div class="player-score">HITS: 4 / 17</div>
+          </div>
+
+          <div class="wait-indicator">
+            <div class="wait-dot"></div><div class="wait-dot"></div><div class="wait-dot"></div>
+            <span class="wait-text">Waiting for opponent to fire…</span>
+          </div>
+
+          <div class="section-label">ENEMY WATERS</div>
+          <div class="grid-wrapper">
+            <div class="grid-coords">
+              <div></div>
+              <div class="coord-label">A</div><div class="coord-label">B</div><div class="coord-label">C</div><div class="coord-label">D</div><div class="coord-label">E</div>
+              <div class="coord-label">F</div><div class="coord-label">G</div><div class="coord-label">H</div><div class="coord-label">I</div><div class="coord-label">J</div>
+            </div>
+            <div class="grid-row"><div class="row-label">1</div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">2</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">3</div><div class="cell"></div><div class="cell"></div><div class="cell hit">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">4</div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">5</div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">6</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">7</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">8</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">9</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div></div>
+            <div class="grid-row"><div class="row-label">10</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+          </div>
+
+          <div class="fleet-tally">
+            <div class="fleet-tally-header">
+              <span class="fleet-tally-title">Fleet Status</span>
+              <span class="ships-remaining">Enemy: 8 ships left</span>
+            </div>
+            <div class="fleet-row">
+              <div class="fleet-side">
+                <div class="fleet-side-label">Enemy Fleet</div>
+                <div class="fleet-ships">
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg dead"></div><div class="ship-seg dead"></div></div>
+                  <div class="ship-line"><div class="ship-seg e-alive"></div><div class="ship-seg e-alive"></div></div>
+                </div>
+              </div>
+              <div class="fleet-divider"></div>
+              <div class="fleet-side">
+                <div class="fleet-side-label">Your Fleet</div>
+                <div class="fleet-ships">
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg dead"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div><div class="ship-seg alive"></div></div>
+                  <div class="ship-line"><div class="ship-seg alive"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-label">YOUR WATERS</div>
+          <div class="mini-grid-wrapper"><div class="mini-grid">
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship-hit"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell ship"></div><div class="mini-cell ship"></div>
+            <div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div><div class="mini-cell"></div>
+          </div></div>
+
+          <div class="fire-area"><button class="fire-btn disabled">FIRE ◈</button></div>
+        </div>
       </div>
-    </div></div></div>
-  </div>
+    </div>
+
+    <!-- PHONE 3: VICTORY -->
+    <div class="phone-container">
+      <div class="phone-label">PLAYER 1 · VICTORY</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="status-bar"><span class="time">21:48</span><span>▲▲ WiFi ●</span></div>
+
+          <div class="result-banner">
+            <div class="result-emoji">🏆</div>
+            <div class="result-title">VICTORY!</div>
+            <div class="result-sub">Enemy fleet obliterated in 14 rounds</div>
+            <div class="result-stats">
+              <div class="stat-item"><div class="stat-val">17</div><div class="stat-lbl">Total Shots</div></div>
+              <div class="stat-item"><div class="stat-val">14</div><div class="stat-lbl">Rounds</div></div>
+              <div class="stat-item"><div class="stat-val">82%</div><div class="stat-lbl">Accuracy</div></div>
+            </div>
+            <button class="play-again-btn">◈ PLAY AGAIN</button>
+          </div>
+
+          <div class="player-tag">
+            <div class="player-avatar">P1</div>
+            <div><div class="player-name">COMMANDER ALPHA</div></div>
+            <div class="player-score">WINNER ★</div>
+          </div>
+
+          <div class="section-label">FINAL BATTLEFIELD</div>
+          <div class="grid-wrapper">
+            <div class="grid-coords">
+              <div></div>
+              <div class="coord-label">A</div><div class="coord-label">B</div><div class="coord-label">C</div><div class="coord-label">D</div><div class="coord-label">E</div>
+              <div class="coord-label">F</div><div class="coord-label">G</div><div class="coord-label">H</div><div class="coord-label">I</div><div class="coord-label">J</div>
+            </div>
+            <div class="grid-row"><div class="row-label">1</div><div class="cell miss"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell sunk">✕</div></div>
+            <div class="grid-row"><div class="row-label">2</div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell sunk">✕</div></div>
+            <div class="grid-row"><div class="row-label">3</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell miss"></div></div>
+            <div class="grid-row"><div class="row-label">4</div><div class="cell miss"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">5</div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">6</div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">7</div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">8</div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div></div>
+            <div class="grid-row"><div class="row-label">9</div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell miss"></div><div class="cell sunk">✕</div></div>
+            <div class="grid-row"><div class="row-label">10</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell miss"></div><div class="cell"></div><div class="cell sunk">✕</div><div class="cell"></div><div class="cell"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.phones-row -->
+
+  <div class="page-footer">Battleship Duel · AirConsole · NEON DEEP Theme · Design Concept</div>
 </div>
-
-<script>
-function makeSegs(n) {
-  var h = '';
-  for (var i = 0; i < n; i++) h += '<span class="od-seg"></span>';
-  return h;
-}
-document.getElementById('ship1-p1').innerHTML = makeSegs(4) + '<span class="od-sn">Carrier</span><span class="od-sl">x4</span>';
-document.getElementById('ship2-p1').innerHTML = makeSegs(3) + '<span class="od-sn">Cruiser</span><span class="od-sl">x3</span>';
-document.getElementById('ship3-p1').innerHTML = makeSegs(2) + '<span class="od-sn">Destroyer</span><span class="od-sl">x2</span>';
-
-function fillGrid(id, fn) {
-  var el = document.getElementById(id);
-  var h = '';
-  for (var i = 0; i < 100; i++) {
-    h += '<div class="od-cell ' + fn(Math.floor(i/10), i%10) + '"></div>';
-  }
-  el.innerHTML = h;
-}
-fillGrid('grid-p1', function(r,c) {
-  if (r===2 && c>=1 && c<=4) return 's';
-  if (r===5 && (c===4||c===5||c===6)) return 's';
-  if (r===7 && c===8) return 's';
-  return '';
-});
-fillGrid('grid-enemy', function(r,c) {
-  if ((r===2&&c===3)||(r===2&&c===4)) return 'h';
-  if ((r===5&&c===1)||(r===0&&c===8)) return 'm';
-  return '';
-});
-fillGrid('grid-own', function(r,c) {
-  if (r===3 && c>=2 && c<=5) return 's';
-  if (r===7 && (c===4||c===5||c===6)) return 's';
-  if (r===1 && c===9) return 'h';
-  return '';
-});
-</script>
 </body>
 </html>
