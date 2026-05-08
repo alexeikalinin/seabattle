@@ -1,4 +1,4 @@
-import type { PlacedShip } from '@/types/GameTypes';
+import type { PlacedShip, Facing } from '@/types/GameTypes';
 import type { SunkShipInfo } from '@/types/Messages';
 
 export class ShipRenderer {
@@ -13,7 +13,7 @@ export class ShipRenderer {
     this.layer.innerHTML = '';
     for (const ship of ships) {
       if (ship.x < 0) continue;
-      this.layer.appendChild(this.makeEl(ship.x, ship.y, ship.definition.length, ship.orientation, ship.isSunk));
+      this.layer.appendChild(this.makeEl(ship.x, ship.y, ship.definition.length, ship.facing, ship.isSunk));
     }
   }
 
@@ -21,32 +21,53 @@ export class ShipRenderer {
   renderSunkEnemies(ships: SunkShipInfo[]): void {
     this.layer.innerHTML = '';
     for (const s of ships) {
-      this.layer.appendChild(this.makeEl(s.x, s.y, s.length, s.orientation, true));
+      this.layer.appendChild(this.makeEl(s.x, s.y, s.length, s.facing, true));
     }
   }
 
   private makeEl(
     x: number, y: number, length: number,
-    orientation: 'horizontal' | 'vertical',
+    facing: Facing,
     isSunk: boolean,
   ): HTMLElement {
     const div = document.createElement('div');
     div.style.cssText = 'position:absolute;pointer-events:none;z-index:2;';
 
-    if (orientation === 'horizontal') {
-      div.style.left  = `${x * 10}%`;
-      div.style.top   = `${y * 10}%`;
-      div.style.width = `${length * 10}%`;
+    // All ships render as a horizontal SVG (bow on right).
+    // CSS transform rotates the element to match the actual facing.
+    // Each trick keeps the element visually occupying the correct grid cells.
+    if (facing === 'right') {
+      // Standard horizontal: left→right
+      div.style.left   = `${x * 10}%`;
+      div.style.top    = `${y * 10}%`;
+      div.style.width  = `${length * 10}%`;
       div.style.height = '10%';
-    } else {
-      // Rotate trick: position one column to the right, rotate 90° CW around top-left.
-      // Result: occupies column x, rows y…y+length-1.
-      div.style.left  = `${(x + 1) * 10}%`;
-      div.style.top   = `${y * 10}%`;
-      div.style.width = `${length * 10}%`;
-      div.style.height = '10%';
+    } else if (facing === 'down') {
+      // Rotate 90° CW around top-left of a div shifted one cell right.
+      // Result occupies column x, rows y…y+length-1.
+      div.style.left            = `${(x + 1) * 10}%`;
+      div.style.top             = `${y * 10}%`;
+      div.style.width           = `${length * 10}%`;
+      div.style.height          = '10%';
       div.style.transformOrigin = 'top left';
-      div.style.transform = 'rotate(90deg)';
+      div.style.transform       = 'rotate(90deg)';
+    } else if (facing === 'left') {
+      // 180° around center — same cells as 'right', bow now on the left.
+      div.style.left            = `${x * 10}%`;
+      div.style.top             = `${y * 10}%`;
+      div.style.width           = `${length * 10}%`;
+      div.style.height          = '10%';
+      div.style.transformOrigin = '50% 50%';
+      div.style.transform       = 'rotate(180deg)';
+    } else {
+      // 'up' — rotate -90° CW (CCW) around top-left of a div placed at bottom of cells.
+      // Result occupies column x, rows y…y+length-1, bow facing up.
+      div.style.left            = `${x * 10}%`;
+      div.style.top             = `${(y + length) * 10}%`;
+      div.style.width           = `${length * 10}%`;
+      div.style.height          = '10%';
+      div.style.transformOrigin = 'top left';
+      div.style.transform       = 'rotate(-90deg)';
     }
 
     const stroke = isSunk ? '#ff3333' : '#00d4ff';

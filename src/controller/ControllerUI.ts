@@ -1,6 +1,6 @@
 import '@/types/AirConsoleTypes';
 import type { ScreenMessage, StateUpdateMessage, AttackResultMessage, GameOverMessage } from '@/types/Messages';
-import type { PlayerSlot, Board, CellState } from '@/types/GameTypes';
+import type { PlayerSlot, Board, CellState, Facing } from '@/types/GameTypes';
 import { GRID_SIZE } from '@/types/GameTypes';
 import { formatShipTally } from '@/utils/fleetTally';
 import { ProceduralAudio } from '@/ui/ProceduralAudio';
@@ -11,7 +11,7 @@ type ViewId = 'lobby' | 'placement' | 'battle-turn' | 'battle-wait' | 'result';
 export class ControllerUI {
   private playerSlot: PlayerSlot | null = null;
   private selectedShipId: string | null = null;
-  private currentOrientation: 'horizontal' | 'vertical' = 'horizontal';
+  private currentFacing: Facing = 'right';
   private lastState: StateUpdateMessage | null = null;
   private readonly audio = new ProceduralAudio();
   // Ship renderers keyed by grid id
@@ -148,7 +148,7 @@ export class ControllerUI {
 
     if (this.selectedShipId) {
       const sh = msg.ships.find(s => s.definition.id === this.selectedShipId);
-      if (sh) this.currentOrientation = sh.orientation;
+      if (sh) this.currentFacing = sh.facing;
     }
 
     // Render own board in placement grid
@@ -221,8 +221,13 @@ export class ControllerUI {
   private updateRotateBtnLabel(): void {
     const btn = document.getElementById('rotate-btn') as HTMLButtonElement | null;
     if (!btn) return;
-    btn.textContent =
-      this.currentOrientation === 'horizontal' ? '↻ Rotate (H)' : '↔ Rotate (V)';
+    const labels: Record<Facing, string> = {
+      right: '→ Facing Right',
+      down:  '↓ Facing Down',
+      left:  '← Facing Left',
+      up:    '↑ Facing Up',
+    };
+    btn.textContent = labels[this.currentFacing];
   }
 
   private updateGrid(containerId: string, board: Board, isOwnBoard: boolean): void {
@@ -268,7 +273,8 @@ export class ControllerUI {
   private rotateSelectedShip(): void {
     if (!this.selectedShipId) return;
     this.ac.message(this.ac.SCREEN, { type: 'ROTATE_SHIP', shipId: this.selectedShipId });
-    this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+    const cycle: Facing[] = ['right', 'down', 'left', 'up'];
+    this.currentFacing = cycle[(cycle.indexOf(this.currentFacing) + 1) % 4];
     this.updateRotateBtnLabel();
   }
 
@@ -277,7 +283,7 @@ export class ControllerUI {
   private selectShip(shipId: string): void {
     this.selectedShipId = shipId;
     const ship = this.lastState?.ships.find(s => s.definition.id === shipId);
-    if (ship) this.currentOrientation = ship.orientation;
+    if (ship) this.currentFacing = ship.facing;
     document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('selected'));
     document.querySelector(`[data-ship-id="${shipId}"]`)?.classList.add('selected');
     if (this.lastState?.phase === 'placement') {
@@ -424,7 +430,8 @@ export class ControllerUI {
       if (this.selectedShipId) {
         this.rotateSelectedShip();
       } else {
-        this.currentOrientation = this.currentOrientation === 'horizontal' ? 'vertical' : 'horizontal';
+        const cycle: Facing[] = ['right', 'down', 'left', 'up'];
+        this.currentFacing = cycle[(cycle.indexOf(this.currentFacing) + 1) % 4];
         this.updateRotateBtnLabel();
       }
     });
@@ -472,7 +479,8 @@ export class ControllerUI {
       shipId: this.selectedShipId,
       x: col,
       y: row,
-      orientation: this.currentOrientation,
+      orientation: (this.currentFacing === 'right' || this.currentFacing === 'left') ? 'horizontal' : 'vertical',
+      facing: this.currentFacing,
     });
   }
 

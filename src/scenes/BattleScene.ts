@@ -120,9 +120,9 @@ export class BattleScene extends Phaser.Scene {
   private updateBoards(): void {
     const playerManager = this.registry.get('playerManager') as PlayerManager;
     const [p0, p1] = playerManager.getBothPlayers();
-    if (p0 && this.fleetGrids[0]) this.fleetGrids[0].updateFromBoard(p0.board.ownBoard);
+    if (p0 && this.fleetGrids[0]) this.fleetGrids[0].updateFromBoard(p0.board.ownBoard, true);
     if (p0 && this.radarGrids[0]) this.radarGrids[0].updateFromBoard(p0.board.attackBoard);
-    if (p1 && this.fleetGrids[1]) this.fleetGrids[1].updateFromBoard(p1.board.ownBoard);
+    if (p1 && this.fleetGrids[1]) this.fleetGrids[1].updateFromBoard(p1.board.ownBoard, true);
     if (p1 && this.radarGrids[1]) this.radarGrids[1].updateFromBoard(p1.board.attackBoard);
   }
 

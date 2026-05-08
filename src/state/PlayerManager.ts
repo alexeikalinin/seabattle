@@ -15,6 +15,7 @@ function makeInitialBoard() {
       x: -1,
       y: -1,
       orientation: 'horizontal' as const,
+      facing: 'right' as const,
       hits: 0,
       isSunk: false,
     })),

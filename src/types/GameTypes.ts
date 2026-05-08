@@ -1,4 +1,5 @@
 export type Orientation = 'horizontal' | 'vertical';
+export type Facing = 'right' | 'down' | 'left' | 'up';
 export type CellState = 'empty' | 'ship' | 'hit' | 'miss' | 'sunk';
 export type GamePhase = 'lobby' | 'placement' | 'battle' | 'result';
 export type PlayerSlot = 0 | 1;
@@ -14,6 +15,7 @@ export interface PlacedShip {
   x: number;
   y: number;
   orientation: Orientation;
+  facing: Facing;
   hits: number;
   isSunk: boolean;
 }

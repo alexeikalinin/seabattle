@@ -10,7 +10,8 @@ import { TurnManager } from './TurnManager';
 import { shipTallyAlive } from '@/utils/fleetTally';
 import { randomSlot, createEmptyBoard } from '@/utils/helpers';
 import type { PlaceShipAction, RotateShipAction, AttackCellAction, SunkShipInfo } from '@/types/Messages';
-import type { PlayerSlot } from '@/types/GameTypes';
+import type { PlayerSlot, Facing, Orientation, PlayerData, Board, PlacedShip } from '@/types/GameTypes';
+import { GRID_SIZE } from '@/types/GameTypes';
 import type Phaser from 'phaser';
 
 export class GameManager {
@@ -80,6 +81,7 @@ export class GameManager {
     ship.x = action.x;
     ship.y = action.y;
     ship.orientation = action.orientation;
+    ship.facing = action.facing;
     player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, action.x, action.y, action.orientation);
     player.board.allShipsPlaced = player.board.ships.every(s => s.x >= 0);
 
@@ -117,23 +119,59 @@ export class GameManager {
     const ship = player.board.ships.find(s => s.definition.id === action.shipId);
     if (!ship) return;
 
+    const nextFacing = rotateClockwise(ship.facing);
+    const nextOrientation: Orientation = (nextFacing === 'right' || nextFacing === 'left') ? 'horizontal' : 'vertical';
+
     if (ship.x < 0) {
-      ship.orientation = ship.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+      ship.facing = nextFacing;
+      ship.orientation = nextOrientation;
       this.syncPlayerState(deviceId);
       return;
     }
 
-    const oldOrientation = ship.orientation;
-    const newOrientation = oldOrientation === 'horizontal' ? 'vertical' : 'horizontal';
-    player.board.ownBoard = ShipPlacer.removeShip(player.board.ownBoard, ship);
-    if (!ShipPlacer.canPlace(player.board.ownBoard, ship.definition.length, ship.x, ship.y, newOrientation)) {
-      player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, ship.x, ship.y, oldOrientation);
+    const len = ship.definition.length;
+    const tempBoard = ShipPlacer.removeShip(player.board.ownBoard, ship);
+
+    // Clamp anchor so the rotated ship stays within grid bounds
+    const anchorX = nextOrientation === 'horizontal' ? Math.min(ship.x, GRID_SIZE - len) : ship.x;
+    const anchorY = nextOrientation === 'vertical'   ? Math.min(ship.y, GRID_SIZE - len) : ship.y;
+
+    if (this.placeRotated(tempBoard, ship, anchorX, anchorY, len, nextOrientation, nextFacing, player)) {
       this.syncPlayerState(deviceId);
       return;
     }
-    ship.orientation = newOrientation;
-    player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, ship.x, ship.y, newOrientation);
+
+    // Can't place at clamped anchor — restore and give up
+    player.board.ownBoard = ShipPlacer.placeShip(tempBoard, ship, ship.x, ship.y, ship.orientation);
     this.syncPlayerState(deviceId);
+  }
+
+  private placeRotated(
+    board: Board, ship: PlacedShip, startX: number, startY: number,
+    len: number, orientation: Orientation, facing: Facing, player: PlayerData,
+  ): boolean {
+    const maxX = orientation === 'horizontal' ? GRID_SIZE - len : GRID_SIZE - 1;
+    const maxY = orientation === 'vertical'   ? GRID_SIZE - len : GRID_SIZE - 1;
+
+    // Find nearest valid position using Manhattan distance from clamped anchor
+    let bestDist = Infinity;
+    let bestX = -1, bestY = -1;
+    for (let ty = 0; ty <= maxY; ty++) {
+      for (let tx = 0; tx <= maxX; tx++) {
+        if (ShipPlacer.canPlace(board, len, tx, ty, orientation)) {
+          const dist = Math.abs(tx - startX) + Math.abs(ty - startY);
+          if (dist < bestDist) { bestDist = dist; bestX = tx; bestY = ty; }
+        }
+      }
+    }
+    if (bestX < 0) return false;
+
+    ship.orientation = orientation;
+    ship.facing = facing;
+    ship.x = bestX;
+    ship.y = bestY;
+    player.board.ownBoard = ShipPlacer.placeShip(board, ship, bestX, bestY, orientation);
+    return true;
   }
 
   handleAttack(deviceId: number, action: AttackCellAction): void {
@@ -298,7 +336,7 @@ export class GameManager {
     const sunkEnemyShips: SunkShipInfo[] = defender
       ? defender.board.ships
           .filter(s => s.isSunk && s.x >= 0)
-          .map(s => ({ id: s.definition.id, x: s.x, y: s.y, length: s.definition.length, orientation: s.orientation }))
+          .map(s => ({ id: s.definition.id, x: s.x, y: s.y, length: s.definition.length, orientation: s.orientation, facing: s.facing }))
       : [];
 
     this.adapter.sendToController(deviceId, {
@@ -317,3 +355,9 @@ export class GameManager {
     });
   }
 }
+
+const FACING_CYCLE: Facing[] = ['right', 'down', 'left', 'up'];
+function rotateClockwise(facing: Facing): Facing {
+  return FACING_CYCLE[(FACING_CYCLE.indexOf(facing) + 1) % 4];
+}
+
