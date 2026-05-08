@@ -16,14 +16,16 @@ export type ControllerAction =
   | RotateShipAction
   | AttackCellAction
   | RestartGameAction
-  | AutoPlaceAction;
+  | AutoPlaceAction
+  | ConfirmPlacementAction;
 
-export interface ReadyAction       { type: 'READY' }
-export interface PlaceShipAction   { type: 'PLACE_SHIP'; shipId: string; x: number; y: number; orientation: Orientation }
-export interface RotateShipAction  { type: 'ROTATE_SHIP'; shipId: string }
-export interface AttackCellAction  { type: 'ATTACK_CELL'; x: number; y: number }
-export interface RestartGameAction { type: 'RESTART_GAME' }
-export interface AutoPlaceAction   { type: 'AUTO_PLACE' }
+export interface ReadyAction              { type: 'READY' }
+export interface PlaceShipAction          { type: 'PLACE_SHIP'; shipId: string; x: number; y: number; orientation: Orientation }
+export interface RotateShipAction         { type: 'ROTATE_SHIP'; shipId: string }
+export interface AttackCellAction         { type: 'ATTACK_CELL'; x: number; y: number }
+export interface RestartGameAction        { type: 'RESTART_GAME' }
+export interface AutoPlaceAction          { type: 'AUTO_PLACE' }
+export interface ConfirmPlacementAction   { type: 'CONFIRM_PLACEMENT' }
 
 // ── Screen → Controller ──────────────────────────────────────────────────
 

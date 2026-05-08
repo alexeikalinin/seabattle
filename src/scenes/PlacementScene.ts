@@ -84,10 +84,10 @@ export class PlacementScene extends Phaser.Scene {
     const [p0, p1] = playerManager.getBothPlayers();
 
     if (p0 && this.grids[0]) {
-      this.grids[0].updateFromBoard(p0.board.ownBoard);
+      this.grids[0].updateFromBoard(p0.board.ownBoard, true);
     }
     if (p1 && this.grids[1]) {
-      this.grids[1].updateFromBoard(p1.board.ownBoard);
+      this.grids[1].updateFromBoard(p1.board.ownBoard, true);
     }
   }
 

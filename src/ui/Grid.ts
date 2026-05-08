@@ -55,11 +55,12 @@ export class Grid extends Phaser.GameObjects.Container {
     }
   }
 
-  updateFromBoard(board: Board): void {
+  updateFromBoard(board: Board, hideShips = false): void {
     for (let row = 0; row < GRID_SIZE; row++) {
       for (let col = 0; col < GRID_SIZE; col++) {
         const state = board[row][col].state;
-        this.applyState(row, col, state);
+        const displayState: CellState = (hideShips && state === 'ship') ? 'empty' : state;
+        this.applyState(row, col, displayState);
       }
     }
   }

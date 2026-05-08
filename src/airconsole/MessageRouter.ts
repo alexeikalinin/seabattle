@@ -38,12 +38,13 @@ export class MessageRouter {
     log.debug(`Routing "${action.type}" from device #${deviceId}`);
 
     switch (action.type) {
-      case 'READY':        this.gameManager.handleReady(deviceId); break;
-      case 'PLACE_SHIP':   this.gameManager.handlePlaceShip(deviceId, action); break;
-      case 'ROTATE_SHIP':  this.gameManager.handleRotateShip(deviceId, action); break;
-      case 'ATTACK_CELL':  this.gameManager.handleAttack(deviceId, action); break;
-      case 'RESTART_GAME': this.gameManager.handleRestart(deviceId); break;
-      case 'AUTO_PLACE':   this.gameManager.handleAutoPlace(deviceId); break;
+      case 'READY':               this.gameManager.handleReady(deviceId); break;
+      case 'PLACE_SHIP':          this.gameManager.handlePlaceShip(deviceId, action); break;
+      case 'ROTATE_SHIP':         this.gameManager.handleRotateShip(deviceId, action); break;
+      case 'ATTACK_CELL':         this.gameManager.handleAttack(deviceId, action); break;
+      case 'RESTART_GAME':        this.gameManager.handleRestart(deviceId); break;
+      case 'AUTO_PLACE':          this.gameManager.handleAutoPlace(deviceId); break;
+      case 'CONFIRM_PLACEMENT':   this.gameManager.handleConfirmPlacement(deviceId); break;
     }
   }
 }

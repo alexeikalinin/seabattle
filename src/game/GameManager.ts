@@ -17,6 +17,7 @@ export class GameManager {
   private readonly gameState = new GameState();
   private readonly turnManager = new TurnManager();
   private gameEvents: Phaser.Events.EventEmitter | null = null;
+  private readonly placementConfirmed = new Set<PlayerSlot>();
 
   constructor(
     private readonly adapter: AirConsoleAdapter,
@@ -84,10 +85,6 @@ export class GameManager {
 
     this.syncPlayerState(deviceId);
     this.gameEvents?.emit('ship-placed', { deviceId, slot: player.slot });
-
-    if (this.playerManager.bothPlayersPlaced()) {
-      this.startBattle();
-    }
   }
 
   handleAutoPlace(deviceId: number): void {
@@ -111,10 +108,6 @@ export class GameManager {
 
     this.syncPlayerState(deviceId);
     this.gameEvents?.emit('ship-placed', { deviceId, slot: player.slot });
-
-    if (this.playerManager.bothPlayersPlaced()) {
-      this.startBattle();
-    }
   }
 
   handleRotateShip(deviceId: number, action: RotateShipAction): void {
@@ -218,6 +211,17 @@ export class GameManager {
     }
   }
 
+  handleConfirmPlacement(deviceId: number): void {
+    if (this.gameState.phase !== 'placement') return;
+    const player = this.playerManager.getPlayer(deviceId);
+    if (!player || !player.board.allShipsPlaced) return;
+    log.info(`Player slot=${player.slot} confirmed placement`);
+    this.placementConfirmed.add(player.slot);
+    if (this.placementConfirmed.size === 2) {
+      this.startBattle();
+    }
+  }
+
   handleRestart(_deviceId: number): void {
     if (this.gameState.phase !== 'result') return;
     this.reset();
@@ -264,6 +268,7 @@ export class GameManager {
     this.playerManager.reset();
     this.gameState.reset();
     this.turnManager.reset();
+    this.placementConfirmed.clear();
     this.gameEvents?.emit('phase-change', 'lobby');
     this.broadcastStateUpdate();
   }

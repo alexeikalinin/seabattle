@@ -71,7 +71,7 @@ export class ControllerUI {
       const toast = document.getElementById('global-toast');
       if (toast) {
         const name = msg.sunkShipName ? `${msg.sunkShipName} ` : '';
-        toast.textContent = `⚓ ${name}ПОТОПЛЕН!`;
+        toast.textContent = `⚓ ${name}SUNK!`;
         toast.classList.add('visible');
         window.setTimeout(() => toast.classList.remove('visible'), 3200);
       }
@@ -156,6 +156,13 @@ export class ControllerUI {
     this.renderers['placement-grid']?.renderFleet(msg.ships);
     this.highlightPlacementSelection(msg);
     this.updateRotateBtnLabel();
+
+    // Show "GO TO BATTLE" button only when all ships are placed
+    const goBtn = document.getElementById('go-to-battle-btn') as HTMLButtonElement | null;
+    if (goBtn) {
+      const allPlaced = msg.unplacedShipIds.length === 0;
+      goBtn.style.display = allPlaced ? 'block' : 'none';
+    }
   }
 
   private renderBattleTurn(msg: StateUpdateMessage): void {
@@ -182,8 +189,8 @@ export class ControllerUI {
     const opp = formatShipTally(msg.opponentShipTally);
     const own = formatShipTally(msg.ownShipTally);
     el.innerHTML =
-      `<div class="tally-line"><span class="tally-tag">Враг</span> ${opp}</div>` +
-      `<div class="tally-line"><span class="tally-tag">Вы</span> ${own}</div>`;
+      `<div class="tally-line"><span class="tally-tag">Enemy</span> ${opp}</div>` +
+      `<div class="tally-line"><span class="tally-tag">You</span> ${own}</div>`;
   }
 
   private renderResult(didWin: boolean): void {
@@ -348,21 +355,22 @@ export class ControllerUI {
             <div id="ship-selector"></div>
           </div>
         </div>
+        <button type="button" id="go-to-battle-btn" class="btn btn-primary" style="display:none;margin-top:12px">⚔ GO TO BATTLE!</button>
       </div>
 
       <!-- BATTLE — YOUR TURN -->
       <div id="view-battle-turn" class="view view-battle">
         <div class="status-banner your-turn pulse" style="margin-top:16px">⚡ YOUR TURN — FIRE!</div>
-        <div class="ships-counter">Кораблей у врага (шт.): <strong id="ships-left">?</strong></div>
+        <div class="ships-counter">Enemy ships remaining: <strong id="ships-left">?</strong></div>
         <div id="fleet-tally-turn" class="fleet-tally"></div>
         <div class="battle-grids">
           <div class="card card-battle">
-            <div class="section-label">Ваш флот</div>
+            <div class="section-label">Your Fleet</div>
             <div class="grid-header battle-h">${colLabels}</div>
             <div id="own-battle-grid" class="grid grid--compact"></div>
           </div>
           <div class="card card-battle">
-            <div class="section-label">Вражеские воды — тап для выстрела</div>
+            <div class="section-label">Enemy Waters — Tap to Fire</div>
             <div class="grid-header battle-h">${colLabels}</div>
             <div id="attack-grid" class="grid grid--compact"></div>
           </div>
@@ -371,22 +379,22 @@ export class ControllerUI {
 
       <!-- BATTLE — WAITING -->
       <div id="view-battle-wait" class="view view-battle">
-        <div class="status-banner waiting pulse" style="margin-top:16px">⏳ ХОД СОПЕРНИКА</div>
-        <div class="ships-counter">Кораблей у врага (шт.): <strong id="wait-ships-left">?</strong></div>
+        <div class="status-banner waiting pulse" style="margin-top:16px">⏳ OPPONENT'S TURN</div>
+        <div class="ships-counter">Enemy ships remaining: <strong id="wait-ships-left">?</strong></div>
         <div id="fleet-tally-wait" class="fleet-tally"></div>
         <div class="battle-grids">
           <div class="card card-battle">
-            <div class="section-label">Ваш флот</div>
+            <div class="section-label">Your Fleet</div>
             <div class="grid-header battle-h">${colLabels}</div>
             <div id="own-wait-grid" class="grid grid--compact"></div>
           </div>
           <div class="card card-battle">
-            <div class="section-label">Ваши попадания</div>
+            <div class="section-label">Your Hits</div>
             <div class="grid-header battle-h">${colLabels}</div>
             <div id="attack-wait-grid" class="grid grid--compact"></div>
           </div>
         </div>
-        <p style="font-size:.78rem;color:var(--text-dim);text-align:center">Ожидание хода соперника…</p>
+        <p style="font-size:.78rem;color:var(--text-dim);text-align:center">Waiting for opponent's turn…</p>
       </div>
 
       <!-- RESULT -->
@@ -423,6 +431,14 @@ export class ControllerUI {
 
     qs('#auto-place-btn').addEventListener('click', () => {
       this.autoPlaceShips();
+    });
+
+    qs('#go-to-battle-btn').addEventListener('click', () => {
+      const btn = document.getElementById('go-to-battle-btn') as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = '✓ READY FOR BATTLE!';
+      btn.style.opacity = '0.7';
+      this.ac.message(this.ac.SCREEN, { type: 'CONFIRM_PLACEMENT' });
     });
 
     qs('#restart-btn').addEventListener('click', () => {
