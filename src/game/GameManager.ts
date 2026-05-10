@@ -210,8 +210,21 @@ export class GameManager {
       const sunkShip = result.updatedShips.find(s => s.definition.id === result.shipId);
       if (sunkShip) {
         const cells = ShipPlacer.getOccupiedCells(sunkShip.definition.length, sunkShip.x, sunkShip.y, sunkShip.orientation);
+        // Mark ship cells as sunk on attacker's board
         for (const [cx, cy] of cells) {
           attacker.board.attackBoard[cy][cx] = { state: 'sunk', shipId: result.shipId };
+        }
+        // Auto-mark all surrounding cells as miss (classic battleship rule)
+        for (const [cx, cy] of cells) {
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nx = cx + dx, ny = cy + dy;
+              if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+              if (attacker.board.attackBoard[ny][nx].state === 'empty') {
+                attacker.board.attackBoard[ny][nx] = { state: 'miss', shipId: null };
+              }
+            }
+          }
         }
       }
     } else {
