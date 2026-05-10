@@ -93,6 +93,7 @@ export class ShipPlacer {
       ship.x = pick.x;
       ship.y = pick.y;
       ship.orientation = pick.orientation;
+      ship.facing = pick.orientation === 'horizontal' ? 'right' : 'down';
       placed = true;
 
       if (!placed) return null;
