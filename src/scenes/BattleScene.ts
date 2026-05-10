@@ -13,36 +13,35 @@ interface AttackEventData extends AttackResultMessage {
 
 const HEADER_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: 'monospace',
-  fontSize: '22px',
+  fontSize: '28px',
   color: '#00e5ff',
-};
-
-const SUB_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
-  fontFamily: 'monospace',
-  fontSize: '16px',
-  color: '#7ecfe0',
 };
 
 const TURN_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontFamily: 'monospace',
-  fontSize: '36px',
+  fontSize: '40px',
   color: '#ffffff',
   stroke: '#000022',
   strokeThickness: 4,
 };
 
+// TV canvas is 1920×1080. Show 2 large attack grids side by side.
+// Each grid shows what that player has shot at the opponent.
 export class BattleScene extends Phaser.Scene {
-  private fleetGrids: [Grid | null, Grid | null] = [null, null];
-  private radarGrids: [Grid | null, Grid | null] = [null, null];
+  // attack grids: index = attacker slot (p0 shots, p1 shots)
+  private attackGrids: [Grid | null, Grid | null] = [null, null];
   private turnText!: Phaser.GameObjects.Text;
+  private playerLabels: [Phaser.GameObjects.Text | null, Phaser.GameObjects.Text | null] = [null, null];
   private animManager!: AnimationManager;
   private audio!: ProceduralAudio;
   private attackResultHandler!: (data: AttackEventData) => void;
   private gameOverHandler!: (winner: PlayerSlot) => void;
   private disconnectHandler!: () => void;
-  private cellSize = 34;
+
+  // World positions for animation targeting (defender's fleet grid origin)
   private gridOriginX = [0, 0];
   private gridOriginY = [0, 0];
+  private cellSize = 72;
 
   constructor() { super({ key: 'BattleScene' }); }
 
@@ -55,52 +54,72 @@ export class BattleScene extends Phaser.Scene {
     this.add.rectangle(width / 2, height / 2, width, height, 0x050a12);
     this.drawGridLines();
 
-    const colW = width * 0.48;
-    const gapMid = width * 0.04;
-    const leftX = (width - colW * 2 - gapMid) / 2;
-    const rightX = leftX + colW + gapMid;
-    this.cellSize = Math.max(26, Math.min(36, Math.floor((colW - 40) / 10)));
-    const gridPx = this.cellSize * 10;
-    const topY = 88;
-    const stackGap = 44;
+    // ── Layout ────────────────────────────────────────────────────────────
+    const topPad   = 90;
+    const botPad   = 70;
+    const sidePad  = 80;
+    const midGap   = 60;
 
-    const centersX = [leftX + colW / 2, rightX + colW / 2];
-    this.gridOriginX = [centersX[0] - gridPx / 2, centersX[1] - gridPx / 2];
-    this.gridOriginY = [topY, topY];
+    const availW = width  - sidePad * 2 - midGap;
+    const availH = height - topPad - botPad;
+    this.cellSize = Math.floor(Math.min(availW / 2, availH) / 10);
+    const gridPx  = this.cellSize * 10;
+
+    const leftX  = sidePad + (availW / 2 - gridPx) / 2;
+    const rightX = sidePad + availW / 2 + midGap + (availW / 2 - gridPx) / 2;
+    const gridY  = topPad + (availH - gridPx) / 2;
+
+    this.gridOriginX = [leftX, rightX];
+    this.gridOriginY = [gridY, gridY];
 
     const pColors = ['#00e5ff', '#ff6eb4'];
+    const centersX = [leftX + gridPx / 2, rightX + gridPx / 2];
 
-    for (let slot = 0; slot < 2; slot++) {
-      const cx = centersX[slot];
-      this.add.text(cx, 52, `PLAYER ${slot + 1}`, { ...HEADER_STYLE, color: pColors[slot] })
-        .setOrigin(0.5)
-        .setAlpha(0.95);
-
-      this.add.text(cx, topY - 26, 'YOUR FLEET', SUB_STYLE).setOrigin(0.5).setAlpha(0.75);
-      this.fleetGrids[slot] = new Grid(this, this.gridOriginX[slot], topY, this.cellSize);
-
-      const radarY = topY + gridPx + stackGap;
-      this.add.text(cx, radarY - 26, 'YOUR SHOTS', SUB_STYLE).setOrigin(0.5).setAlpha(0.75);
-      this.radarGrids[slot] = new Grid(this, this.gridOriginX[slot], radarY, this.cellSize);
-    }
-
-    this.turnText = this.add.text(width / 2, height - 36, '', TURN_STYLE).setOrigin(0.5);
-
-    this.add.text(width / 2, 22, 'BATTLE PHASE', {
+    // ── Title ─────────────────────────────────────────────────────────────
+    this.add.text(width / 2, 32, 'BATTLE PHASE', {
       fontFamily: 'monospace',
-      fontSize: '36px',
+      fontSize: '38px',
       color: '#00e5ff',
       stroke: '#003344',
       strokeThickness: 3,
     }).setOrigin(0.5);
 
-    this.attackResultHandler = (data: AttackEventData) => this.onAttackResult(data);
-    this.gameOverHandler = (winner: PlayerSlot) => this.onGameOver(winner);
-    this.disconnectHandler = () => this.onDisconnect();
+    // ── Per-player attack grids ────────────────────────────────────────────
+    for (let slot = 0; slot < 2; slot++) {
+      const cx = centersX[slot];
+      const gx = this.gridOriginX[slot];
+      const gy = this.gridOriginY[slot];
 
-    this.game.events.on('attack-result', this.attackResultHandler, this);
-    this.game.events.on('game-over', this.gameOverHandler, this);
-    this.game.events.on('player-disconnected', this.disconnectHandler, this);
+      // Player label
+      this.playerLabels[slot] = this.add.text(cx, gy - 34, `PLAYER ${slot + 1}`, {
+        ...HEADER_STYLE, color: pColors[slot],
+      }).setOrigin(0.5).setAlpha(0.95);
+
+      // Subtitle
+      this.add.text(cx, gy - 10, 'ATTACK BOARD', {
+        fontFamily: 'monospace', fontSize: '16px', color: pColors[slot],
+      }).setOrigin(0.5).setAlpha(0.45);
+
+      // Grid — shows attacker's shots on the opponent
+      this.attackGrids[slot] = new Grid(this, gx, gy, this.cellSize);
+
+      // Decorative border glow around grid
+      const gfx = this.add.graphics();
+      gfx.lineStyle(2, slot === 0 ? 0x00e5ff : 0xff6eb4, 0.25);
+      gfx.strokeRect(gx - 6, gy - 6, gridPx + 12, gridPx + 12);
+    }
+
+    // ── Turn indicator ────────────────────────────────────────────────────
+    this.turnText = this.add.text(width / 2, height - 28, '', TURN_STYLE).setOrigin(0.5);
+
+    // ── Events ────────────────────────────────────────────────────────────
+    this.attackResultHandler = (data: AttackEventData) => this.onAttackResult(data);
+    this.gameOverHandler     = (_winner: PlayerSlot) => {};
+    this.disconnectHandler   = () => this.onDisconnect();
+
+    this.game.events.on('attack-result',      this.attackResultHandler, this);
+    this.game.events.on('game-over',          this.gameOverHandler,     this);
+    this.game.events.on('player-disconnected', this.disconnectHandler,  this);
 
     this.updateBoards();
     this.updateTurnDisplay();
@@ -112,42 +131,43 @@ export class BattleScene extends Phaser.Scene {
   }
 
   shutdown(): void {
-    this.game.events.off('attack-result', this.attackResultHandler, this);
-    this.game.events.off('game-over', this.gameOverHandler, this);
-    this.game.events.off('player-disconnected', this.disconnectHandler, this);
+    this.game.events.off('attack-result',      this.attackResultHandler, this);
+    this.game.events.off('game-over',          this.gameOverHandler,     this);
+    this.game.events.off('player-disconnected', this.disconnectHandler,  this);
   }
 
   private updateBoards(): void {
     const playerManager = this.registry.get('playerManager') as PlayerManager;
     const [p0, p1] = playerManager.getBothPlayers();
-    if (p0 && this.fleetGrids[0]) this.fleetGrids[0].updateFromBoard(p0.board.ownBoard, true);
-    if (p0 && this.radarGrids[0]) this.radarGrids[0].updateFromBoard(p0.board.attackBoard);
-    if (p1 && this.fleetGrids[1]) this.fleetGrids[1].updateFromBoard(p1.board.ownBoard, true);
-    if (p1 && this.radarGrids[1]) this.radarGrids[1].updateFromBoard(p1.board.attackBoard);
+    // Show each player's attack board (what they shot at the opponent)
+    if (p0 && this.attackGrids[0]) this.attackGrids[0].updateFromBoard(p0.board.attackBoard);
+    if (p1 && this.attackGrids[1]) this.attackGrids[1].updateFromBoard(p1.board.attackBoard);
   }
 
   private updateTurnDisplay(): void {
     const gameManager = this.registry.get('gameManager') as GameManager;
     const turn = gameManager.getCurrentTurn();
     if (turn === null) return;
-    const names = ['PLAYER 1', 'PLAYER 2'];
+    const names  = ['PLAYER 1', 'PLAYER 2'];
     const colors = ['#00e5ff', '#ff6eb4'];
-    this.turnText
-      .setText(`${names[turn]}'S TURN`)
-      .setColor(colors[turn]);
+    this.turnText.setText(`⚡ ${names[turn]}'S TURN`).setColor(colors[turn]);
+
+    // Highlight the active player's label
+    for (let s = 0; s < 2; s++) {
+      this.playerLabels[s]?.setAlpha(s === turn ? 1 : 0.35);
+    }
   }
 
   private onAttackResult(data: AttackEventData): void {
-    const targetSlot: PlayerSlot = data.attackerSlot === 0 ? 1 : 0;
-    const grid = this.fleetGrids[targetSlot];
+    const attackerSlot = data.attackerSlot;
+    const grid = this.attackGrids[attackerSlot];
     if (!grid) return;
 
-    const gridX = this.gridOriginX[targetSlot];
-    const gridY = this.gridOriginY[targetSlot];
+    const gx = this.gridOriginX[attackerSlot];
+    const gy = this.gridOriginY[attackerSlot];
     const cs = this.cellSize;
-
-    const worldX = gridX + data.x * cs + cs / 2;
-    const worldY = gridY + data.y * cs + cs / 2;
+    const worldX = gx + data.x * cs + cs / 2;
+    const worldY = gy + data.y * cs + cs / 2;
 
     grid.markCell(data.x, data.y, data.hit ? (data.sunk ? 'sunk' : 'hit') : 'miss');
 
@@ -172,16 +192,10 @@ export class BattleScene extends Phaser.Scene {
     }
   }
 
-  private onGameOver(_winner: PlayerSlot): void {
-    // Phase change handled by BootScene listener
-  }
-
   private onDisconnect(): void {
     const { width, height } = this.scale;
     const overlay = this.add.text(width / 2, height / 2 + 80, '⚠ Player disconnected...', {
-      fontFamily: 'monospace',
-      fontSize: '30px',
-      color: '#ff8800',
+      fontFamily: 'monospace', fontSize: '30px', color: '#ff8800',
     }).setOrigin(0.5);
     this.time.delayedCall(3000, () => overlay.destroy());
   }

@@ -29,19 +29,19 @@ export class PlayerManager {
 
   constructor(private readonly adapter: AirConsoleAdapter) {}
 
-  handleConnect(deviceId: number): boolean {
+  handleConnect(deviceId: number): 'new' | 'reconnect' | 'spectator' {
     const existing = this.players.get(deviceId);
     if (existing) {
       existing.isConnected = true;
       existing.nickname = this.adapter.getNickname(deviceId) || existing.nickname;
       log.info(`Reconnect: device #${deviceId} → slot ${existing.slot}`);
-      return true; // reconnect
+      return 'reconnect';
     }
 
     const slot = this.assignSlot(deviceId);
     if (slot === null) {
       log.warn(`Device #${deviceId} ignored — both slots taken (spectator)`);
-      return false;
+      return 'spectator';
     }
 
     const nickname = this.adapter.getNickname(deviceId) || `Player ${slot + 1}`;
@@ -60,7 +60,7 @@ export class PlayerManager {
     // Do NOT call setActivePlayers here — calling it before both players connect
     // causes SDK v1.9.0 silence_inactive_players to block the second player's onConnect.
     // setActivePlayers is called in GameManager.startBattle() instead.
-    return true;
+    return 'new';
   }
 
   handleDisconnect(deviceId: number): void {

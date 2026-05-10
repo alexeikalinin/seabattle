@@ -51,6 +51,9 @@ export interface StateUpdateMessage {
   unplacedShipIds: string[];
   /** Enemy ships fully sunk — shown as SVG silhouette on attack grid. */
   sunkEnemyShips: SunkShipInfo[];
+  /** Lobby helpers — whether the opponent slot is occupied and ready. */
+  opponentConnected: boolean;
+  opponentReady: boolean;
 }
 
 export interface AttackResultMessage {

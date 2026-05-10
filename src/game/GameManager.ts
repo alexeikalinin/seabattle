@@ -31,10 +31,11 @@ export class GameManager {
   }
 
   handleConnect(deviceId: number): void {
-    const isNew = this.playerManager.handleConnect(deviceId);
-    log.info(`handleConnect #${deviceId} — ${isNew ? 'new' : 'reconnect'}`);
-    if (isNew) {
-      this.syncPlayerState(deviceId);
+    const result = this.playerManager.handleConnect(deviceId);
+    log.info(`handleConnect #${deviceId} — ${result}`);
+    if (result === 'new' || result === 'reconnect') {
+      // Broadcast to all registered players so opponent status updates everywhere
+      this.broadcastStateUpdate();
       this.gameEvents?.emit('player-connected', deviceId);
     }
   }
@@ -352,6 +353,8 @@ export class GameManager {
       ownShipTally,
       unplacedShipIds,
       sunkEnemyShips,
+      opponentConnected: defender?.isConnected ?? false,
+      opponentReady: defender?.isReady ?? false,
     });
   }
 }

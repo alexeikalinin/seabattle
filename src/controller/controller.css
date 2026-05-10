@@ -541,33 +541,35 @@ html, body {
   font-size: 0.6rem;
 }
 
-/* Battle grids: always side by side — two stacked grids overflow iPhone */
+/* ── Battle grids: vertical stack, fills screen height ─────────────── */
+
+/*
+ * Available height for each grid:
+ *   100dvh − status-banner(~48px) − counter(~22px) − tally(~44px)
+ *   − view-gap(6*4=24px) − 2×card-overhead(2×(8+8+15+10)=82px)
+ *   − grid-header(14px×2=28px) − inter-card-gap(10px) − safe-area(~34px)
+ *   ≈ 100dvh − 282px   →   each grid ≈ (dvh − 282) / 2
+ * Cap by viewport width so the grid never exceeds the card width.
+ */
+.view-battle {
+  --battle-overhead: 282px;
+  --grid-half-h: calc((100dvh - var(--battle-overhead)) / 2);
+  --grid-max-w: calc(100vw - 48px);        /* card padding 12px × 2 + view padding 12px × 2 */
+  --battle-grid-size: min(var(--grid-half-h), var(--grid-max-w));
+}
+
 .battle-grids {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   width: 100%;
 }
 
-.battle-grids .card-battle {
-  flex: 1 1 50%;
-  min-width: 0;
-}
-
 .card-battle {
-  padding: 8px 10px;
+  padding: 8px 12px;
 }
 
-/* Grid width for battle = half the viewport minus card padding and gap */
 .card-battle .grid-header,
 .card-battle .grid.grid--compact {
-  --grid-w: min(100%, calc(50vw - 48px));
-}
-
-@media (min-width: 560px) {
-  .card-battle .grid-header,
-  .card-battle .grid.grid--compact {
-    --grid-w: min(100%, min(360px, calc(50vw - 44px)));
-  }
+  --grid-w: var(--battle-grid-size);
 }

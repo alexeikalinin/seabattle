@@ -101,6 +101,22 @@ export class ControllerUI {
     const color = msg.playerSlot === 0 ? 'var(--accent)' : 'var(--accent2)';
     qs('#lobby-slot-name').textContent = slotName;
     (qs('#lobby-slot-name') as HTMLElement).style.color = color;
+
+    const youEl = document.getElementById('lobby-you-status');
+    const oppEl = document.getElementById('lobby-opp-status');
+    if (youEl) {
+      youEl.textContent = '● Joining...';
+      youEl.className = 'pstatus';
+    }
+    if (oppEl) {
+      if (msg.opponentConnected) {
+        oppEl.textContent = msg.opponentReady ? '✓ Ready!' : '● Joining...';
+        oppEl.className = msg.opponentReady ? 'pstatus ready' : 'pstatus';
+      } else {
+        oppEl.textContent = '○ Waiting';
+        oppEl.className = 'pstatus dim';
+      }
+    }
   }
 
   private renderPlacement(msg: StateUpdateMessage): void {
@@ -145,6 +161,13 @@ export class ControllerUI {
     const placed = msg.ships.filter(s => s.x >= 0).length;
     const total = msg.ships.length;
     qs('#placement-progress').textContent = `${placed} / ${total} placed`;
+
+    const selectorLabel = document.getElementById('ship-selector-label');
+    if (selectorLabel) {
+      selectorLabel.textContent = msg.unplacedShipIds.length === 0
+        ? '✓ All ships placed!'
+        : 'Select Ship (unplaced)';
+    }
 
     if (this.selectedShipId) {
       const sh = msg.ships.find(s => s.definition.id === this.selectedShipId);
@@ -258,6 +281,9 @@ export class ControllerUI {
         cell.className = 'grid-cell';
         if (onTap) {
           cell.addEventListener('click', () => onTap(col, row));
+        } else {
+          cell.style.cursor = 'default';
+          cell.tabIndex = -1;
         }
         container.appendChild(cell);
       }
@@ -357,7 +383,7 @@ export class ControllerUI {
           </div>
 
           <div class="card card-ships">
-            <div class="section-label">Select Ship (unplaced)</div>
+            <div class="section-label" id="ship-selector-label">Select Ship (unplaced)</div>
             <div id="ship-selector"></div>
           </div>
         </div>
