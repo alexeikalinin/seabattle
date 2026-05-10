@@ -51,13 +51,13 @@ export interface PlayerData {
 }
 
 export const FLEET_CONFIG: ShipDefinition[] = [
-  { id: 'carrier',     length: 4, name: 'Carrier' },
-  { id: 'cruiser-1',   length: 3, name: 'Cruiser' },
+  { id: 'battleship',  length: 4, name: 'Battleship' },  // 4-cell — 1 ship
+  { id: 'cruiser-1',   length: 3, name: 'Cruiser' },     // 3-cell — 2 ships
   { id: 'cruiser-2',   length: 3, name: 'Cruiser' },
-  { id: 'destroyer-1', length: 2, name: 'Destroyer' },
+  { id: 'destroyer-1', length: 2, name: 'Destroyer' },   // 2-cell — 3 ships
   { id: 'destroyer-2', length: 2, name: 'Destroyer' },
   { id: 'destroyer-3', length: 2, name: 'Destroyer' },
-  { id: 'submarine-1', length: 1, name: 'Sub' },
+  { id: 'submarine-1', length: 1, name: 'Sub' },         // 1-cell — 4 ships
   { id: 'submarine-2', length: 1, name: 'Sub' },
   { id: 'submarine-3', length: 1, name: 'Sub' },
   { id: 'submarine-4', length: 1, name: 'Sub' },

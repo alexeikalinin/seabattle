@@ -22,5 +22,5 @@ export function shipTallyAlive(ships: PlacedShip[]): ShipTallyRow[] {
 
 export function formatShipTally(rows: ShipTallyRow[]): string {
   if (rows.length === 0) return 'None afloat';
-  return rows.map(r => `${r.label}: ${r.count}`).join(' · ');
+  return rows.map(r => `${r.label}(${r.length}): ${r.count}`).join(' · ');
 }
