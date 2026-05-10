@@ -6,6 +6,12 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  server: {
+    watch: {
+      // Ignore screenshot/test artefacts so HMR doesn't reload when PNGs are saved
+      ignored: ['**/*.png', '**/*.jpg', '**/.playwright-mcp/**'],
+    },
+  },
   build: {
     rollupOptions: {
       input: {

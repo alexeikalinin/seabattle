@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0a2040"/>
+      <stop offset="100%" stop-color="#020810"/>
+    </radialGradient>
+    <radialGradient id="explode" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="15%" stop-color="#ffe066" stop-opacity="0.95"/>
+      <stop offset="45%" stop-color="#ff6600" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="explode2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+      <stop offset="30%" stop-color="#ff8800" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowHeavy">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="titleGlow">
+      <feGaussianBlur stdDeviation="7" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="gridClip">
+      <rect x="112" y="175" width="800" height="600"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- Subtle vignette -->
+  <radialGradient id="vig" cx="50%" cy="50%" r="70%">
+    <stop offset="60%" stop-color="transparent"/>
+    <stop offset="100%" stop-color="rgba(0,0,0,0.55)"/>
+  </radialGradient>
+  <rect width="1024" height="1024" fill="url(#vig)"/>
+
+  <!-- ══════════════════════════════════════════════════════
+       BATTLE GRID (10×10) centered, top-down ocean view
+       Grid starts at x=112, y=175, cell=80px, total=800×800
+  ══════════════════════════════════════════════════════ -->
+  <g id="grid">
+    <!-- Ocean fill -->
+    <rect x="112" y="175" width="800" height="600" rx="6"
+          fill="rgba(4,18,38,0.85)" stroke="rgba(0,229,255,0.35)" stroke-width="1.5"/>
+
+    <!-- Grid lines vertical -->
+    <g stroke="rgba(0,229,255,0.18)" stroke-width="1">
+      <line x1="192" y1="175" x2="192" y2="775"/>
+      <line x1="272" y1="175" x2="272" y2="775"/>
+      <line x1="352" y1="175" x2="352" y2="775"/>
+      <line x1="432" y1="175" x2="432" y2="775"/>
+      <line x1="512" y1="175" x2="512" y2="775"/>
+      <line x1="592" y1="175" x2="592" y2="775"/>
+      <line x1="672" y1="175" x2="672" y2="775"/>
+      <line x1="752" y1="175" x2="752" y2="775"/>
+      <line x1="832" y1="175" x2="832" y2="775"/>
+    </g>
+    <!-- Grid lines horizontal -->
+    <g stroke="rgba(0,229,255,0.18)" stroke-width="1">
+      <line x1="112" y1="235" x2="912" y2="235"/>
+      <line x1="112" y1="295" x2="912" y2="295"/>
+      <line x1="112" y1="355" x2="912" y2="355"/>
+      <line x1="112" y1="415" x2="912" y2="415"/>
+      <line x1="112" y1="475" x2="912" y2="475"/>
+      <line x1="112" y1="535" x2="912" y2="535"/>
+      <line x1="112" y1="595" x2="912" y2="595"/>
+      <line x1="112" y1="655" x2="912" y2="655"/>
+      <line x1="112" y1="715" x2="912" y2="715"/>
+    </g>
+
+    <!-- ── SUNK SHIP 1: Battleship (4 cells) row A cols 2-5, horizontal ── -->
+    <!-- Cells highlighted sunk red -->
+    <rect x="193" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <rect x="273" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <rect x="353" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <rect x="433" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <!-- Ship silhouette -->
+    <g filter="url(#glow)">
+      <path d="M200,185 L498,178 Q515,205 498,232 L200,225 Q192,205 200,185Z"
+            fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
+      <rect x="430" y="180" width="45" height="18" rx="2" fill="rgba(180,8,8,0.5)" stroke="#ff4444" stroke-width="1.5"/>
+      <line x1="452" y1="180" x2="452" y2="170" stroke="#ff4444" stroke-width="2" opacity="0.6"/>
+      <text x="350" y="210" text-anchor="middle" font-family="monospace" font-size="22" font-weight="900"
+            fill="rgba(255,80,80,0.9)">✕</text>
+    </g>
+    <!-- Surrounding miss dots (auto-reveal) -->
+    <circle cx="152" cy="205" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="152" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="232" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="312" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="392" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="472" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="552" cy="205" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="552" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
+
+    <!-- ── SUNK SHIP 2: Cruiser (3 cells) col 8, rows D-F, vertical ── -->
+    <rect x="673" y="356" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <rect x="673" y="416" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <rect x="673" y="476" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
+    <g filter="url(#glow)">
+      <path d="M693,363 L717,362 Q726,415 717,533 L693,532 Q688,475 693,363Z"
+            fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
+      <text x="712" y="475" text-anchor="middle" font-family="monospace" font-size="20" font-weight="900"
+            fill="rgba(255,80,80,0.9)" transform="rotate(90,712,475)">✕</text>
+    </g>
+    <!-- Surrounding miss dots -->
+    <circle cx="632" cy="385" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="632" cy="445" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="632" cy="505" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="712" cy="325" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="712" cy="535" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="792" cy="325" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="792" cy="385" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="792" cy="445" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="792" cy="505" r="9" fill="rgba(140,210,255,0.75)"/>
+    <circle cx="792" cy="535" r="9" fill="rgba(140,210,255,0.75)"/>
+
+    <!-- ── HIT cells (non-sunk) ── -->
+    <!-- Row C col 6 -->
+    <rect x="513" y="296" width="79" height="59" fill="rgba(200,40,40,0.45)"/>
+    <text x="552" y="335" text-anchor="middle" font-family="monospace" font-size="26" font-weight="900"
+          fill="rgba(255,100,100,0.95)" filter="url(#glow)">✕</text>
+    <!-- Row E col 4 -->
+    <rect x="353" y="416" width="79" height="59" fill="rgba(200,40,40,0.45)"/>
+    <text x="392" y="455" text-anchor="middle" font-family="monospace" font-size="26" font-weight="900"
+          fill="rgba(255,100,100,0.95)" filter="url(#glow)">✕</text>
+
+    <!-- ── MISS cells (white dots) ── scattered around ── -->
+    <circle cx="152" cy="325" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="232" cy="385" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="312" cy="325" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="472" cy="325" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="152" cy="445" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="312" cy="475" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="472" cy="535" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="152" cy="565" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="552" cy="445" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="632" cy="565" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="872" cy="325" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="872" cy="445" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="232" cy="625" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="392" cy="685" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="552" cy="625" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="712" cy="685" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="872" cy="625" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="152" cy="745" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="472" cy="745" r="10" fill="rgba(160,220,255,0.72)"/>
+    <circle cx="872" cy="745" r="10" fill="rgba(160,220,255,0.72)"/>
+
+    <!-- ── LIVE SHIP visible (Destroyer 2 cells, row G cols 3-4) ── -->
+    <g filter="url(#glow)">
+      <path d="M260,602 L430,596 Q445,625 430,654 L260,648 Q253,625 260,602Z"
+            fill="rgba(0,60,110,0.45)" stroke="#00e5ff" stroke-width="2"/>
+      <rect x="390" y="598" width="32" height="14" rx="2" fill="rgba(0,130,200,0.4)" stroke="#00e5ff" stroke-width="1.2"/>
+      <circle cx="445" cy="625" r="4" fill="#00e5ff"/>
+    </g>
+
+    <!-- ── EXPLOSION on hit cell C6 ── -->
+    <circle cx="552" cy="325" r="32" fill="url(#explode2)" filter="url(#glowHeavy)" opacity="0.85"/>
+    <g stroke="#ffaa00" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
+      <line x1="552" y1="325" x2="540" y2="298"/>
+      <line x1="552" y1="325" x2="566" y2="297"/>
+      <line x1="552" y1="325" x2="526" y2="315"/>
+      <line x1="552" y1="325" x2="580" y2="313"/>
+      <line x1="552" y1="325" x2="535" y2="348"/>
+      <line x1="552" y1="325" x2="570" y2="350"/>
+    </g>
+  </g>
+
+  <!-- Grid border glow -->
+  <rect x="112" y="175" width="800" height="600" rx="6" fill="none"
+        stroke="#00e5ff" stroke-width="2" opacity="0.5" filter="url(#glow)"/>
+
+  <!-- Column labels A-J -->
+  <g font-family="monospace" font-size="18" fill="rgba(0,229,255,0.55)" text-anchor="middle">
+    <text x="152" y="165">A</text><text x="232" y="165">B</text><text x="312" y="165">C</text>
+    <text x="392" y="165">D</text><text x="472" y="165">E</text><text x="552" y="165">F</text>
+    <text x="632" y="165">G</text><text x="712" y="165">H</text><text x="792" y="165">I</text>
+    <text x="872" y="165">J</text>
+  </g>
+  <!-- Row labels 1-10 -->
+  <g font-family="monospace" font-size="16" fill="rgba(0,229,255,0.45)" text-anchor="end">
+    <text x="104" y="212">1</text><text x="104" y="272">2</text><text x="104" y="332">3</text>
+    <text x="104" y="392">4</text><text x="104" y="452">5</text><text x="104" y="512">6</text>
+    <text x="104" y="572">7</text><text x="104" y="632">8</text><text x="104" y="692">9</text>
+    <text x="102" y="752">10</text>
+  </g>
+
+  <!-- Dark overlay top for title -->
+  <rect x="0" y="0" width="1024" height="148" fill="rgba(2,8,18,0.82)"/>
+
+  <!-- Title -->
+  <text x="512" y="100" text-anchor="middle"
+        font-family="'Courier New',monospace" font-size="96" font-weight="900"
+        fill="#00e5ff" filter="url(#titleGlow)" letter-spacing="6">BATTLESHIP DUEL</text>
+
+  <!-- Dark overlay bottom for subtitle -->
+  <rect x="0" y="800" width="1024" height="224" fill="rgba(2,8,18,0.82)"/>
+
+  <!-- Subtitle moved to bottom -->
+  <text x="512" y="870" text-anchor="middle"
+        font-family="'Courier New',monospace" font-size="30"
+        fill="rgba(90,200,250,0.6)" letter-spacing="5">2-PLAYER  ·  COUCH MULTIPLAYER</text>
+
+  <!-- Decorative legend bottom -->
+  <g transform="translate(200,920)">
+    <rect x="0" y="0" width="22" height="22" rx="3" fill="rgba(200,40,40,0.6)" stroke="#ff4444" stroke-width="1.5"/>
+    <text x="30" y="17" font-family="monospace" font-size="20" fill="rgba(200,200,200,0.7)">HIT</text>
+    <circle cx="110" cy="11" r="9" fill="rgba(160,220,255,0.7)"/>
+    <text x="128" y="17" font-family="monospace" font-size="20" fill="rgba(200,200,200,0.7)">MISS</text>
+    <rect x="222" y="0" width="22" height="22" rx="3" fill="rgba(180,8,8,0.6)" stroke="#ff3333" stroke-width="1.5"/>
+    <text x="252" y="17" font-family="monospace" font-size="20" fill="rgba(200,200,200,0.7)">SUNK</text>
+  </g>
+
+  <!-- AIRCONSOLE label -->
+  <text x="512" y="1000" text-anchor="middle"
+        font-family="'Courier New',monospace" font-size="20"
+        fill="rgba(90,200,250,0.28)" letter-spacing="8">AIRCONSOLE</text>
+
+  <!-- Corner marks -->
+  <g stroke="rgba(0,229,255,0.4)" stroke-width="2" fill="none">
+    <path d="M28,28 L28,58 M28,28 L58,28"/>
+    <path d="M996,28 L996,58 M996,28 L966,28"/>
+    <path d="M28,996 L28,966 M28,996 L58,996"/>
+    <path d="M996,996 L996,966 M996,996 L966,996"/>
+  </g>
+</svg>
