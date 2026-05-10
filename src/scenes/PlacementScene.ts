@@ -40,36 +40,41 @@ export class PlacementScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setAlpha(0.6);
 
-    const cellSize = 46;
-    const gridSize = cellSize * 10;
-    const margin = (width - gridSize * 2 - 200) / 2;
+    // Fit two grids side by side using all available space
+    const titleH  = 130;   // room for title + subtitle
+    const statusH = 80;    // room for status text at bottom
+    const midGap  = 100;   // gap between the two grids
+    const sidePad = 60;    // left/right padding
+
+    const maxFromW = Math.floor((width  - sidePad * 2 - midGap) / 2 / 10) * 10;
+    const maxFromH = Math.floor((height - titleH - statusH)      / 10) * 10;
+    const gridSize = Math.min(maxFromW, maxFromH);
+    const cellSize = gridSize / 10;
+
+    const totalW  = gridSize * 2 + midGap;
+    const leftX   = (width - totalW) / 2;
+    const rightX  = leftX + gridSize + midGap;
+    const gridY   = titleH;
+
+    const cenL = leftX  + gridSize / 2;
+    const cenR = rightX + gridSize / 2;
 
     // Player 1 grid
-    this.grids[0] = new Grid(this, margin + 20, 160, cellSize);
-    this.add.text(margin + 20 + gridSize / 2, 140, 'PLAYER 1', { ...LABEL_STYLE, color: '#00e5ff' })
-      .setOrigin(0.5);
-    this.statusTexts[0] = this.add.text(
-      margin + 20 + gridSize / 2,
-      height - 80,
-      'Placing ships...',
-      STATUS_STYLE,
-    ).setOrigin(0.5).setAlpha(0.7);
+    this.grids[0] = new Grid(this, leftX, gridY, cellSize);
+    this.add.text(cenL, gridY - 28, 'PLAYER 1', { ...LABEL_STYLE, color: '#00e5ff' }).setOrigin(0.5);
+    this.statusTexts[0] = this.add.text(cenL, gridY + gridSize + 28, 'Placing ships...', STATUS_STYLE)
+      .setOrigin(0.5).setAlpha(0.7);
 
     // Player 2 grid
-    this.grids[1] = new Grid(this, width - margin - gridSize - 20, 160, cellSize);
-    this.add.text(width - margin - 20 - gridSize / 2, 140, 'PLAYER 2', { ...LABEL_STYLE, color: '#ff6eb4' })
-      .setOrigin(0.5);
-    this.statusTexts[1] = this.add.text(
-      width - margin - 20 - gridSize / 2,
-      height - 80,
-      'Placing ships...',
-      STATUS_STYLE,
-    ).setOrigin(0.5).setAlpha(0.7);
+    this.grids[1] = new Grid(this, rightX, gridY, cellSize);
+    this.add.text(cenR, gridY - 28, 'PLAYER 2', { ...LABEL_STYLE, color: '#ff6eb4' }).setOrigin(0.5);
+    this.statusTexts[1] = this.add.text(cenR, gridY + gridSize + 28, 'Placing ships...', STATUS_STYLE)
+      .setOrigin(0.5).setAlpha(0.7);
 
     // VS divider
-    this.add.text(width / 2, height / 2, 'VS', {
+    this.add.text(width / 2, gridY + gridSize / 2, 'VS', {
       fontFamily: 'monospace',
-      fontSize: '64px',
+      fontSize: '56px',
       color: '#1a3a4a',
     }).setOrigin(0.5);
 

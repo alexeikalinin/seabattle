@@ -55,10 +55,10 @@ export class BattleScene extends Phaser.Scene {
     this.drawGridLines();
 
     // ── Layout ────────────────────────────────────────────────────────────
-    const topPad   = 110;  // enough room for title + player label + subtitle
-    const botPad   = 70;
-    const sidePad  = 80;
-    const midGap   = 60;
+    const topPad   = 100;
+    const botPad   = 60;
+    const sidePad  = 50;
+    const midGap   = 50;
 
     const availW = width  - sidePad * 2 - midGap;
     const availH = height - topPad - botPad;

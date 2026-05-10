@@ -80,6 +80,8 @@ html, body {
 .view-placement {
   align-items: stretch;
   padding-top: max(8px, env(safe-area-inset-top));
+  /* Extra bottom padding so last ship row is never clipped by home indicator */
+  padding-bottom: max(64px, calc(env(safe-area-inset-bottom) + 48px));
 }
 .placement-title {
   font-family: 'Sora', sans-serif;
