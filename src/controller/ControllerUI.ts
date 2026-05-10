@@ -314,11 +314,22 @@ export class ControllerUI {
       }
     }
 
-    // Ships layer — SVG overlays positioned above grid cells
+    // Ships layer
     const layer = document.createElement('div');
     layer.className = 'ships-layer';
     container.appendChild(layer);
     this.renderers[containerId] = new ShipRenderer(layer);
+
+    // Row labels A-J, absolutely positioned to the left of the grid
+    const rowLabels = document.createElement('div');
+    rowLabels.className = 'grid-row-labels';
+    rowLabels.setAttribute('aria-hidden', 'true');
+    'ABCDEFGHIJ'.split('').forEach(letter => {
+      const s = document.createElement('span');
+      s.textContent = letter;
+      rowLabels.appendChild(s);
+    });
+    container.appendChild(rowLabels);
   }
 
   private rotateSelectedShip(): void {

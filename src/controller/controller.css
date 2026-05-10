@@ -105,7 +105,7 @@ html, body {
 }
 .view-placement .card-grid {
   flex-shrink: 0;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 22px; /* left space for A-J row labels */
 }
 .view-placement .card-ships {
   flex: 1 1 auto;
@@ -330,6 +330,31 @@ html, body {
   inset: 0;
   pointer-events: none;
   z-index: 2;
+}
+
+/* Row labels A-J, left of grid */
+.grid-row-labels {
+  position: absolute;
+  top: 0;
+  left: -16px;
+  bottom: 0;
+  width: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.grid-row-labels span {
+  flex: 1 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.42rem, 2.2vw, 0.52rem);
+  font-weight: 700;
+  color: rgba(74, 122, 155, 0.5);
+  font-family: 'Inter', sans-serif;
+  line-height: 1;
 }
 
 .grid-cell {
@@ -568,7 +593,7 @@ html, body {
 }
 
 .card-battle {
-  padding: 8px 12px;
+  padding: 8px 12px 8px 22px; /* left space for A-J row labels */
 }
 
 .card-battle .grid-header,

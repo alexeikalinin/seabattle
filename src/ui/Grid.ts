@@ -37,20 +37,21 @@ export class Grid extends Phaser.GameObjects.Container {
       }
     }
 
-    const labelStyle = { fontFamily: 'monospace', fontSize: '11px', color: '#446680' };
+    // Scale label font with cell size so labels are readable on TV screen
+    const fontSize = `${Math.max(11, Math.floor(this.cellSize * 0.22))}px`;
+    const labelStyle = { fontFamily: 'monospace', fontSize, color: '#446680' };
+    const offset = Math.max(14, Math.floor(this.cellSize * 0.22));
     const letters = 'ABCDEFGHIJ';
     for (let i = 0; i < GRID_SIZE; i++) {
+      // Column numbers (top)
       this.add(this.scene.add.text(
-        i * this.cellSize + this.cellSize / 2,
-        -14,
-        String(i + 1),
-        labelStyle,
+        i * this.cellSize + this.cellSize / 2, -offset,
+        String(i + 1), labelStyle,
       ).setOrigin(0.5, 0.5));
+      // Row letters (left)
       this.add(this.scene.add.text(
-        -14,
-        i * this.cellSize + this.cellSize / 2,
-        letters[i],
-        labelStyle,
+        -offset, i * this.cellSize + this.cellSize / 2,
+        letters[i], labelStyle,
       ).setOrigin(0.5, 0.5));
     }
   }
