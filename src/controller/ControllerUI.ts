@@ -14,8 +14,10 @@ export class ControllerUI {
   private currentFacing: Facing = 'right';
   private lastState: StateUpdateMessage | null = null;
   private readonly audio = new ProceduralAudio();
-  // Ship renderers keyed by grid id
   private renderers: Record<string, ShipRenderer> = {};
+  // Per-game flags — reset when phase transitions back to lobby (restart)
+  private isReadyThisGame = false;
+  private lastPhase: string | null = null;
 
   constructor(private readonly ac: AirConsole) {}
 
@@ -38,6 +40,14 @@ export class ControllerUI {
   private onStateUpdate(msg: StateUpdateMessage): void {
     this.playerSlot = msg.playerSlot;
     this.lastState = msg;
+
+    // Detect transition back to lobby (restart) — reset per-game flags
+    if (msg.phase === 'lobby' && this.lastPhase !== null && this.lastPhase !== 'lobby') {
+      this.isReadyThisGame = false;
+      this.selectedShipId = null;
+      this.currentFacing = 'right';
+    }
+    this.lastPhase = msg.phase;
 
     this.updatePlayerBadge();
 
@@ -118,17 +128,15 @@ export class ControllerUI {
       }
     }
 
-    // Reset READY button (may be disabled from a previous game)
-    const readyBtn = document.getElementById('ready-btn') as HTMLButtonElement | null;
-    if (readyBtn) {
-      readyBtn.disabled = false;
-      readyBtn.textContent = '⚓ READY TO BATTLE';
-      readyBtn.style.opacity = '1';
+    // Reset READY button only when entering lobby fresh (after restart)
+    if (!this.isReadyThisGame) {
+      const readyBtn = document.getElementById('ready-btn') as HTMLButtonElement | null;
+      if (readyBtn) {
+        readyBtn.disabled = false;
+        readyBtn.textContent = '⚓ READY TO BATTLE';
+        readyBtn.style.opacity = '1';
+      }
     }
-
-    // Reset per-game state
-    this.selectedShipId = null;
-    this.currentFacing = 'right';
   }
 
   private renderPlacement(msg: StateUpdateMessage): void {
@@ -463,6 +471,7 @@ export class ControllerUI {
 
     qs('#ready-btn').addEventListener('click', () => {
       this.audio.playReady();
+      this.isReadyThisGame = true;
       this.ac.message(this.ac.SCREEN, { type: 'READY' });
       (qs('#ready-btn') as HTMLButtonElement).disabled = true;
       (qs('#ready-btn') as HTMLButtonElement).textContent = '✓ READY!';
