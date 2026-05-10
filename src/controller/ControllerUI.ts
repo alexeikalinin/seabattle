@@ -117,6 +117,18 @@ export class ControllerUI {
         oppEl.className = 'pstatus dim';
       }
     }
+
+    // Reset READY button (may be disabled from a previous game)
+    const readyBtn = document.getElementById('ready-btn') as HTMLButtonElement | null;
+    if (readyBtn) {
+      readyBtn.disabled = false;
+      readyBtn.textContent = '⚓ READY TO BATTLE';
+      readyBtn.style.opacity = '1';
+    }
+
+    // Reset per-game state
+    this.selectedShipId = null;
+    this.currentFacing = 'right';
   }
 
   private renderPlacement(msg: StateUpdateMessage): void {
@@ -180,11 +192,16 @@ export class ControllerUI {
     this.highlightPlacementSelection(msg);
     this.updateRotateBtnLabel();
 
-    // Show "GO TO BATTLE" button only when all ships are placed
+    // Show "GO TO BATTLE" button only when all ships are placed; reset if re-entering placement
     const goBtn = document.getElementById('go-to-battle-btn') as HTMLButtonElement | null;
     if (goBtn) {
       const allPlaced = msg.unplacedShipIds.length === 0;
       goBtn.style.display = allPlaced ? 'block' : 'none';
+      if (!allPlaced) {
+        goBtn.disabled = false;
+        goBtn.textContent = '⚔ GO TO BATTLE!';
+        goBtn.style.opacity = '1';
+      }
     }
   }
 
