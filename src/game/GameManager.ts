@@ -70,11 +70,15 @@ export class GameManager {
     const ship = player.board.ships.find(s => s.definition.id === action.shipId);
     if (!ship) return;
 
-    if (ship.x >= 0) {
-      player.board.ownBoard = ShipPlacer.removeShip(player.board.ownBoard, ship);
-    }
+    // Compute the board WITHOUT this ship as a local variable — do NOT update
+    // player.board.ownBoard yet. If canPlace fails, the board remains consistent
+    // with ship.x / ship.y (old position), preventing another ship from occupying
+    // the vacated cells and causing an overlap.
+    const boardWithoutShip = ship.x >= 0
+      ? ShipPlacer.removeShip(player.board.ownBoard, ship)
+      : player.board.ownBoard;
 
-    if (!ShipPlacer.canPlace(player.board.ownBoard, ship.definition.length, action.x, action.y, action.orientation)) {
+    if (!ShipPlacer.canPlace(boardWithoutShip, ship.definition.length, action.x, action.y, action.orientation)) {
       this.syncPlayerState(deviceId);
       return;
     }
@@ -83,7 +87,7 @@ export class GameManager {
     ship.y = action.y;
     ship.orientation = action.orientation;
     ship.facing = action.facing;
-    player.board.ownBoard = ShipPlacer.placeShip(player.board.ownBoard, ship, action.x, action.y, action.orientation);
+    player.board.ownBoard = ShipPlacer.placeShip(boardWithoutShip, ship, action.x, action.y, action.orientation);
     player.board.allShipsPlaced = player.board.ships.every(s => s.x >= 0);
 
     this.syncPlayerState(deviceId);
@@ -95,14 +99,11 @@ export class GameManager {
     const player = this.playerManager.getPlayer(deviceId);
     if (!player) return;
 
-    // Reset board and unplace all ships before re-placing
-    let board = createEmptyBoard();
-    for (const ship of player.board.ships) {
-      ship.x = -1;
-      ship.y = -1;
-    }
+    // Create copies with all positions reset — never mutate player state before we know success
+    const freshBoard = createEmptyBoard();
+    const unplacedShips = player.board.ships.map(s => ({ ...s, x: -1, y: -1 }));
 
-    const result = ShipPlacer.autoPlace(board, player.board.ships);
+    const result = ShipPlacer.autoPlace(freshBoard, unplacedShips);
     if (!result) { this.syncPlayerState(deviceId); return; }
 
     player.board.ownBoard = result.board;
@@ -214,13 +215,18 @@ export class GameManager {
         for (const [cx, cy] of cells) {
           attacker.board.attackBoard[cy][cx] = { state: 'sunk', shipId: result.shipId };
         }
-        // Auto-mark all surrounding cells as miss (classic battleship rule)
+        // Auto-mark surrounding cells as miss — only if the defender's updated board
+        // confirms those cells are truly empty (guards against any placement edge-case
+        // where ships end up adjacent, which would otherwise block future attacks).
         for (const [cx, cy] of cells) {
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
               const nx = cx + dx, ny = cy + dy;
               if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
-              if (attacker.board.attackBoard[ny][nx].state === 'empty') {
+              if (
+                attacker.board.attackBoard[ny][nx].state === 'empty' &&
+                result.updatedBoard[ny][nx].state !== 'ship'
+              ) {
                 attacker.board.attackBoard[ny][nx] = { state: 'miss', shipId: null };
               }
             }
