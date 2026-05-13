@@ -10,57 +10,55 @@
       html, body { width: 100%; height: 100%; background: #0a0a1a; overflow: hidden; }
       #game-container { width: 100%; height: 100%; }
       #game-container canvas { display: block; }
-
-      /* Portrait-mode warning — shown when screen is taller than wide */
-      #orientation-warning {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: #030e1e;
-        z-index: 9999;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        font-family: 'Inter', system-ui, sans-serif;
-      }
-      #orientation-warning .ow-icon { font-size: 72px; animation: ow-spin 2s ease-in-out infinite; }
-      #orientation-warning .ow-text {
-        color: #c8e4f4;
-        font-size: clamp(18px, 4vw, 28px);
-        text-align: center;
-        line-height: 1.5;
-      }
-      #orientation-warning .ow-text strong { color: #5ac8fa; }
-      @keyframes ow-spin {
-        0%   { transform: rotate(0deg); }
-        40%  { transform: rotate(90deg); }
-        60%  { transform: rotate(90deg); }
-        100% { transform: rotate(0deg); }
-      }
-      @media screen and (orientation: portrait) {
-        #orientation-warning { display: flex; }
-      }
     </style>
     <script src="/airconsole-1.9.0.js"></script>
   </head>
   <body>
-    <!-- Shown when the TV/projector is accidentally in portrait orientation -->
-    <div id="orientation-warning">
-      <div class="ow-icon">🔄</div>
-      <div class="ow-text">
-        Please rotate your display to<br>
-        <strong>Landscape</strong> mode
-      </div>
-    </div>
+    <!--
+      Portrait auto-rotate: injected BEFORE Phaser loads.
+
+      Problem: projectors / smart-TVs often run their browsers in portrait
+      mode (height > width). Phaser uses getBoundingClientRect() to measure
+      its parent, which returns the POST-transform visual box — so any CSS
+      rotation on the container breaks Phaser's size calculation.
+
+      Solution: leave #game-container unrotated (Phaser measures it correctly),
+      then inject a stylesheet with !important rules that force the CANVAS
+      Phaser creates into a fixed-position, landscape-sized, rotated box.
+      !important beats Phaser's inline styles without needing to fight them.
+
+      Math for portrait viewport W × H (H > W):
+        canvas CSS: left=W, top=0, width=H, height=W
+        transform-origin: top left  → pivot at viewport (W, 0)
+        rotate(90° CW):
+          BL (local 0, W) → viewport (W − W, 0) = (0, 0)   ← top-left of wall
+          TR (local H, 0) → viewport (W, H)                 ← bottom-right of wall
+        ∴ canvas visually covers exactly 0..W × 0..H = full viewport ✓
+        Phaser renders 1920×1080 displayed at H × W CSS pixels (aspect-correct) ✓
+    -->
+    <script>
+      (function () {
+        var W = window.innerWidth, H = window.innerHeight;
+        if (H <= W) return; // already landscape — nothing to do
+
+        var style = document.createElement('style');
+        style.textContent = [
+          '#game-container canvas {',
+          '  position:fixed !important;',
+          '  top:0 !important;',
+          '  left:' + W + 'px !important;',
+          '  width:' + H + 'px !important;',
+          '  height:' + W + 'px !important;',
+          '  transform-origin:top left !important;',
+          '  transform:rotate(90deg) !important;',
+          '  margin:0 !important;',
+          '}',
+        ].join('\n');
+        document.head.appendChild(style);
+      })();
+    </script>
 
     <div id="game-container"></div>
     <script type="module" src="/src/screen/main.ts"></script>
-    <script>
-      // Attempt to lock orientation on supported devices (mobile browsers, some tablets)
-      if (screen.orientation && typeof screen.orientation.lock === 'function') {
-        screen.orientation.lock('landscape').catch(function() {});
-      }
-    </script>
   </body>
 </html>
