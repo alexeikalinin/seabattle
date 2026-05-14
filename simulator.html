@@ -61,6 +61,8 @@ html, body { width: 100%; height: 100vh; overflow: hidden; background: #050a12; 
   <button class="tbtn red" onclick="disconnectCtrl(1)">⊗ P1</button>
   <button class="tbtn red" onclick="disconnectCtrl(2)">⊗ P2</button>
   <button class="tbtn" onclick="reloadAll()" style="margin-left:6px">↺ Reload</button>
+  <button class="tbtn" id="btn-battle" onclick="triggerBattle()" style="margin-left:6px;background:rgba(0,255,136,.1);border-color:rgba(0,255,136,.4);color:#00ff88;display:none">⚔ → Battle</button>
+  <button class="tbtn" onclick="triggerReady()" style="margin-left:2px;background:rgba(255,170,0,.1);border-color:rgba(255,170,0,.4);color:#ffaa00">✓ Ready all</button>
   <div id="st-wrap"><div class="dot" id="dot"></div><span id="st">Waiting...</span></div>
 </div>
 
@@ -74,11 +76,11 @@ html, body { width: 100%; height: 100vh; overflow: hidden; background: #050a12; 
     <div class="slots">
       <div class="slot">
         <div class="sh"><span class="p1c">PLAYER 1 · device #1</span><span class="sst" id="s1">disconnected</span></div>
-        <div class="fw"><iframe class="cf" id="cf1" src="about:blank" scrolling="no"></iframe></div>
+        <div class="fw"><iframe class="cf" id="cf1" src="about:blank" scrolling="auto"></iframe></div>
       </div>
       <div class="slot">
         <div class="sh"><span class="p2c">PLAYER 2 · device #2</span><span class="sst" id="s2">disconnected</span></div>
-        <div class="fw"><iframe class="cf" id="cf2" src="about:blank" scrolling="no"></iframe></div>
+        <div class="fw"><iframe class="cf" id="cf2" src="about:blank" scrolling="auto"></iframe></div>
       </div>
     </div>
   </div>
@@ -235,6 +237,26 @@ window.disconnectCtrl = function(did) {
   updateUI();
 };
 
+// Click READY in both controller iframes
+window.triggerReady = function() {
+  [1, 2].forEach(function(i) {
+    try {
+      var btn = frames[i].contentDocument.querySelector('#ready-btn');
+      if (btn && !btn.disabled) btn.click();
+    } catch(e) {}
+  });
+};
+
+// Click GO TO BATTLE in both controller iframes
+window.triggerBattle = function() {
+  [1, 2].forEach(function(i) {
+    try {
+      var btn = frames[i].contentDocument.querySelector('#go-to-battle-btn');
+      if (btn) btn.click();
+    } catch(e) {}
+  });
+};
+
 window.reloadAll = function() {
   [1, 2].forEach(function(d) { ds[d].ready = false; ds[d].loc = null; frames[d].src = 'about:blank'; setStatus(d, 'off'); });
   ds[SID].ready = false;
@@ -259,6 +281,18 @@ function updateUI() {
   document.getElementById('st').textContent = n === 0
     ? 'Click "+ Connect P1" to start'
     : n + '/2 controllers connected';
+
+  // Show ⚔→Battle button when both controllers have all ships placed
+  var battleBtn = document.getElementById('btn-battle');
+  if (battleBtn) {
+    var bothPlaced = [1, 2].every(function(i) {
+      try {
+        var el = frames[i].contentDocument.querySelector('#placement-progress');
+        return el && el.textContent.includes('10 / 10');
+      } catch(e) { return false; }
+    });
+    battleBtn.style.display = bothPlaced ? 'inline-block' : 'none';
+  }
 }
 
 function log(cls, mod, msg) {
@@ -277,6 +311,7 @@ function trunc(s) { return s.length > 90 ? s.slice(0,87)+'…' : s; }
 window.clearLog = function() { document.getElementById('lo').innerHTML = ''; };
 
 updateUI();
+setInterval(updateUI, 800); // poll to show ⚔→Battle button when ships placed
 log('li', 'SIM', 'Ready. Click "+ Connect P1" then "+ Connect P2"');
 </script>
 </body>
