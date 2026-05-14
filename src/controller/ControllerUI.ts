@@ -254,16 +254,80 @@ export class ControllerUI {
 
   private highlightPlacementSelection(msg: StateUpdateMessage): void {
     const cells = qs('#placement-grid').querySelectorAll('.grid-cell');
+
+    // Pre-compute valid placement cells for the selected ship (client-side check)
+    const validCells = this.selectedShipId
+      ? this.getValidPlacementCells(this.selectedShipId, msg)
+      : new Set<string>();
+
     for (let row = 0; row < GRID_SIZE; row++) {
       for (let col = 0; col < GRID_SIZE; col++) {
         const idx = row * GRID_SIZE + col;
         const el = cells[idx] as HTMLElement | undefined;
         if (!el) continue;
+
         const sid = msg.ownBoard[row][col].shipId;
-        const on = this.selectedShipId !== null && sid === this.selectedShipId;
-        el.classList.toggle('ship-picked', on);
+        const isSelected = this.selectedShipId !== null && sid === this.selectedShipId;
+        const key = `${row},${col}`;
+
+        el.classList.toggle('ship-picked', isSelected);
+        // Only show placement hints on empty cells (not on already-placed ships)
+        el.classList.toggle('place-valid',
+          this.selectedShipId !== null && !isSelected &&
+          msg.ownBoard[row][col].state === 'empty' &&
+          validCells.has(key));
       }
     }
+  }
+
+  /** Returns set of "row,col" keys that the selected ship would occupy at any valid anchor. */
+  private getValidPlacementCells(shipId: string, msg: StateUpdateMessage): Set<string> {
+    const ship = msg.ships.find(s => s.definition.id === shipId);
+    if (!ship) return new Set();
+
+    const orientation = (this.currentFacing === 'right' || this.currentFacing === 'left')
+      ? 'horizontal' : 'vertical';
+    const len = ship.definition.length;
+
+    // Build board without the selected ship so it doesn't block itself
+    const cleanBoard: Board = msg.ownBoard.map(r =>
+      r.map(c => c.shipId === shipId ? { state: 'empty' as const, shipId: null } : { ...c })
+    );
+
+    const result = new Set<string>();
+    for (let row = 0; row < GRID_SIZE; row++) {
+      for (let col = 0; col < GRID_SIZE; col++) {
+        if (this.clientCanPlace(cleanBoard, len, col, row, orientation)) {
+          for (let i = 0; i < len; i++) {
+            const c = orientation === 'horizontal' ? col + i : col;
+            const r = orientation === 'horizontal' ? row : row + i;
+            result.add(`${r},${c}`);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  /** Mirrors ShipPlacer.canPlace — runs in the controller for instant visual feedback. */
+  private clientCanPlace(
+    board: Board, length: number, x: number, y: number,
+    orientation: 'horizontal' | 'vertical',
+  ): boolean {
+    const cells: [number, number][] = Array.from({ length }, (_, i) =>
+      (orientation === 'horizontal' ? [x + i, y] : [x, y + i]) as [number, number]
+    );
+    if (!cells.every(([cx, cy]) => cx >= 0 && cx < GRID_SIZE && cy >= 0 && cy < GRID_SIZE)) return false;
+    for (const [cx, cy] of cells) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = cx + dx, ny = cy + dy;
+          if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue;
+          if (board[ny][nx].state === 'ship') return false;
+        }
+      }
+    }
+    return true;
   }
 
   private updateRotateBtnLabel(): void {
