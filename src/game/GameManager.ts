@@ -19,6 +19,10 @@ export class GameManager {
   private readonly turnManager = new TurnManager();
   private gameEvents: Phaser.Events.EventEmitter | null = null;
   private readonly placementConfirmed = new Set<PlayerSlot>();
+  // Battle statistics
+  private battleStartTime: number | null = null;
+  private readonly shotsFired: [number, number] = [0, 0];   // [P0, P1]
+  private readonly shipsScored: [number, number] = [0, 0];  // [P0, P1]
 
   constructor(
     private readonly adapter: AirConsoleAdapter,
@@ -206,6 +210,8 @@ export class GameManager {
 
     defender.board.ownBoard = result.updatedBoard;
     defender.board.ships = result.updatedShips;
+    this.shotsFired[attacker.slot]++;
+    if (result.sunk) this.shipsScored[attacker.slot]++;
 
     if (result.sunk && result.shipId) {
       const sunkShip = result.updatedShips.find(s => s.definition.id === result.shipId);
@@ -309,6 +315,9 @@ export class GameManager {
     this.adapter.activatePlayers();
     this.turnManager.reset(firstTurn);
     this.gameState.startBattle(firstTurn);
+    this.battleStartTime = Date.now();
+    this.shotsFired[0] = 0; this.shotsFired[1] = 0;
+    this.shipsScored[0] = 0; this.shipsScored[1] = 0;
     this.gameEvents?.emit('phase-change', 'battle');
     this.broadcastStateUpdate();
   }
@@ -316,7 +325,18 @@ export class GameManager {
   private endGame(winner: PlayerSlot): void {
     log.info(`Phase → result, winner: P${winner}`);
     this.gameState.endGame(winner);
-    this.adapter.broadcastToControllers({ type: 'GAME_OVER', winner });
+    const durationSecs = this.battleStartTime
+      ? Math.round((Date.now() - this.battleStartTime) / 1000)
+      : 0;
+    this.adapter.broadcastToControllers({
+      type: 'GAME_OVER',
+      winner,
+      stats: {
+        shotsFired: [...this.shotsFired] as [number, number],
+        shipsScored: [...this.shipsScored] as [number, number],
+        durationSecs,
+      },
+    });
     this.gameEvents?.emit('phase-change', 'result');
     this.gameEvents?.emit('game-over', winner);
   }
@@ -325,6 +345,9 @@ export class GameManager {
     log.info('Phase → lobby (restart)');
     this.playerManager.reset();
     this.gameState.reset();
+    this.battleStartTime = null;
+    this.shotsFired[0] = 0; this.shotsFired[1] = 0;
+    this.shipsScored[0] = 0; this.shipsScored[1] = 0;
     this.turnManager.reset();
     this.placementConfirmed.clear();
     this.gameEvents?.emit('phase-change', 'lobby');

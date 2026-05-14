@@ -611,3 +611,28 @@ html, body {
 .card-battle .grid.grid--compact {
   --grid-w: var(--battle-grid-size);
 }
+
+/* ── Victory stats ─────────────────────────────────────────────────── */
+.result-stats {
+  width: 100%;
+  background: rgba(8, 30, 60, 0.45);
+  border: 1px solid rgba(90, 200, 250, 0.14);
+  border-radius: var(--r);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.stat-row strong {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text);
+}

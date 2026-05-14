@@ -100,7 +100,7 @@ export class ControllerUI {
   private onGameOver(msg: GameOverMessage): void {
     const didWin = msg.winner === this.playerSlot;
     if (didWin) this.audio.playVictory(); else this.audio.playDefeat();
-    this.renderResult(didWin);
+    this.renderResult(didWin, msg);
     this.showView('result');
   }
 
@@ -241,13 +241,26 @@ export class ControllerUI {
       `<div class="tally-line"><span class="tally-tag">You</span> ${own}</div>`;
   }
 
-  private renderResult(didWin: boolean): void {
+  private renderResult(didWin: boolean, msg?: GameOverMessage): void {
     const banner = qs('#result-banner') as HTMLElement;
     banner.className = `status-banner ${didWin ? 'win' : 'lose'}`;
     banner.textContent = didWin ? '🏆 VICTORY!' : '💥 DEFEAT';
     qs('#result-subtitle').textContent = didWin
       ? 'You sunk the enemy fleet!'
       : 'Your fleet was destroyed.';
+
+    // Show battle statistics if available
+    const statsEl = document.getElementById('result-stats');
+    if (!statsEl || !msg?.stats || this.playerSlot === null) return;
+    const s = msg.stats;
+    const mySlot = this.playerSlot;
+    const mins = Math.floor(s.durationSecs / 60);
+    const secs = s.durationSecs % 60;
+    const duration = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    statsEl.innerHTML =
+      `<div class="stat-row"><span>⚓ Ships sunk</span><strong>${s.shipsScored[mySlot]}</strong></div>` +
+      `<div class="stat-row"><span>💥 Shots fired</span><strong>${s.shotsFired[mySlot]}</strong></div>` +
+      `<div class="stat-row"><span>⏱ Duration</span><strong>${duration}</strong></div>`;
   }
 
   // ── Grid rendering ─────────────────────────────────────────────────────
@@ -534,7 +547,8 @@ export class ControllerUI {
         <div style="margin-top:40px"></div>
         <div id="result-banner" class="status-banner win">—</div>
         <p id="result-subtitle" style="font-size:.8rem;color:var(--text-dim);text-align:center"></p>
-        <button id="restart-btn" class="btn btn-primary" style="margin-top:32px">⚓ PLAY AGAIN</button>
+        <div id="result-stats" class="result-stats"></div>
+        <button id="restart-btn" class="btn btn-primary" style="margin-top:16px">⚓ PLAY AGAIN</button>
       </div>
     `;
 
