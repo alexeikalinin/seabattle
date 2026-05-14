@@ -359,11 +359,16 @@ export class GameManager {
           .map(s => ({ id: s.definition.id, x: s.x, y: s.y, length: s.definition.length, orientation: s.orientation, facing: s.facing }))
       : [];
 
+    const yourTurn = this.turnManager.isPlayerTurn(player.slot);
+    const TURN_SECONDS = 30;
     this.adapter.sendToController(deviceId, {
       type: 'STATE_UPDATE',
       phase: this.gameState.phase,
       playerSlot: player.slot,
-      yourTurn: this.turnManager.isPlayerTurn(player.slot),
+      yourTurn,
+      ...(this.gameState.phase === 'battle' && yourTurn
+        ? { turnDeadline: Date.now() + TURN_SECONDS * 1000 }
+        : {}),
       ownBoard: player.board.ownBoard,
       attackBoard: player.board.attackBoard,
       ships: player.board.ships,
