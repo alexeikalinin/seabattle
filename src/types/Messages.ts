@@ -54,6 +54,8 @@ export interface StateUpdateMessage {
   /** Lobby helpers — whether the opponent slot is occupied and ready. */
   opponentConnected: boolean;
   opponentReady: boolean;
+  /** Unix ms deadline for the current turn. Only set when yourTurn=true and phase=battle. */
+  turnDeadline?: number;
 }
 
 export interface AttackResultMessage {

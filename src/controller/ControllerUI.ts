@@ -18,6 +18,9 @@ export class ControllerUI {
   // Per-game flags — reset when phase transitions back to lobby (restart)
   private isReadyThisGame = false;
   private lastPhase: string | null = null;
+  // Turn timer
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
+  private turnDeadline: number | null = null;
 
   constructor(private readonly ac: AirConsole) {}
 
@@ -220,9 +223,11 @@ export class ControllerUI {
     this.updateGrid('attack-grid', msg.attackBoard, false);
     this.renderers['attack-grid']?.renderSunkEnemies(msg.sunkEnemyShips);
     this.renderFleetTally('fleet-tally-turn', msg);
+    if (msg.turnDeadline) this.startTurnTimer(msg.turnDeadline, msg.attackBoard);
   }
 
   private renderBattleWait(msg: StateUpdateMessage): void {
+    this.stopTurnTimer();
     qs('#wait-ships-left').textContent = String(msg.opponentShipsRemaining);
     this.updateGrid('own-wait-grid', msg.ownBoard, true);
     this.renderers['own-wait-grid']?.renderFleet(msg.ships);
@@ -239,6 +244,50 @@ export class ControllerUI {
     el.innerHTML =
       `<div class="tally-line"><span class="tally-tag">Enemy</span> ${opp}</div>` +
       `<div class="tally-line"><span class="tally-tag">You</span> ${own}</div>`;
+  }
+
+  private startTurnTimer(deadline: number, _attackBoard: Board): void {
+    // Don't restart if same deadline is already running
+    if (deadline === this.turnDeadline) return;
+    this.stopTurnTimer();
+    this.turnDeadline = deadline;
+
+    const timerEl = document.getElementById('turn-timer');
+
+    const tick = () => {
+      const secsLeft = Math.ceil((this.turnDeadline! - Date.now()) / 1000);
+
+      if (timerEl) {
+        timerEl.textContent = secsLeft > 0 ? `${secsLeft}s` : '0s';
+        timerEl.className = secsLeft <= 5 ? 'turn-timer urgent' : 'turn-timer';
+      }
+
+      if (secsLeft <= 0) {
+        this.stopTurnTimer();
+        // Auto-attack a random available cell when time runs out
+        const cells = Array.from(document.querySelectorAll('#attack-grid .grid-cell'));
+        const free = cells.filter(c => {
+          const cls = c.className;
+          return !cls.includes('hit') && !cls.includes('miss') && !cls.includes('sunk');
+        });
+        if (free.length > 0) {
+          (free[Math.floor(Math.random() * free.length)] as HTMLElement).click();
+        }
+      }
+    };
+
+    tick();
+    this.timerInterval = setInterval(tick, 250);
+  }
+
+  private stopTurnTimer(): void {
+    if (this.timerInterval !== null) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    this.turnDeadline = null;
+    const timerEl = document.getElementById('turn-timer');
+    if (timerEl) { timerEl.textContent = ''; timerEl.className = 'turn-timer'; }
   }
 
   private renderResult(didWin: boolean, msg?: GameOverMessage): void {
@@ -320,6 +369,49 @@ export class ControllerUI {
       }
     }
     return result;
+  }
+
+  /**
+   * Show a semi-transparent ghost of the ship at (col, row) for instant feedback.
+   * The ghost disappears automatically when the next STATE_UPDATE re-renders the grid.
+   */
+  private showGhostPreview(col: number, row: number, orientation: 'horizontal' | 'vertical'): void {
+    if (!this.lastState || !this.selectedShipId) return;
+    const ship = this.lastState.ships.find(s => s.definition.id === this.selectedShipId);
+    if (!ship) return;
+
+    const len = ship.definition.length;
+    const container = document.querySelector('#placement-grid') as HTMLElement | null;
+    if (!container) return;
+
+    // Remove any stale ghost
+    container.querySelector('.ghost-preview')?.remove();
+
+    // Validate client-side — only show ghost for valid positions
+    const cleanBoard: Board = this.lastState.ownBoard.map(r =>
+      r.map(c => c.shipId === this.selectedShipId ? { state: 'empty' as const, shipId: null } : { ...c })
+    );
+    if (!this.clientCanPlace(cleanBoard, len, col, row, orientation)) return;
+
+    const ghost = document.createElement('div');
+    ghost.className = 'ghost-preview';
+    const pct = 100 / GRID_SIZE;
+
+    if (orientation === 'horizontal') {
+      ghost.style.left   = `${col * pct}%`;
+      ghost.style.top    = `${row * pct}%`;
+      ghost.style.width  = `${len * pct}%`;
+      ghost.style.height = `${pct}%`;
+    } else {
+      ghost.style.left   = `${col * pct}%`;
+      ghost.style.top    = `${row * pct}%`;
+      ghost.style.width  = `${pct}%`;
+      ghost.style.height = `${len * pct}%`;
+    }
+
+    container.appendChild(ghost);
+    // Fallback: remove after 1.5 s if server doesn't respond
+    setTimeout(() => ghost.remove(), 1500);
   }
 
   /** Mirrors ShipPlacer.canPlace — runs in the controller for instant visual feedback. */
@@ -505,7 +597,10 @@ export class ControllerUI {
 
       <!-- BATTLE — YOUR TURN -->
       <div id="view-battle-turn" class="view view-battle">
-        <div class="status-banner your-turn pulse" style="margin-top:16px">⚡ YOUR TURN — FIRE!</div>
+        <div class="status-banner your-turn pulse" style="margin-top:16px;position:relative">
+          ⚡ YOUR TURN — FIRE!
+          <span id="turn-timer" class="turn-timer"></span>
+        </div>
         <div class="ships-counter">Enemy ships remaining: <strong id="ships-left">?</strong></div>
         <div id="fleet-tally-turn" class="fleet-tally"></div>
         <div class="battle-grids">
@@ -604,7 +699,6 @@ export class ControllerUI {
 
     if (cell.state === 'ship' && cell.shipId) {
       if (cell.shipId === this.selectedShipId) {
-        // Tap same selected ship on grid = rotate it in place
         this.rotateSelectedShip();
       } else {
         this.selectShip(cell.shipId);
@@ -614,13 +708,16 @@ export class ControllerUI {
 
     if (!this.selectedShipId) return;
 
+    const orientation = (this.currentFacing === 'right' || this.currentFacing === 'left') ? 'horizontal' : 'vertical';
+    this.showGhostPreview(col, row, orientation);
+
     this.audio.playPlaceShip();
     this.ac.message(this.ac.SCREEN, {
       type: 'PLACE_SHIP',
       shipId: this.selectedShipId,
       x: col,
       y: row,
-      orientation: (this.currentFacing === 'right' || this.currentFacing === 'left') ? 'horizontal' : 'vertical',
+      orientation,
       facing: this.currentFacing,
     });
   }
