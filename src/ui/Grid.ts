@@ -13,6 +13,7 @@ const CELL_COLORS: Record<CellState, number> = {
 export class Grid extends Phaser.GameObjects.Container {
   private readonly cells: Phaser.GameObjects.Rectangle[][] = [];
   private readonly markers: (Phaser.GameObjects.Text | null)[][] = [];
+  private readonly cellStateCache: CellState[][] = [];
   readonly cellSize: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number, cellSize = 48) {
@@ -26,6 +27,7 @@ export class Grid extends Phaser.GameObjects.Container {
     for (let row = 0; row < GRID_SIZE; row++) {
       this.cells[row] = [];
       this.markers[row] = [];
+      this.cellStateCache[row] = [];
       for (let col = 0; col < GRID_SIZE; col++) {
         const cx = col * this.cellSize + this.cellSize / 2;
         const cy = row * this.cellSize + this.cellSize / 2;
@@ -34,6 +36,7 @@ export class Grid extends Phaser.GameObjects.Container {
         this.add(cell);
         this.cells[row][col] = cell;
         this.markers[row][col] = null;
+        this.cellStateCache[row][col] = 'empty';
       }
     }
 
@@ -84,6 +87,8 @@ export class Grid extends Phaser.GameObjects.Container {
   }
 
   private applyState(row: number, col: number, state: CellState): void {
+    if (this.cellStateCache[row][col] === state) return;
+    this.cellStateCache[row][col] = state;
     const cell = this.cells[row][col];
     cell.setFillStyle(CELL_COLORS[state]);
 
