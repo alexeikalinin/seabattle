@@ -19,8 +19,6 @@ export class ControllerUI {
   private isReadyThisGame = false;
   private lastPhase: string | null = null;
   // Turn timer
-  private timerInterval: ReturnType<typeof setInterval> | null = null;
-  private turnDeadline: number | null = null;
 
   constructor(private readonly ac: AirConsole) {}
 
@@ -223,11 +221,9 @@ export class ControllerUI {
     this.updateGrid('attack-grid', msg.attackBoard, false);
     this.renderers['attack-grid']?.renderSunkEnemies(msg.sunkEnemyShips);
     this.renderFleetTally('fleet-tally-turn', msg);
-    if (msg.turnDeadline) this.startTurnTimer(msg.turnDeadline, msg.attackBoard);
   }
 
   private renderBattleWait(msg: StateUpdateMessage): void {
-    this.stopTurnTimer();
     qs('#wait-ships-left').textContent = String(msg.opponentShipsRemaining);
     this.updateGrid('own-wait-grid', msg.ownBoard, true);
     this.renderers['own-wait-grid']?.renderFleet(msg.ships);
@@ -244,50 +240,6 @@ export class ControllerUI {
     el.innerHTML =
       `<div class="tally-line"><span class="tally-tag">Enemy</span> ${opp}</div>` +
       `<div class="tally-line"><span class="tally-tag">You</span> ${own}</div>`;
-  }
-
-  private startTurnTimer(deadline: number, _attackBoard: Board): void {
-    // Don't restart if same deadline is already running
-    if (deadline === this.turnDeadline) return;
-    this.stopTurnTimer();
-    this.turnDeadline = deadline;
-
-    const timerEl = document.getElementById('turn-timer');
-
-    const tick = () => {
-      const secsLeft = Math.ceil((this.turnDeadline! - Date.now()) / 1000);
-
-      if (timerEl) {
-        timerEl.textContent = secsLeft > 0 ? `${secsLeft}s` : '0s';
-        timerEl.className = secsLeft <= 5 ? 'turn-timer urgent' : 'turn-timer';
-      }
-
-      if (secsLeft <= 0) {
-        this.stopTurnTimer();
-        // Auto-attack a random available cell when time runs out
-        const cells = Array.from(document.querySelectorAll('#attack-grid .grid-cell'));
-        const free = cells.filter(c => {
-          const cls = c.className;
-          return !cls.includes('hit') && !cls.includes('miss') && !cls.includes('sunk');
-        });
-        if (free.length > 0) {
-          (free[Math.floor(Math.random() * free.length)] as HTMLElement).click();
-        }
-      }
-    };
-
-    tick();
-    this.timerInterval = setInterval(tick, 250);
-  }
-
-  private stopTurnTimer(): void {
-    if (this.timerInterval !== null) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
-    this.turnDeadline = null;
-    const timerEl = document.getElementById('turn-timer');
-    if (timerEl) { timerEl.textContent = ''; timerEl.className = 'turn-timer'; }
   }
 
   private renderResult(didWin: boolean, msg?: GameOverMessage): void {
@@ -599,7 +551,6 @@ export class ControllerUI {
       <div id="view-battle-turn" class="view view-battle">
         <div class="status-banner your-turn pulse" style="margin-top:16px;position:relative">
           ⚡ YOUR TURN — FIRE!
-          <span id="turn-timer" class="turn-timer"></span>
         </div>
         <div class="ships-counter">Enemy ships remaining: <strong id="ships-left">?</strong></div>
         <div id="fleet-tally-turn" class="fleet-tally"></div>

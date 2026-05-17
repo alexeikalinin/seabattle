@@ -390,28 +390,6 @@ html, body {
   border-color: var(--border-hi);
   z-index: 1;
 }
-/* Turn countdown timer */
-.turn-timer {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: 'Sora', sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  color: rgba(90, 200, 250, 0.75);
-  min-width: 28px;
-  text-align: right;
-  letter-spacing: 0.02em;
-}
-.turn-timer.urgent {
-  color: #ff4444;
-  animation: timer-pulse 0.5s ease-in-out infinite;
-}
-@keyframes timer-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.55; }
-}
 
 /* Ghost ship preview — instant feedback on tap before server responds */
 .ghost-preview {
