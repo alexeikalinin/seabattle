@@ -68,7 +68,14 @@ export interface AttackResultMessage {
   attackerSlot: PlayerSlot;
 }
 
+export interface BattleStats {
+  shotsFired: [number, number];   // [P0, P1]
+  shipsScored: [number, number];  // [P0, P1]
+  durationSecs: number;
+}
+
 export interface GameOverMessage {
   type: 'GAME_OVER';
   winner: PlayerSlot;
+  stats?: BattleStats;
 }
