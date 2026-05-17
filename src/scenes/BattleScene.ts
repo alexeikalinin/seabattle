@@ -56,7 +56,7 @@ export class BattleScene extends Phaser.Scene {
     this.drawGridLines();
 
     // ── Layout ────────────────────────────────────────────────────────────
-    const topPad   = 100;
+    const topPad   = 130;
     const botPad   = 60;
     const sidePad  = 50;
     const midGap   = 50;
@@ -91,13 +91,13 @@ export class BattleScene extends Phaser.Scene {
       const gx = this.gridOriginX[slot];
       const gy = this.gridOriginY[slot];
 
-      // Player label
-      this.playerLabels[slot] = this.add.text(cx, gy - 52, `PLAYER ${slot + 1}`, {
+      // Player label — positioned above column numbers with enough clearance
+      this.playerLabels[slot] = this.add.text(cx, gy - 68, `PLAYER ${slot + 1}`, {
         ...HEADER_STYLE, color: pColors[slot],
       }).setOrigin(0.5).setAlpha(0.95);
 
-      // Subtitle — leave at least 10px gap below player label
-      this.add.text(cx, gy - 22, 'ATTACK BOARD', {
+      // Subtitle — sits between player label and column number row
+      this.add.text(cx, gy - 46, 'ATTACK BOARD', {
         fontFamily: 'monospace', fontSize: '16px', color: pColors[slot],
       }).setOrigin(0.5).setAlpha(0.45);
 
