@@ -42,6 +42,7 @@ export class BattleScene extends Phaser.Scene {
   private gridOriginX = [0, 0];
   private gridOriginY = [0, 0];
   private cellSize = 72;
+  private lastTurn: number | null = null;
 
   constructor() { super({ key: 'BattleScene' }); }
 
@@ -152,6 +153,12 @@ export class BattleScene extends Phaser.Scene {
     const colors = ['#00e5ff', '#ff6eb4'];
     this.turnText.setText(`⚡ ${names[turn]}'S TURN`).setColor(colors[turn]);
 
+    // Animate turn label only when turn actually changes
+    if (turn !== this.lastTurn) {
+      this.lastTurn = turn;
+      this.animManager.animateTurnLabel(this.turnText);
+    }
+
     // Highlight the active player's label
     for (let s = 0; s < 2; s++) {
       this.playerLabels[s]?.setAlpha(s === turn ? 1 : 0.35);
@@ -176,15 +183,20 @@ export class BattleScene extends Phaser.Scene {
         this.audio?.playSunk();
         this.animManager.playExplosion(worldX, worldY);
         this.animManager.playSunkEffect(worldX, worldY);
-        this.cameras.main.shake(280, 0.009);
+        this.animManager.playHitFlash(0xff2200, 0.22);
+        this.cameras.main.shake(320, 0.012);
+        const pColor = attackerSlot === 0 ? '#00e5ff' : '#ff6eb4';
         const label = data.sunkShipName
           ? `⚓ ${data.sunkShipName.toUpperCase()} SUNK!`
           : '⚓ SHIP SUNK!';
-        this.animManager.showFloatingBanner(this.scale.width / 2, this.scale.height * 0.42, label);
+        this.animManager.showFloatingBanner(
+          this.scale.width / 2, this.scale.height * 0.40, label, pColor,
+        );
       } else {
         this.audio?.playHit();
         this.animManager.playExplosion(worldX, worldY);
-        this.cameras.main.shake(180, 0.005);
+        this.animManager.playHitFlash(0xff6600, 0.13);
+        this.cameras.main.shake(180, 0.006);
       }
     } else {
       this.audio?.playMiss();
