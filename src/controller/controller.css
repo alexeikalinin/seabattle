@@ -32,7 +32,17 @@
 *, *::before, *::after {
   box-sizing: border-box; margin: 0; padding: 0;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Scope touch/select resets to our game content only.
+   AirConsole injects its overlay menu into <body> directly —
+   applying touch-action/user-select globally blocks the close button. */
+#controller-root,
+#controller-root *,
+#controller-root *::before,
+#controller-root *::after {
   touch-action: manipulation;
+  -webkit-user-select: none;
   user-select: none;
 }
 
