@@ -23,6 +23,7 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
+    sceneManager.start('TransitionScene');
     this.scene.start('PreloadScene');
   }
 }

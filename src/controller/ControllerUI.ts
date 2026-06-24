@@ -82,7 +82,7 @@ export class ControllerUI {
       const toast = document.getElementById('global-toast');
       if (toast) {
         const name = msg.sunkShipName ? `${msg.sunkShipName} ` : '';
-        toast.textContent = `⚓ ${name}SUNK!`;
+        toast.textContent = `💥 ${name}DESTROYED!`;
         toast.classList.add('visible');
         window.setTimeout(() => toast.classList.remove('visible'), 3200);
       }
@@ -134,7 +134,7 @@ export class ControllerUI {
       const readyBtn = document.getElementById('ready-btn') as HTMLButtonElement | null;
       if (readyBtn) {
         readyBtn.disabled = false;
-        readyBtn.textContent = '⚓ READY TO BATTLE';
+        readyBtn.textContent = '🚀 READY TO BATTLE';
         readyBtn.style.opacity = '1';
       }
     }
@@ -247,7 +247,7 @@ export class ControllerUI {
     banner.className = `status-banner ${didWin ? 'win' : 'lose'}`;
     banner.textContent = didWin ? '🏆 VICTORY!' : '💥 DEFEAT';
     qs('#result-subtitle').textContent = didWin
-      ? 'You sunk the enemy fleet!'
+      ? 'You destroyed the enemy fleet!'
       : 'Your fleet was destroyed.';
 
     // Show battle statistics if available
@@ -259,7 +259,7 @@ export class ControllerUI {
     const secs = s.durationSecs % 60;
     const duration = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
     statsEl.innerHTML =
-      `<div class="stat-row"><span>⚓ Ships sunk</span><strong>${s.shipsScored[mySlot]}</strong></div>` +
+      `<div class="stat-row"><span>💥 Spacecraft destroyed</span><strong>${s.shipsScored[mySlot]}</strong></div>` +
       `<div class="stat-row"><span>💥 Shots fired</span><strong>${s.shotsFired[mySlot]}</strong></div>` +
       `<div class="stat-row"><span>⏱ Duration</span><strong>${duration}</strong></div>`;
   }
@@ -502,7 +502,7 @@ export class ControllerUI {
 
       <!-- LOBBY -->
       <div id="view-lobby" class="view">
-        <div class="game-title" style="margin-top:24px">BATTLESHIP<br/>DUEL</div>
+        <div class="game-title" style="margin-top:24px">GALAXY<br/>DUEL</div>
 
         <div class="card" style="margin-top:4px">
           <div class="section-label">Your Slot</div>
@@ -517,7 +517,7 @@ export class ControllerUI {
           </div>
         </div>
 
-        <button id="ready-btn" class="btn btn-primary">⚓ READY TO BATTLE</button>
+        <button id="ready-btn" class="btn btn-primary">🚀 READY TO BATTLE</button>
         <p class="pulse" style="font-size:.72rem;color:var(--text-dim);text-align:center">Tap when ready to start</p>
       </div>
 
@@ -552,7 +552,7 @@ export class ControllerUI {
         <div class="status-banner your-turn pulse" style="margin-top:16px;position:relative">
           ⚡ YOUR TURN — FIRE!
         </div>
-        <div class="ships-counter">Enemy ships remaining: <strong id="ships-left">?</strong></div>
+        <div class="ships-counter">Enemy spacecraft remaining: <strong id="ships-left">?</strong></div>
         <div id="fleet-tally-turn" class="fleet-tally"></div>
         <div class="battle-grids">
           <div class="card card-battle">
@@ -561,7 +561,7 @@ export class ControllerUI {
             <div id="own-battle-grid" class="grid grid--compact"></div>
           </div>
           <div class="card card-battle">
-            <div class="section-label">Enemy Waters — Tap to Fire</div>
+            <div class="section-label">Enemy Sector — Tap to Fire</div>
             <div class="grid-header battle-h">${colLabels}</div>
             <div id="attack-grid" class="grid grid--compact"></div>
           </div>
@@ -571,7 +571,7 @@ export class ControllerUI {
       <!-- BATTLE — WAITING -->
       <div id="view-battle-wait" class="view view-battle">
         <div class="status-banner waiting pulse" style="margin-top:16px">⏳ OPPONENT'S TURN</div>
-        <div class="ships-counter">Enemy ships remaining: <strong id="wait-ships-left">?</strong></div>
+        <div class="ships-counter">Enemy spacecraft remaining: <strong id="wait-ships-left">?</strong></div>
         <div id="fleet-tally-wait" class="fleet-tally"></div>
         <div class="battle-grids">
           <div class="card card-battle">
@@ -594,7 +594,7 @@ export class ControllerUI {
         <div id="result-banner" class="status-banner win">—</div>
         <p id="result-subtitle" style="font-size:.8rem;color:var(--text-dim);text-align:center"></p>
         <div id="result-stats" class="result-stats"></div>
-        <button id="restart-btn" class="btn btn-primary" style="margin-top:16px">⚓ PLAY AGAIN</button>
+        <button id="restart-btn" class="btn btn-primary" style="margin-top:16px">🚀 PLAY AGAIN</button>
       </div>
     `;
 

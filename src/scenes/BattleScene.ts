@@ -43,6 +43,9 @@ export class BattleScene extends Phaser.Scene {
   private gridOriginY = [0, 0];
   private cellSize = 72;
   private lastTurn: number | null = null;
+  private stars: { x: number; y: number; r: number; speed: number; phase: number }[] = [];
+  private starsGraphics!: Phaser.GameObjects.Graphics;
+  private starTime = 0;
 
   constructor() { super({ key: 'BattleScene' }); }
 
@@ -54,6 +57,15 @@ export class BattleScene extends Phaser.Scene {
 
     this.add.rectangle(width / 2, height / 2, width, height, 0x050a12);
     this.drawGridLines();
+
+    this.starsGraphics = this.add.graphics();
+    this.stars = Array.from({ length: 100 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.4 + 0.4,
+      speed: Math.random() * 0.0015 + 0.0004,
+      phase: Math.random() * Math.PI * 2,
+    }));
 
     // ── Layout ────────────────────────────────────────────────────────────
     const topPad   = 130;
@@ -126,9 +138,19 @@ export class BattleScene extends Phaser.Scene {
     this.updateTurnDisplay();
   }
 
-  update(): void {
+  update(time: number): void {
+    this.starTime = time;
+    this.drawStars();
     this.updateBoards();
     this.updateTurnDisplay();
+  }
+
+  private drawStars(): void {
+    this.starsGraphics.clear();
+    for (const s of this.stars) {
+      const twinkle = 0.3 + 0.5 * Math.abs(Math.sin(this.starTime * s.speed + s.phase));
+      this.starsGraphics.fillStyle(0xffffff, twinkle).fillCircle(s.x, s.y, s.r);
+    }
   }
 
   shutdown(): void {
@@ -187,8 +209,8 @@ export class BattleScene extends Phaser.Scene {
         this.cameras.main.shake(320, 0.012);
         const pColor = attackerSlot === 0 ? '#00e5ff' : '#ff6eb4';
         const label = data.sunkShipName
-          ? `⚓ ${data.sunkShipName.toUpperCase()} SUNK!`
-          : '⚓ SHIP SUNK!';
+          ? `💥 ${data.sunkShipName.toUpperCase()} DESTROYED!`
+          : '💥 SPACECRAFT DESTROYED!';
         this.animManager.showFloatingBanner(
           this.scale.width / 2, this.scale.height * 0.40, label, pColor,
         );
@@ -200,7 +222,7 @@ export class BattleScene extends Phaser.Scene {
       }
     } else {
       this.audio?.playMiss();
-      this.animManager.playWaterSplash(worldX, worldY);
+      this.animManager.playShieldDeflect(worldX, worldY);
     }
   }
 

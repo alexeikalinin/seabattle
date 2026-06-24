@@ -22,10 +22,14 @@ const TEXT_STYLE_STATUS: Phaser.Types.GameObjects.Text.TextStyle = {
   color: '#ffffff',
 };
 
+interface Star { x: number; y: number; r: number; speed: number; phase: number; }
+
 export class LobbyScene extends Phaser.Scene {
   private playerTexts: [Phaser.GameObjects.Text | null, Phaser.GameObjects.Text | null] = [null, null];
   private statusText!: Phaser.GameObjects.Text;
   private bgGraphics!: Phaser.GameObjects.Graphics;
+  private starsGraphics!: Phaser.GameObjects.Graphics;
+  private stars: Star[] = [];
   private waveTime = 0;
 
   constructor() { super({ key: 'LobbyScene' }); }
@@ -34,10 +38,18 @@ export class LobbyScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     this.bgGraphics = this.add.graphics();
+    this.starsGraphics = this.add.graphics();
+    this.stars = Array.from({ length: 140 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.6 + 0.4,
+      speed: Math.random() * 0.0015 + 0.0004,
+      phase: Math.random() * Math.PI * 2,
+    }));
     this.drawBackground();
 
     // Title
-    this.add.text(width / 2, 120, '⚓ BATTLESHIP DUEL', TEXT_STYLE_TITLE)
+    this.add.text(width / 2, 120, '🚀 GALAXY DUEL', TEXT_STYLE_TITLE)
       .setOrigin(0.5)
       .setShadow(0, 0, '#00e5ff', 20, true, true);
 
@@ -128,6 +140,17 @@ export class LobbyScene extends Phaser.Scene {
     const { width, height } = this.scale;
     this.bgGraphics.clear();
     this.bgGraphics.fillStyle(0x0a0a1a).fillRect(0, 0, width, height);
+
+    // Nebula glow patches
+    this.bgGraphics.fillStyle(0x2d0a5e, 0.10).fillCircle(width * 0.18, height * 0.25, 320);
+    this.bgGraphics.fillStyle(0x0a3a5e, 0.12).fillCircle(width * 0.85, height * 0.75, 380);
+
+    // Twinkling starfield
+    this.starsGraphics.clear();
+    for (const s of this.stars) {
+      const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(this.waveTime * s.speed + s.phase));
+      this.starsGraphics.fillStyle(0xffffff, twinkle).fillCircle(s.x, s.y, s.r);
+    }
 
     // Animated grid lines
     this.bgGraphics.lineStyle(1, 0x00e5ff, 0.04);

@@ -19,6 +19,9 @@ export class PlacementScene extends Phaser.Scene {
   private grids: [Grid | null, Grid | null] = [null, null];
   private statusTexts: [Phaser.GameObjects.Text | null, Phaser.GameObjects.Text | null] = [null, null];
   private shipPlacedHandler!: (data: { slot: number }) => void;
+  private stars: { x: number; y: number; r: number; speed: number; phase: number }[] = [];
+  private starsGraphics!: Phaser.GameObjects.Graphics;
+  private starTime = 0;
 
   constructor() { super({ key: 'PlacementScene' }); }
 
@@ -27,8 +30,16 @@ export class PlacementScene extends Phaser.Scene {
 
     // Background
     this.add.rectangle(width / 2, height / 2, width, height, 0x0a0a1a);
+    this.starsGraphics = this.add.graphics();
+    this.stars = Array.from({ length: 90 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * 1.4 + 0.4,
+      speed: Math.random() * 0.0015 + 0.0004,
+      phase: Math.random() * Math.PI * 2,
+    }));
 
-    this.add.text(width / 2, 50, 'PLACE YOUR SHIPS', {
+    this.add.text(width / 2, 50, 'DEPLOY YOUR FLEET', {
       fontFamily: 'monospace',
       fontSize: '48px',
       color: '#00e5ff',
@@ -36,7 +47,7 @@ export class PlacementScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0.5);
 
-    this.add.text(width / 2, 100, 'Use your smartphone to place ships', STATUS_STYLE)
+    this.add.text(width / 2, 100, 'Use your smartphone to deploy spacecraft', STATUS_STYLE)
       .setOrigin(0.5)
       .setAlpha(0.6);
 
@@ -62,13 +73,13 @@ export class PlacementScene extends Phaser.Scene {
     // Player 1 grid
     this.grids[0] = new Grid(this, leftX, gridY, cellSize);
     this.add.text(cenL, gridY - 50, 'PLAYER 1', { ...LABEL_STYLE, color: '#00e5ff' }).setOrigin(0.5);
-    this.statusTexts[0] = this.add.text(cenL, gridY + gridSize + 28, 'Placing ships...', STATUS_STYLE)
+    this.statusTexts[0] = this.add.text(cenL, gridY + gridSize + 28, 'Deploying spacecraft...', STATUS_STYLE)
       .setOrigin(0.5).setAlpha(0.7);
 
     // Player 2 grid
     this.grids[1] = new Grid(this, rightX, gridY, cellSize);
     this.add.text(cenR, gridY - 50, 'PLAYER 2', { ...LABEL_STYLE, color: '#ff6eb4' }).setOrigin(0.5);
-    this.statusTexts[1] = this.add.text(cenR, gridY + gridSize + 28, 'Placing ships...', STATUS_STYLE)
+    this.statusTexts[1] = this.add.text(cenR, gridY + gridSize + 28, 'Deploying spacecraft...', STATUS_STYLE)
       .setOrigin(0.5).setAlpha(0.7);
 
     // VS divider
@@ -84,7 +95,14 @@ export class PlacementScene extends Phaser.Scene {
     this.game.events.on('ship-placed', this.shipPlacedHandler, this);
   }
 
-  update(): void {
+  update(time: number): void {
+    this.starTime = time;
+    this.starsGraphics.clear();
+    for (const s of this.stars) {
+      const twinkle = 0.3 + 0.5 * Math.abs(Math.sin(this.starTime * s.speed + s.phase));
+      this.starsGraphics.fillStyle(0xffffff, twinkle).fillCircle(s.x, s.y, s.r);
+    }
+
     const playerManager = this.registry.get('playerManager') as PlayerManager;
     const [p0, p1] = playerManager.getBothPlayers();
 
@@ -111,11 +129,11 @@ export class PlacementScene extends Phaser.Scene {
 
     if (player.board.allShipsPlaced) {
       this.statusTexts[slot]!
-        .setText('✓ All ships placed!')
+        .setText('✓ Fleet fully deployed!')
         .setColor('#00ff88')
         .setAlpha(1);
     } else {
-      this.statusTexts[slot]!.setText(`${placed}/${total} ships placed`).setAlpha(0.9);
+      this.statusTexts[slot]!.setText(`${placed}/${total} spacecraft deployed`).setAlpha(0.9);
     }
   }
 }

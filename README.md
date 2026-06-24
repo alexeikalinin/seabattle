@@ -1,6 +1,6 @@
-# Battleship Duel
+# Galaxy Duel
 
-Local multiplayer Battleship for 2 players. Shared screen on TV/browser, smartphones as controllers via AirConsole.
+Local multiplayer space-combat grid duel for 2 players. Shared screen on TV/browser, smartphones as controllers via AirConsole.
 
 ## Prerequisites
 - Node.js 18+
@@ -29,24 +29,24 @@ The simulator shows the shared screen + 2 controller panels side-by-side.
 
 ## Game Flow
 1. Both players connect → Lobby
-2. Both press **READY** → Ship Placement
-3. Place all 10 ships on the controller grid
-4. Both placed → Battle Phase
-5. Take turns tapping enemy grid cells to attack
-6. First to sink all 20 opponent ship cells wins
+2. Both press **READY** → Fleet Deployment
+3. Deploy all 10 spacecraft on the controller grid
+4. Both deployed → Battle Phase
+5. Take turns tapping enemy grid cells to fire
+6. First to destroy all 20 opponent spacecraft cells wins
 
-## Ship Fleet
-| Ship | Length | Count |
+## Fleet
+| Spacecraft | Length | Count |
 |------|--------|-------|
-| Carrier | 4 | 1 |
+| Dreadnought | 4 | 1 |
 | Cruiser | 3 | 2 |
-| Destroyer | 2 | 3 |
-| Submarine | 1 | 4 |
+| Frigate | 2 | 3 |
+| Drone | 1 | 4 |
 
 ## Rules
-- Ships cannot overlap or touch (including diagonals)
+- Spacecraft cannot overlap or touch (including diagonals)
 - Turn-based attacks — one cell per turn
-- Hit = red cell, Miss = dark cell, Sunk = entire ship red
+- Hit = red cell, Miss = dark cell, Destroyed = entire spacecraft red
 
 ## Development
 

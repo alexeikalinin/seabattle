@@ -75,30 +75,30 @@ export class ProceduralAudio {
     n.start(t);
   }
 
-  // ── Miss — realistic water impact with bubbles ───────────────────────
+  // ── Miss — energy shield deflect ping ─────────────────────────────────
   playMiss(): void {
     const ctx = this.getCtx();
     const t = ctx.currentTime;
 
-    // Bandpass splash noise
-    const n = this.noise(0.4);
-    const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 700; bpf.Q.value = 1.5;
+    // Bright shield-ping noise burst
+    const n = this.noise(0.18);
+    const bpf = ctx.createBiquadFilter(); bpf.type = 'bandpass'; bpf.frequency.value = 2200; bpf.Q.value = 6;
     const ng = ctx.createGain();
-    ng.gain.setValueAtTime(0.5, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.38);
+    ng.gain.setValueAtTime(0.35, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
     n.connect(bpf); bpf.connect(ng); ng.connect(this.out);
     n.start(t);
 
-    // Plop drop tone
-    const o1 = this.osc('sine', 320);
-    o1.frequency.exponentialRampToValueAtTime(140, t + 0.12);
-    const g1 = this.env(o1, 0.22, 0.005, 0.14, t);
-    g1.connect(this.out); o1.start(t); o1.stop(t + 0.15);
+    // Deflect tone — quick downward sweep
+    const o1 = this.osc('sawtooth', 1400);
+    o1.frequency.exponentialRampToValueAtTime(420, t + 0.12);
+    const g1 = this.env(o1, 0.18, 0.002, 0.12, t);
+    g1.connect(this.out); o1.start(t); o1.stop(t + 0.14);
 
-    // Air bubble rising
-    const o2 = this.osc('sine', 180);
-    o2.frequency.exponentialRampToValueAtTime(420, t + 0.18);
-    const g2 = this.env(o2, 0.08, 0.01, 0.18, t + 0.06);
-    g2.connect(this.out); o2.start(t + 0.06); o2.stop(t + 0.25);
+    // Harmonic echo
+    const o2 = this.osc('sine', 1800);
+    o2.frequency.exponentialRampToValueAtTime(900, t + 0.1);
+    const g2 = this.env(o2, 0.08, 0.005, 0.12, t + 0.05);
+    g2.connect(this.out); o2.start(t + 0.05); o2.stop(t + 0.18);
   }
 
   // ── Hit — sharp metallic explosion ───────────────────────────────────
@@ -160,12 +160,12 @@ export class ProceduralAudio {
     const g2 = this.env(o2, 0.15, 0.005, 0.75, t + 0.2);
     g2.connect(this.out); o2.start(t + 0.2); o2.stop(t + 0.95);
 
-    // Water rush (mid-frequency noise)
+    // Hull decompression hiss (high-frequency noise)
     const n3 = this.noise(1.0);
-    const bpf3 = ctx.createBiquadFilter(); bpf3.type = 'bandpass'; bpf3.frequency.value = 500; bpf3.Q.value = 0.8;
+    const hpf3 = ctx.createBiquadFilter(); hpf3.type = 'highpass'; hpf3.frequency.value = 2000;
     const ng3 = ctx.createGain();
-    ng3.gain.setValueAtTime(0.3, t + 0.3); ng3.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
-    n3.connect(bpf3); bpf3.connect(ng3); ng3.connect(this.out);
+    ng3.gain.setValueAtTime(0.22, t + 0.3); ng3.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+    n3.connect(hpf3); hpf3.connect(ng3); ng3.connect(this.out);
     n3.start(t + 0.3);
   }
 

@@ -5,6 +5,7 @@ import { LobbyScene } from '@/scenes/LobbyScene';
 import { PlacementScene } from '@/scenes/PlacementScene';
 import { BattleScene } from '@/scenes/BattleScene';
 import { ResultScene } from '@/scenes/ResultScene';
+import { TransitionScene } from '@/scenes/TransitionScene';
 import type { AirConsoleAdapter } from '@/airconsole/AirConsoleAdapter';
 import type { PlayerManager } from '@/state/PlayerManager';
 import type { GameManager } from '@/game/GameManager';
@@ -25,7 +26,7 @@ export function startPhaser(
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [BootScene, PreloadScene, LobbyScene, PlacementScene, BattleScene, ResultScene],
+    scene: [BootScene, PreloadScene, LobbyScene, PlacementScene, BattleScene, ResultScene, TransitionScene],
   };
 
   const game = new Phaser.Game(config);

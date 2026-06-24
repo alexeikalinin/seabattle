@@ -51,16 +51,16 @@ export interface PlayerData {
 }
 
 export const FLEET_CONFIG: ShipDefinition[] = [
-  { id: 'battleship',  length: 4, name: 'Battleship' },  // 4-cell — 1 ship
-  { id: 'cruiser-1',   length: 3, name: 'Cruiser' },     // 3-cell — 2 ships
-  { id: 'cruiser-2',   length: 3, name: 'Cruiser' },
-  { id: 'destroyer-1', length: 2, name: 'Destroyer' },   // 2-cell — 3 ships
-  { id: 'destroyer-2', length: 2, name: 'Destroyer' },
-  { id: 'destroyer-3', length: 2, name: 'Destroyer' },
-  { id: 'submarine-1', length: 1, name: 'Sub' },         // 1-cell — 4 ships
-  { id: 'submarine-2', length: 1, name: 'Sub' },
-  { id: 'submarine-3', length: 1, name: 'Sub' },
-  { id: 'submarine-4', length: 1, name: 'Sub' },
+  { id: 'heavy-fighter',   length: 4, name: 'Heavy Fighter' },  // 4-cell — 1 ship
+  { id: 'fighter-1',       length: 3, name: 'Fighter' },        // 3-cell — 2 ships
+  { id: 'fighter-2',       length: 3, name: 'Fighter' },
+  { id: 'interceptor-1',   length: 2, name: 'Interceptor' },    // 2-cell — 3 ships
+  { id: 'interceptor-2',   length: 2, name: 'Interceptor' },
+  { id: 'interceptor-3',   length: 2, name: 'Interceptor' },
+  { id: 'scout-1',         length: 1, name: 'Scout' },          // 1-cell — 4 ships
+  { id: 'scout-2',         length: 1, name: 'Scout' },
+  { id: 'scout-3',         length: 1, name: 'Scout' },
+  { id: 'scout-4',         length: 1, name: 'Scout' },
 ];
 
 export const GRID_SIZE = 10;

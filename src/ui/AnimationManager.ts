@@ -31,35 +31,49 @@ export class AnimationManager {
     this.scene.time.delayedCall(750, () => burst.destroy());
   }
 
-  // ── Water splash for miss — concentric rings instead of particles ────
-  playWaterSplash(worldX: number, worldY: number): void {
-    // Small particle spray upward
-    const spray = this.scene.add.particles(worldX, worldY, 'particle-water', {
-      speed: { min: 40, max: 130 },
-      angle: { min: 240, max: 300 },
-      scale: { start: 0.8, end: 0 },
-      lifespan: 500,
-      quantity: 12,
+  // ── Shield deflect for miss — angular spark starburst, no rings ─────
+  playShieldDeflect(worldX: number, worldY: number): void {
+    // Spark burst scattering outward in all directions
+    const sparks = this.scene.add.particles(worldX, worldY, 'particle-water', {
+      speed: { min: 60, max: 160 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 0.7, end: 0 },
+      lifespan: 420,
+      quantity: 10,
       tint: 0x44ccff,
     });
-    this.scene.time.delayedCall(550, () => spray.destroy());
+    this.scene.time.delayedCall(470, () => sparks.destroy());
 
-    // Expanding ripple rings
-    for (let i = 0; i < 3; i++) {
-      this.scene.time.delayedCall(i * 90, () => {
-        const ring = this.scene.add.circle(worldX, worldY, 8, 0x00aaff, 0);
-        ring.setStrokeStyle(2, 0x44ddff, 0.7 - i * 0.15);
-        this.scene.tweens.add({
-          targets: ring,
-          scaleX: 5 + i * 1.5,
-          scaleY: 5 + i * 1.5,
-          alpha: 0,
-          duration: 450,
-          ease: 'Cubic.easeOut',
-          onComplete: () => ring.destroy(),
-        });
+    // Angular energy streaks radiating from the impact point
+    const streakCount = 7;
+    for (let i = 0; i < streakCount; i++) {
+      const angle = (Math.PI * 2 * i) / streakCount + Math.random() * 0.3;
+      const len = 20 + Math.random() * 12;
+      const x2 = worldX + Math.cos(angle) * len;
+      const y2 = worldY + Math.sin(angle) * len;
+      const streak = this.scene.add.line(0, 0, worldX, worldY, x2, y2, 0x66ddff, 0.9)
+        .setLineWidth(2)
+        .setOrigin(0, 0);
+      this.scene.tweens.add({
+        targets: streak,
+        alpha: 0,
+        duration: 240,
+        ease: 'Cubic.easeOut',
+        onComplete: () => streak.destroy(),
       });
     }
+
+    // Bright impact flash — quick pop, no expanding ring
+    const flash = this.scene.add.circle(worldX, worldY, 6, 0xffffff, 0.9);
+    this.scene.tweens.add({
+      targets: flash,
+      alpha: 0,
+      scaleX: 2.2,
+      scaleY: 2.2,
+      duration: 160,
+      ease: 'Cubic.easeOut',
+      onComplete: () => flash.destroy(),
+    });
   }
 
   // ── Sunk ship effect — big shockwave rings + debris ─────────────────
