@@ -1,7 +1,7 @@
 # Как загрузить игру на AirConsole — полная инструкция
 
 > Актуально для: AirConsole Developer Portal (2025)
-> Проект: **Battleship Duel**
+> Проект: **Galaxy Duel** (бывш. Battleship Duel — Game ID не меняется при ребрендинге, см. ниже)
 
 ---
 
@@ -74,10 +74,10 @@ com.vibecoding.battleshipduel
 Скопируй в поле **Store Description** (макс. 180 символов):
 
 ```
-Classic Battleship for 2 players. Use your phones as controllers — place your fleet and sink the enemy! Couch multiplayer at its finest.
+Command your fighter squadron in this sci-fi grid-strategy duel. Use your phone as a controller — deploy your fleet and hunt the enemy across space. 2-player couch multiplayer.
 ```
 
-(137 символов — в пределах лимита)
+(176 символов — в пределах лимита)
 
 ---
 
@@ -152,11 +152,11 @@ battleship-duel.zip
 
 | Поле | Что писать | Пример |
 |------|-----------|--------|
-| **Game ID** | Уникальный ID в Java-стиле (reverse domain) | `com.alexeikalinin.battleshipduel` |
-| **Game name** | Название игры (макс. 40 символов) | `Battleship Duel` |
+| **Game ID** | Уникальный ID в Java-стиле (reverse domain) — **неизменяем после создания**, у уже существующей игры в портале остаётся старым даже после ребрендинга | `com.alexeikalinin.battleshipduel` |
+| **Game name** | Название игры (макс. 40 символов) | `Galaxy Duel` |
 | **Author** | Твоё имя или название компании (макс. 100 символов) | `Alexei Kalinin` |
 | **Author website** | Ссылка на твой сайт (опционально) | можно оставить пустым |
-| **Store Description** | Описание для магазина (макс. 180 символов) | `Classic Battleship for 2 players. Use your phones as controllers. Sink your opponent's fleet!` |
+| **Store Description** | Описание для магазина (макс. 180 символов) | см. готовый текст выше |
 | **Category** | Выбери жанр | `Strategy Games` или `Party Games` |
 | **#Players** | Количество игроков | от `2` до `2` |
 

@@ -7,6 +7,8 @@ export default defineConfig({
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
   server: {
+    // Allow ngrok tunnel hosts for local phone testing (see "Как загрузить игру на AirConsole.md")
+    allowedHosts: ['.ngrok-free.dev', '.ngrok-free.app', '.ngrok.io', '.trycloudflare.com'],
     watch: {
       // Ignore screenshot/test artefacts so HMR doesn't reload when PNGs are saved
       ignored: ['**/*.png', '**/*.jpg', '**/.playwright-mcp/**'],

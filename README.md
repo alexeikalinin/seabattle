@@ -38,10 +38,10 @@ The simulator shows the shared screen + 2 controller panels side-by-side.
 ## Fleet
 | Spacecraft | Length | Count |
 |------|--------|-------|
-| Dreadnought | 4 | 1 |
-| Cruiser | 3 | 2 |
-| Frigate | 2 | 3 |
-| Drone | 1 | 4 |
+| Heavy Fighter | 4 | 1 |
+| Fighter | 3 | 2 |
+| Interceptor | 2 | 3 |
+| Scout | 1 | 4 |
 
 ## Rules
 - Spacecraft cannot overlap or touch (including diagonals)

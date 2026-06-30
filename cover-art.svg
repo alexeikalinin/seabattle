@@ -75,19 +75,22 @@
       <line x1="112" y1="715" x2="912" y2="715"/>
     </g>
 
-    <!-- ── SUNK SHIP 1: Battleship (4 cells) row A cols 2-5, horizontal ── -->
+    <!-- ── SUNK SHIP 1: Heavy Fighter (4 cells) row A cols 2-5, horizontal ── -->
     <!-- Cells highlighted sunk red -->
     <rect x="193" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <rect x="273" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <rect x="353" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <rect x="433" y="176" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
-    <!-- Ship silhouette -->
+    <!-- Fighter jet silhouette -->
     <g filter="url(#glow)">
-      <path d="M200,185 L498,178 Q515,205 498,232 L200,225 Q192,205 200,185Z"
-            fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
-      <rect x="430" y="180" width="45" height="18" rx="2" fill="rgba(180,8,8,0.5)" stroke="#ff4444" stroke-width="1.5"/>
-      <line x1="452" y1="180" x2="452" y2="170" stroke="#ff4444" stroke-width="2" opacity="0.6"/>
-      <text x="350" y="210" text-anchor="middle" font-family="monospace" font-size="22" font-weight="900"
+      <path d="M 199,206 L 321,196 L 506,206 L 321,215 Z" fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
+      <path d="M 321,200 L 384,175 L 429,192 L 352,202 Z" fill="rgba(170,12,12,0.3)" stroke="#ff4444" stroke-width="1.5"/>
+      <path d="M 321,211 L 384,236 L 429,219 L 352,209 Z" fill="rgba(170,12,12,0.3)" stroke="#ff4444" stroke-width="1.5"/>
+      <ellipse cx="397" cy="206" rx="16" ry="5" fill="rgba(200,20,20,0.4)" stroke="#ff4444" stroke-width="1.2"/>
+      <rect x="468" y="197" width="38" height="4" fill="#ff4444"/>
+      <rect x="468" y="210" width="38" height="4" fill="#ff4444"/>
+      <circle cx="196" cy="206" r="9" fill="rgba(255,80,80,0.55)"/>
+      <text x="350" y="240" text-anchor="middle" font-family="monospace" font-size="22" font-weight="900"
             fill="rgba(255,80,80,0.9)">✕</text>
     </g>
     <!-- Surrounding miss dots (auto-reveal) -->
@@ -100,15 +103,20 @@
     <circle cx="552" cy="205" r="9" fill="rgba(140,210,255,0.75)"/>
     <circle cx="552" cy="265" r="9" fill="rgba(140,210,255,0.75)"/>
 
-    <!-- ── SUNK SHIP 2: Cruiser (3 cells) col 8, rows D-F, vertical ── -->
+    <!-- ── SUNK SHIP 2: Fighter (3 cells) col 8, rows D-F, vertical ── -->
     <rect x="673" y="356" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <rect x="673" y="416" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <rect x="673" y="476" width="79" height="59" fill="rgba(180,8,8,0.45)"/>
     <g filter="url(#glow)">
-      <path d="M693,363 L717,362 Q726,415 717,533 L693,532 Q688,475 693,363Z"
-            fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
-      <text x="712" y="475" text-anchor="middle" font-family="monospace" font-size="20" font-weight="900"
-            fill="rgba(255,80,80,0.9)" transform="rotate(90,712,475)">✕</text>
+      <path d="M 712,529 L 700,463 L 712,362 L 725,463 Z" fill="rgba(160,6,6,0.4)" stroke="#ff4444" stroke-width="2"/>
+      <path d="M 705,463 L 671,428 L 695,403 L 707,446 Z" fill="rgba(170,12,12,0.3)" stroke="#ff4444" stroke-width="1.5"/>
+      <path d="M 720,463 L 754,428 L 730,403 L 718,446 Z" fill="rgba(170,12,12,0.3)" stroke="#ff4444" stroke-width="1.5"/>
+      <ellipse cx="712" cy="420" rx="7" ry="9" fill="rgba(200,20,20,0.4)" stroke="#ff4444" stroke-width="1.2"/>
+      <rect x="701" y="362" width="5" height="21" fill="#ff4444"/>
+      <rect x="719" y="362" width="5" height="21" fill="#ff4444"/>
+      <circle cx="712" cy="532" r="13" fill="rgba(255,80,80,0.55)"/>
+      <text x="745" y="468" text-anchor="middle" font-family="monospace" font-size="20" font-weight="900"
+            fill="rgba(255,80,80,0.9)">✕</text>
     </g>
     <!-- Surrounding miss dots -->
     <circle cx="632" cy="385" r="9" fill="rgba(140,210,255,0.75)"/>
@@ -154,12 +162,15 @@
     <circle cx="472" cy="745" r="10" fill="rgba(160,220,255,0.72)"/>
     <circle cx="872" cy="745" r="10" fill="rgba(160,220,255,0.72)"/>
 
-    <!-- ── LIVE SHIP visible (Destroyer 2 cells, row G cols 3-4) ── -->
+    <!-- ── LIVE SHIP visible (Interceptor 2 cells, row G cols 3-4) ── -->
     <g filter="url(#glow)">
-      <path d="M260,602 L430,596 Q445,625 430,654 L260,648 Q253,625 260,602Z"
-            fill="rgba(0,60,110,0.45)" stroke="#00e5ff" stroke-width="2"/>
-      <rect x="390" y="598" width="32" height="14" rx="2" fill="rgba(0,130,200,0.4)" stroke="#00e5ff" stroke-width="1.2"/>
-      <circle cx="445" cy="625" r="4" fill="#00e5ff"/>
+      <path d="M 278,625 L 336,616 L 426,625 L 336,634 Z" fill="rgba(0,60,110,0.45)" stroke="#00e5ff" stroke-width="2"/>
+      <path d="M 336,619 L 368,594 L 390,612 L 352,621 Z" fill="rgba(0,90,150,0.3)" stroke="#00e5ff" stroke-width="1.5"/>
+      <path d="M 336,631 L 368,656 L 390,638 L 352,629 Z" fill="rgba(0,90,150,0.3)" stroke="#00e5ff" stroke-width="1.5"/>
+      <ellipse cx="374" cy="625" rx="8" ry="5" fill="rgba(0,130,200,0.4)" stroke="#00e5ff" stroke-width="1.2"/>
+      <rect x="407" y="617" width="19" height="4" fill="#00e5ff"/>
+      <rect x="407" y="630" width="19" height="4" fill="#00e5ff"/>
+      <circle cx="275" cy="625" r="9" fill="rgba(0,229,255,0.6)"/>
     </g>
 
     <!-- ── EXPLOSION on hit cell C6 ── -->
@@ -199,7 +210,7 @@
   <!-- Title -->
   <text x="512" y="100" text-anchor="middle"
         font-family="'Courier New',monospace" font-size="96" font-weight="900"
-        fill="#00e5ff" filter="url(#titleGlow)" letter-spacing="6">BATTLESHIP DUEL</text>
+        fill="#00e5ff" filter="url(#titleGlow)" letter-spacing="6">GALAXY DUEL</text>
 
   <!-- Dark overlay bottom for subtitle -->
   <rect x="0" y="800" width="1024" height="224" fill="rgba(2,8,18,0.82)"/>

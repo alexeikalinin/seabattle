@@ -59,7 +59,7 @@
   <!-- Title -->
   <text x="640" y="44" text-anchor="middle" font-family="'Arial Black', Arial, sans-serif"
         font-size="32" font-weight="900" letter-spacing="6"
-        fill="url(#titleGrad)" filter="url(#glow)">BATTLESHIP DUEL</text>
+        fill="url(#titleGrad)" filter="url(#glow)">GALAXY DUEL</text>
 
   <!-- Turn indicator -->
   <rect x="490" y="74" width="300" height="40" rx="20" fill="#00d4ff" opacity="0.15"/>
@@ -111,22 +111,47 @@
       <line x1="62" y1="665" x2="522" y2="665"/>
     </g>
 
-    <!-- Ships on P1 board -->
-    <!-- Carrier 4 cells horizontal row 1 col B-E -->
-    <rect x="108" y="205" width="184" height="46" fill="#00d4ff" opacity="0.2"/>
-    <rect x="108" y="205" width="184" height="46" fill="none" stroke="#00d4ff" stroke-width="2" opacity="0.8"/>
-    <!-- Battleship 3 cells row 3 col D-F -->
-    <rect x="200" y="297" width="138" height="46" fill="#00d4ff" opacity="0.18"/>
-    <rect x="200" y="297" width="138" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.7"/>
-    <!-- Destroyer 2 cells row 5 col A-B -->
-    <rect x="62" y="389" width="92" height="46" fill="#00d4ff" opacity="0.15"/>
-    <rect x="62" y="389" width="92" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
-    <!-- Sub 2 cells row 7 col H-I -->
-    <rect x="384" y="481" width="92" height="46" fill="#00d4ff" opacity="0.15"/>
-    <rect x="384" y="481" width="92" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
-    <!-- Patrol 1 cell row 9 col J -->
-    <rect x="476" y="573" width="46" height="46" fill="#00d4ff" opacity="0.15"/>
-    <rect x="476" y="573" width="46" height="46" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.6"/>
+    <!-- Spacecraft on P1 board -->
+    <!-- Heavy Fighter 4 cells horizontal row 1 col B-E -->
+    <g opacity="0.9">
+      <path d="M 112,228 L 182,218 L 288,228 L 182,238 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.6"/>
+      <path d="M 182,222 L 215,199 L 244,214 L 200,224 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <path d="M 182,234 L 215,257 L 244,242 L 200,232 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <ellipse cx="226" cy="228" rx="9" ry="5" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="110" cy="228" r="7" fill="rgba(0,212,255,0.55)"/>
+    </g>
+    <!-- Fighter 3 cells row 3 col D-F -->
+    <g opacity="0.8">
+      <path d="M 204,320 L 255,310 L 334,320 L 255,330 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.6"/>
+      <path d="M 255,314 L 280,291 L 302,306 L 269,316 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <path d="M 255,326 L 280,349 L 302,334 L 269,324 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <ellipse cx="288" cy="320" rx="7" ry="5" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="202" cy="320" r="7" fill="rgba(0,212,255,0.5)"/>
+    </g>
+    <!-- Interceptor 2 cells row 5 col A-B -->
+    <g opacity="0.75">
+      <path d="M 66,412 L 99,402 L 150,412 L 99,422 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.6"/>
+      <path d="M 99,406 L 115,383 L 130,398 L 108,408 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <path d="M 99,418 L 115,441 L 130,426 L 108,416 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <ellipse cx="121" cy="412" rx="5" ry="5" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="64" cy="412" r="7" fill="rgba(0,212,255,0.45)"/>
+    </g>
+    <!-- Interceptor 2 cells row 7 col H-I -->
+    <g opacity="0.75">
+      <path d="M 388,504 L 421,494 L 472,504 L 421,514 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.6"/>
+      <path d="M 421,498 L 437,475 L 452,490 L 430,500 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <path d="M 421,510 L 437,533 L 452,518 L 430,508 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <ellipse cx="443" cy="504" rx="5" ry="5" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="386" cy="504" r="7" fill="rgba(0,212,255,0.45)"/>
+    </g>
+    <!-- Scout 1 cell row 9 col J -->
+    <g opacity="0.7">
+      <path d="M 480,596 L 494,586 L 518,596 L 494,606 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.6"/>
+      <path d="M 494,590 L 503,567 L 510,582 L 499,592 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <path d="M 494,602 L 503,625 L 510,610 L 499,600 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.2"/>
+      <ellipse cx="505" cy="596" rx="3" ry="5" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+      <circle cx="478" cy="596" r="7" fill="rgba(0,212,255,0.4)"/>
+    </g>
 
     <!-- Miss markers on P1 board -->
     <circle cx="292" cy="228" r="8" fill="none" stroke="#4488ff" stroke-width="2" opacity="0.6"/>
@@ -147,7 +172,7 @@
   <text x="970" y="165" text-anchor="middle" font-family="Arial, sans-serif"
         font-size="18" font-weight="bold" letter-spacing="3" fill="#ff6080" opacity="0.9">PLAYER 2</text>
   <text x="970" y="184" text-anchor="middle" font-family="Arial, sans-serif"
-        font-size="11" letter-spacing="2" fill="#ff4060" opacity="0.6">ENEMY WATERS</text>
+        font-size="11" letter-spacing="2" fill="#ff4060" opacity="0.6">ENEMY SECTOR</text>
 
   <!-- P2 Grid -->
   <rect x="722" y="205" width="460" height="460" rx="4" fill="#1a0a0a" opacity="0.6"/>

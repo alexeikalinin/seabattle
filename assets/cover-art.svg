@@ -45,16 +45,31 @@
   <rect x="51" y="120" width="410" height="285" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.25"/>
 
   <!-- Ships (player 1 side - left) -->
-  <!-- Battleship 4x1 -->
-  <rect x="110" y="168" width="154" height="36" rx="4" fill="#00d4ff" opacity="0.15" filter="url(#glow)"/>
-  <rect x="110" y="168" width="154" height="36" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.5" opacity="0.7"/>
-  <!-- Cruiser 3x1 -->
-  <rect x="151" y="209" width="113" height="36" rx="4" fill="#00d4ff" opacity="0.12"/>
-  <rect x="151" y="209" width="113" height="36" rx="4" fill="none" stroke="#00d4ff" stroke-width="1" opacity="0.5"/>
+  <!-- Heavy Fighter 4x1 -->
+  <g opacity="0.85" filter="url(#glow)">
+    <path d="M 114,186 L 172,179 L 260,186 L 172,193 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.4"/>
+    <path d="M 172,182 L 202,164 L 224,176 L 187,183 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+    <path d="M 172,190 L 202,208 L 224,196 L 187,189 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+    <ellipse cx="209" cy="186" rx="8" ry="4" fill="#0a3a5a" stroke="#00d4ff" stroke-width="0.8"/>
+    <circle cx="112" cy="186" r="6" fill="rgba(0,212,255,0.5)"/>
+  </g>
+  <!-- Fighter 3x1 -->
+  <g opacity="0.7">
+    <path d="M 155,227 L 196,220 L 260,227 L 196,234 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1.4"/>
+    <path d="M 196,223 L 219,205 L 235,217 L 208,224 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+    <path d="M 196,231 L 219,249 L 235,237 L 208,230 Z" fill="#0a3a5a" stroke="#00d4ff" stroke-width="1"/>
+    <ellipse cx="223" cy="227" rx="6" ry="4" fill="#0a3a5a" stroke="#00d4ff" stroke-width="0.8"/>
+    <circle cx="153" cy="227" r="6" fill="rgba(0,212,255,0.4)"/>
+  </g>
 
   <!-- Ships (player 2 side - right, hit markers) -->
-  <rect x="256" y="250" width="113" height="36" rx="4" fill="#ff4060" opacity="0.2" filter="url(#glow)"/>
-  <rect x="256" y="250" width="113" height="36" rx="4" fill="none" stroke="#ff4060" stroke-width="1.5" opacity="0.8"/>
+  <g opacity="0.9" filter="url(#glow)">
+    <path d="M 260,268 L 301,261 L 365,268 L 301,275 Z" fill="#5a0a1a" stroke="#ff4060" stroke-width="1.4"/>
+    <path d="M 301,264 L 324,246 L 340,258 L 312,265 Z" fill="#5a0a1a" stroke="#ff4060" stroke-width="1"/>
+    <path d="M 301,272 L 324,290 L 340,278 L 312,271 Z" fill="#5a0a1a" stroke="#ff4060" stroke-width="1"/>
+    <ellipse cx="328" cy="268" rx="6" ry="4" fill="#5a0a1a" stroke="#ff4060" stroke-width="0.8"/>
+    <circle cx="258" cy="268" r="6" fill="rgba(255,64,96,0.5)"/>
+  </g>
 
   <!-- Hit markers -->
   <circle cx="133" cy="303" r="8" fill="none" stroke="#4488ff" stroke-width="2" opacity="0.6"/>
@@ -79,7 +94,7 @@
   <!-- Main title -->
   <text x="256" y="82" text-anchor="middle" font-family="'Arial Black', Arial, sans-serif"
         font-size="54" font-weight="900" letter-spacing="2"
-        fill="url(#titleGrad)" filter="url(#strongGlow)">BATTLESHIP</text>
+        fill="url(#titleGrad)" filter="url(#strongGlow)">GALAXY</text>
 
   <!-- Subtitle -->
   <text x="256" y="118" text-anchor="middle" font-family="Arial, sans-serif"
